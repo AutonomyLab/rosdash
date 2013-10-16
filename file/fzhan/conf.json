@@ -1,11 +1,14 @@
 {
-	"user":"index",
+	"user":"fzhan",
 	"discrip":"M.Sc student in Autonomy Lab.",
 	"version":"1.0",
+
+	"ros_host": "localhost",
+	"ros_port": "",
+
 	"panel_names": [
 		"index"
 	],
-
 	"js": [],
 	"css": [],
 	"json": [],

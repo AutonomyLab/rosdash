@@ -1,107 +1,127 @@
 {
+"author": "fzhan",
+"version": "v1.0",
 "widgets": [
 	{
 		"type": "constant",
+		"descrip": "A constant value",
 		"category": [
-			"basics"
+			"datatypes"
 		],
 		"class_name": "ROSDASH.Constant",
 		"input": [],
 		"output": [
 			{
 				"datatype": "universal",
-				"name": "value"
+				"name": "value",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
 		"type": "multiArray",
-		"descrip": "an array consisting of several data with the same type",
+		"descrip": "An array consisting of several data with the same type",
 		"category": [
-			"basics"
+			"datatypes"
 		],
 		"class_name": "ROSDASH.multiArray",
 		"input": [
 			{
 				"datatype": "universal",
-				"name": "input"
+				"name": "input",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "input1"
+				"name": "input1",
+				"attribute": "additional"
 			}, {
 				"datatype": "universal",
-				"name": "input2"
+				"name": "input2",
+				"attribute": "additional"
 			}, {
 				"datatype": "universal",
-				"name": "input3"
+				"name": "input3",
+				"attribute": "additional"
 			}
 		],
 		"output": [
 			{
 				"datatype": "universal",
-				"name": "output"
+				"name": "output",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
 		"type": "memarray",
+		"descrip": "Memorable array, can memorize historic data with max length",
 		"category": [
-			"basics"
+			"datatypes"
 		],
 		"class_name": "ROSDASH.memArray",
 		"input": [
 			{
 				"datatype": "universal",
-				"name": "input"
+				"name": "input",
+				"attribute": "compulsory"
 			}
 		],
 		"output": [
 			{
 				"datatype": "universal",
-				"name": "output"
+				"name": "output",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
 		"type": "addition",
+		"descrip": "Add inputs up",
 		"category": [
-			"maths"
+			"arithmetics"
 		],
 		"class_name": "ROSDASH.Addition",
 		"input": [
 			{
 				"datatype": "universal",
-				"name": "input0"
+				"name": "input0",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "input1"
+				"name": "input1",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "input2"
+				"name": "input2",
+				"attribute": "additional"
 			}
 		],
 		"output": [
 			{
 				"datatype": "universal",
-				"name": "output"
+				"name": "output",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
 		"type": "division",
 		"category": [
-			"maths"
+			"arithmetics"
 		],
 		"class_name": "ROSDASH.Division",
 		"input": [
 			{
 				"datatype": "universal",
-				"name": "dividend"
+				"name": "dividend",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "divisor"
+				"name": "divisor",
+				"attribute": "compulsory"
 			}
 		],
 		"output": [
 			{
 				"datatype": "universal",
-				"name": "output"
+				"name": "output",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
@@ -113,19 +133,23 @@
 		"input": [
 			{
 				"datatype": "universal",
-				"name": "array"
+				"name": "array",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "value"
+				"name": "value",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "position"
+				"name": "position",
+				"attribute": "compulsory"
 			}
 		],
 		"output": [
 			{
 				"datatype": "universal",
-				"name": "output"
+				"name": "output",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
@@ -137,19 +161,23 @@
 		"input": [
 			{
 				"datatype": "universal",
-				"name": "array"
+				"name": "array",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "row"
+				"name": "row",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "column"
+				"name": "column",
+				"attribute": "compulsory"
 			}
 		],
 		"output": [
 			{
 				"datatype": "universal",
-				"name": "output"
+				"name": "output",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
@@ -162,17 +190,20 @@
 			{
 				"datatype": "universal",
 				"name": "key",
-				"addKey": "true"
+				"addKey": "true",
+				"attribute": "additional"
 			}, {
 				"datatype": "universal",
 				"name": "value",
-				"addKey": "true"
+				"addKey": "true",
+				"attribute": "additional"
 			}
 		],
 		"output": [
 			{
 				"datatype": "object",
-				"name": "output"
+				"name": "output",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
@@ -184,40 +215,66 @@
 		"input": [
 			{
 				"datatype": "universal",
-				"name": "input"
+				"name": "input",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "key"
+				"name": "key",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "value"
+				"name": "value",
+				"attribute": "compulsory"
 			}
 		],
 		"output": [
 			{
 				"datatype": "object",
-				"name": "output"
+				"name": "output",
+				"attribute": "compulsory"
+			}
+		]
+	}, {
+		"type": "arrayToStr",
+		"category": [
+			"array"
+		],
+		"class_name": "ROSDASH.arrayToStr",
+		"input": [
+			{
+				"datatype": "array",
+				"name": "multiArray"
+			}
+		],
+		"output": [
+			{
+				"datatype": "String",
+				"name": "str"
 			}
 		]
 	}, {
 		"type": "switch",
+		"descrip": "switch-case function",
 		"category": [
-			"basics"
+			"functional flow"
 		],
 		"class_name": "ROSDASH.Switch",
 		"input": [
 			{
 				"datatype": "universal",
-				"name": "input"
+				"name": "input",
+				"attribute": "compulsory"
 			}, {
 				"datatype": "universal",
-				"name": "cases"
+				"name": "cases",
+				"attribute": "compulsory"
 			}
 		],
 		"output": [
 			{
 				"datatype": "universal",
-				"name": "output0"
+				"name": "output0",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
@@ -230,7 +287,8 @@
 		"output": [
 			{
 				"datatype": "String [][]",
-				"name": "list"
+				"name": "list",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
@@ -243,7 +301,8 @@
 		"output": [
 			{
 				"datatype": "String []",
-				"name": "list"
+				"name": "list",
+				"attribute": "compulsory"
 			}
 		]
 	}, {
@@ -255,13 +314,15 @@
 		"input": [
 			{
 				"datatype": "object",
-				"name": "input"
+				"name": "input",
+				"attribute": "optional"
 			}
 		],
 		"output": [
 			{
 				"datatype": "String",
-				"name": "output"
+				"name": "output",
+				"attribute": "optional"
 			}
 		]
 	}, {
@@ -273,13 +334,15 @@
 		"input": [
 			{
 				"datatype": "object",
-				"name": "input"
+				"name": "input",
+				"attribute": "optional"
 			}
 		],
 		"output": [
 			{
 				"datatype": "object",
-				"name": "output"
+				"name": "output",
+				"attribute": "optional"
 			}
 		]
 	}, {
@@ -291,13 +354,15 @@
 		"input": [
 			{
 				"datatype": "Float32",
-				"name": "input"
+				"name": "input",
+				"attribute": "optional"
 			}
 		],
 		"output": [
 			{
 				"datatype": "Float32",
-				"name": "output"
+				"name": "output",
+				"attribute": "optional"
 			}
 		]
 	}, {
@@ -318,178 +383,21 @@
 			"lib/bootstrap-switch/static/js/bootstrapSwitch.js"
 		]
 	}, {
-		"type": "arrayToStr",
+		"type": "joystick",
 		"category": [
-			"basics"
+			"input"
 		],
-		"class_name": "ROSDASH.arrayToStr",
-		"input": [
-			{
-				"datatype": "array",
-				"name": "multiArray"
-			}
-		],
-		"output": [
-			{
-				"datatype": "String",
-				"name": "str"
-			}
-		]
-	}, {
-		"type": "turtlesim",
-		"category": [
-			"ROS"
-		],
+		"class_name": "ROSDASH.VirtualJoystick",
 		"has_panel": "true",
-		"class_name": "ROSDASH.Turtlesim",
-		"input": [],
-		"output": []
-	}, {
-		"type": "ros2d",
-		"category": [
-			"ROS"
-		],
-		"has_panel": "true",
-		"class_name": "ROSDASH.Ros2d",
-		"input": [],
-		"output": []
-	}, {
-		"type": "ros3d",
-		"category": [
-			"ROS"
-		],
-		"has_panel": "true",
-		"class_name": "ROSDASH.Ros3d",
 		"input": [],
 		"output": [
-			{
-				"datatype": "Object",
-				"name": "viewer"
-			}
-		]
-	}, {
-		"type": "Ros3dUrdf",
-		"category": [
-			"ROS"
-		],
-		"class_name": "ROSDASH.Ros3dUrdf",
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "viewer"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "viewer"
-			}
-		]
-	}, {
-		"type": "Ros3dMarker",
-		"category": [
-			"ROS"
-		],
-		"class_name": "ROSDASH.Ros3dMarker",
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "viewer"
-			}, {
-				"datatype": "String",
-				"name": "topic"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "viewer"
-			}
-		]
-	}, {
-		"type": "Ros3dInteractiveMarker",
-		"category": [
-			"ROS"
-		],
-		"class_name": "ROSDASH.Ros3dInteractiveMarker",
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "viewer"
-			}, {
-				"datatype": "String",
-				"name": "topic"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "viewer"
-			}
-		]
-	}, {
-		"type": "pr2urdf",
-		"category": [
-			"ROS"
-		],
-		"has_panel": "true",
-		"class_name": "ROSDASH.PR2URDF",
-		"input": [],
-		"output": []
-	}, {
-		"type": "Marker3DPos",
-		"category": [
-			"ROS"
-		],
-		"class_name": "ROSDASH.Marker3DPos",
-		"input": [
 			{
 				"datatype": "Object",
 				"name": "joystickOutput"
 			}
 		],
-		"output": []
-	}, {
-		"type": "JoystickToRos3dMarker",
-		"category": [
-			"ROS"
-		],
-		"class_name": "ROSDASH.JoystickToRos3dMarker",
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "marker"
-			}, {
-				"datatype": "Object",
-				"name": "joystick"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "marker"
-			}
-		]
-	}, {
-		"type": "RosInteractiveMarker",
-		"category": [
-			"ROS"
-		],
-		"class_name": "ROSDASH.RosInteractiveMarker",
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "marker"
-			}, {
-				"datatype": "Object",
-				"name": "joystickOutput"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "marker"
-			}
+		"js": [
+			"lib/virtualjoystick.js/virtualjoystick.js"
 		]
 	}, {
 		"type": "text",
@@ -587,285 +495,6 @@
 		],
 		"output": []
 	}, {
-		"type": "gmap",
-		"category": [
-			"map"
-		],
-		"has_panel": "true",
-		"class_name": "ROSDASH.Gmap",
-		"input": [
-			{
-				"datatype": "String",
-				"name": "title"
-			}, {
-				"datatype": "GmapOption",
-				"name": "option"
-			}
-		],
-		"output": [
-			{
-				"datatype": "GmapObject",
-				"name": "gmap"
-			}
-		]
-	}, {
-		"type": "gmap traj",
-		"category": [
-			"map"
-		],
-		"class_name": "ROSDASH.GmapTraj",
-		"input": [
-			{
-				"datatype": "GmapObject",
-				"name": "gmap"
-			}, {
-				"datatype": "robot",
-				"name": "robot"
-			}
-		],
-		"output": [
-			{
-				"datatype": "GmapObject",
-				"name": "gmap"
-			}
-		]
-	}, {
-		"type": "pos2d",
-		"category": [
-			"robot"
-		],
-		"class_name": "ROSDASH.Pos2d",
-		"input": [
-			{
-				"datatype": "Float32",
-				"name": "x"
-			}, {
-				"datatype": "Float32",
-				"name": "y"
-			}, {
-				"datatype": "Float32",
-				"name": "yaw"
-			}
-		],
-		"output": [
-			{
-				"datatype": "pos",
-				"name": "Pos2d"
-			}
-		]
-	}, {
-		"type": "GmapSimRobotByJoystick",
-		"category": [
-			"robot"
-		],
-		"class_name": "ROSDASH.GmapSimRobotByJoystick",
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "joystick"
-			}
-		],
-		"output": [
-			{
-				"datatype": "pos",
-				"name": "Pos2d"
-			}
-		]
-	}, {
-		"type": "network",
-		"category": [
-			"diagram"
-		],
-		"has_panel": "true",
-		"input": [
-			{
-				"datatype": "String",
-				"name": "title"
-			}, {
-				"datatype": "String[]",
-				"name": "data"
-			}, {
-				"datatype": "NetworkOption",
-				"name": "option"
-			}
-		],
-		"output": []
-	}, {
-		"type": "saferange",
-		"category": [
-			"plot"
-		],
-		"class_name": "ROSDASH.SafeRange",
-		"input": [
-			{
-				"datatype": "Float32",
-				"name": "data"
-			}, {
-				"datatype": "Float32",
-				"name": "min"
-			}, {
-				"datatype": "Float32",
-				"name": "max"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Bool",
-				"name": "isSafe"
-			}
-		]
-	}, {
-		"type": "FlotSafeRange",
-		"category": [
-			"plot"
-		],
-		"class_name": "ROSDASH.FlotSafeRange",
-		"input": [
-		],
-		"output": [
-			{
-				"datatype": "String",
-				"name": "name"
-			}, {
-				"datatype": "object",
-				"name": "saferange"
-			}
-		]
-	}, {
-		"type": "flot",
-		"category": [
-			"plot"
-		],
-		"has_panel": "true",
-		"class_name": "ROSDASH.Flot",
-		"config": {
-			"series": {
-				"shadowSize": 0,
-				"lines": {"show": true},
-				"points": {"show": true}
-			},
-			"crosshair": {"mode": "x"},
-			"zoom": {"interactive": true},
-			"pan": {"interactive": "true"},
-			"grid": {"show": "true"},
-			"legend": { "position": "nw" },
-			"grid": {
-				"show": "true",
-				"hoverable": "true",
-				"autoHighlight": "false"
-			}
-		},
-		"input": [
-			{
-				"datatype": "String[]",
-				"name": "data"
-			}
-		],
-		"output": [
-			{
-				"datatype": "object",
-				"name": "flot"
-			}
-		],
-		"js": [
-			"lib/flot/jquery.flot.time.js",
-			"lib/flot/jquery.flot.selection.js",
-			"lib/flot/jquery.flot.crosshair.js",
-			"lib/flot/jquery.flot.threshold.js",
-			"lib/flot/jquery.flot.navigate.js"
-		]
-	}, {
-		"type": "vumeter",
-		"category": [
-			"output"
-		],
-		"has_panel": "true",
-		"class_name": "ROSDASH.Vumeter",
-		"input": [],
-		"output": []
-	}, {
-		"type": "simrobot",
-		"category": [
-			"simulator"
-		],
-		"class_name": "ROSDASH.SimRobot",
-		"input": [],
-		"output": [
-			{
-				"datatype": "Float32",
-				"name": "x"
-			}, {
-				"datatype": "Float32",
-				"name": "y"
-			}, {
-				"datatype": "Float32",
-				"name": "speed"
-			}, {
-				"datatype": "Float32",
-				"name": "voltage"
-			}, {
-				"datatype": "Float32",
-				"name": "current"
-			}
-		]
-	}, {
-		"type": "userList",
-		"category": [
-			"user"
-		],
-		"class_name": "ROSDASH.userList",
-		"input": [],
-		"output": [
-			{
-				"datatype": "String []",
-				"name": "list"
-			}
-		]
-	}, {
-		"type": "userWelcome",
-		"category": [
-			"user"
-		],
-		"has_panel": "true",
-		"class_name": "ROSDASH.userWelcome",
-		"input": [],
-		"output": [
-			{
-				"datatype": "String",
-				"name": "name"
-			}
-		]
-	}, {
-		"type": "panelList",
-		"category": [
-			"user"
-		],
-		"class_name": "ROSDASH.panelList",
-		"input": [],
-		"output": [
-			{
-				"datatype": "String []",
-				"name": "list"
-			}
-		]
-	}, {
-		"type": "joystick",
-		"category": [
-			"input"
-		],
-		"class_name": "ROSDASH.VirtualJoystick",
-		"has_panel": "true",
-		"input": [],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "joystickOutput"
-			}
-		],
-		"js": [
-			"lib/virtualjoystick.js/virtualjoystick.js"
-		]
-	}, {
 		"type": "cyNetwork",
 		"category": [
 			"network"
@@ -960,125 +589,6 @@
 			"lib/dracula/js/dracula_graph.js"
 		]
 	}, {
-		"type": "DoodleGod",
-		"category": [
-			"fun"
-		],
-		"class_name": "ROSDASH.DoodleGod",
-		"has_panel": "true",
-		"input": [],
-		"output": []
-	}, {
-		"type": "youtube",
-		"category": [
-			"fun"
-		],
-		"class_name": "ROSDASH.youtube",
-		"has_panel": "true",
-		"input": [],
-		"output": []
-	}, {
-		"type": "jsonEditor",
-		"category": [
-			"user"
-		],
-		"class_name": "ROSDASH.jsonEditor",
-		"has_panel": "true",
-		"config": {
-			"readonly": "true",
-			"jsonname": ""
-		},
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "json"
-			}
-		],
-		"output": []
-	}, {
-		"type": "jsonVis",
-		"category": [
-			"user"
-		],
-		"class_name": "ROSDASH.jsonVis",
-		"has_panel": "true",
-		"input": [],
-		"output": []
-	}, {
-		"type": "userConfig",
-		"category": [
-			"user"
-		],
-		"class_name": "ROSDASH.userConfig",
-		"input": [],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "conf"
-			}
-		]
-	}, {
-		"type": "RosMjpeg",
-		"category": [
-			"ros"
-		],
-		"class_name": "ROSDASH.RosMjpeg",
-		"input": [],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "viewer"
-			}
-		],
-		"js": [
-			"lib/mjpegcanvasjs/build/mjpegcanvas.js"
-		]
-	}, {
-		"type": "UserCamera",
-		"category": [
-			"multimedia"
-		],
-		"class_name": "ROSDASH.UserCamera",
-		"input": [],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "video"
-			}
-		]
-	}, {
-		"type": "HeadTracker",
-		"category": [
-			"multimedia"
-		],
-		"class_name": "ROSDASH.HeadTracker",
-		"input": [],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "pos"
-			}
-		],
-		"js": [
-			"lib/headtrackr/headtrackr.min.js"
-		]
-	}, {
-		"type": "HandTracker",
-		"category": [
-			"multimedia"
-		],
-		"class_name": "ROSDASH.HandTracker",
-		"input": [],
-		"output": []
-	}, {
-		"type": "slide",
-		"category": [
-			"other"
-		],
-		"class_name": "ROSDASH.slide",
-		"input": [],
-		"output": []
-	}, {
 		"type": "JsDatabase",
 		"category": [
 			"database"
@@ -1132,6 +642,418 @@
 			"lib/jsDraw2DX/jsDraw2DX.js"
 		]
 	}, {
+		"type": "UserCamera",
+		"category": [
+			"multimedia"
+		],
+		"class_name": "ROSDASH.UserCamera",
+		"input": [],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "video"
+			}
+		]
+	}, {
+		"type": "HeadTracker",
+		"category": [
+			"multimedia"
+		],
+		"class_name": "ROSDASH.HeadTracker",
+		"input": [],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "pos"
+			}
+		],
+		"js": [
+			"lib/headtrackr/headtrackr.min.js"
+		]
+	}, {
+		"type": "HandTracker",
+		"category": [
+			"multimedia"
+		],
+		"class_name": "ROSDASH.HandTracker",
+		"input": [],
+		"output": []
+	}, {
+		"type": "turtlesim",
+		"category": [
+			"roslibjs"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.Turtlesim",
+		"input": [],
+		"output": []
+	}, {
+		"type": "ros2d",
+		"category": [
+			"roslibjs"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.Ros2d",
+		"input": [],
+		"output": []
+	}, {
+		"type": "ros3d",
+		"category": [
+			"roslibjs"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.Ros3d",
+		"input": [],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "viewer"
+			}
+		]
+	}, {
+		"type": "Ros3dUrdf",
+		"category": [
+			"roslibjs"
+		],
+		"class_name": "ROSDASH.Ros3dUrdf",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "viewer"
+			}
+		],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "viewer"
+			}
+		]
+	}, {
+		"type": "Ros3dMarker",
+		"category": [
+			"roslibjs"
+		],
+		"class_name": "ROSDASH.Ros3dMarker",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "viewer"
+			}, {
+				"datatype": "String",
+				"name": "topic"
+			}
+		],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "viewer"
+			}
+		]
+	}, {
+		"type": "Ros3dInteractiveMarker",
+		"category": [
+			"roslibjs"
+		],
+		"class_name": "ROSDASH.Ros3dInteractiveMarker",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "viewer"
+			}, {
+				"datatype": "String",
+				"name": "topic"
+			}
+		],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "viewer"
+			}
+		]
+	}, {
+		"type": "pr2urdf",
+		"category": [
+			"roslibjs"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.PR2URDF",
+		"input": [],
+		"output": []
+	}, {
+		"type": "Marker3DPos",
+		"category": [
+			"roslibjs"
+		],
+		"class_name": "ROSDASH.Marker3DPos",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "joystickOutput"
+			}
+		],
+		"output": []
+	}, {
+		"type": "JoystickToRos3dMarker",
+		"category": [
+			"roslibjs"
+		],
+		"class_name": "ROSDASH.JoystickToRos3dMarker",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "marker"
+			}, {
+				"datatype": "Object",
+				"name": "joystick"
+			}
+		],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "marker"
+			}
+		]
+	}, {
+		"type": "RosInteractiveMarker",
+		"category": [
+			"roslibjs"
+		],
+		"class_name": "ROSDASH.RosInteractiveMarker",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "marker"
+			}, {
+				"datatype": "Object",
+				"name": "joystickOutput"
+			}
+		],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "marker"
+			}
+		]
+	}, {
+		"type": "RosMjpeg",
+		"category": [
+			"roslibjs"
+		],
+		"class_name": "ROSDASH.RosMjpeg",
+		"input": [],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "viewer"
+			}
+		],
+		"js": [
+			"lib/mjpegcanvasjs/build/mjpegcanvas.js"
+		]
+	}, {
+		"type": "gmap",
+		"category": [
+			"map"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.Gmap",
+		"input": [
+			{
+				"datatype": "String",
+				"name": "title"
+			}, {
+				"datatype": "GmapOption",
+				"name": "option"
+			}
+		],
+		"output": [
+			{
+				"datatype": "GmapObject",
+				"name": "gmap"
+			}
+		]
+	}, {
+		"type": "gmap traj",
+		"category": [
+			"map"
+		],
+		"class_name": "ROSDASH.GmapTraj",
+		"input": [
+			{
+				"datatype": "GmapObject",
+				"name": "gmap"
+			}, {
+				"datatype": "robot",
+				"name": "robot"
+			}
+		],
+		"output": [
+			{
+				"datatype": "GmapObject",
+				"name": "gmap"
+			}
+		]
+	}, {
+		"type": "saferange",
+		"category": [
+			"plot"
+		],
+		"class_name": "ROSDASH.SafeRange",
+		"input": [
+			{
+				"datatype": "Float32",
+				"name": "data"
+			}, {
+				"datatype": "Float32",
+				"name": "min"
+			}, {
+				"datatype": "Float32",
+				"name": "max"
+			}
+		],
+		"output": [
+			{
+				"datatype": "Bool",
+				"name": "isSafe"
+			}
+		]
+	}, {
+		"type": "FlotSafeRange",
+		"category": [
+			"plot"
+		],
+		"class_name": "ROSDASH.FlotSafeRange",
+		"input": [
+		],
+		"output": [
+			{
+				"datatype": "String",
+				"name": "name"
+			}, {
+				"datatype": "object",
+				"name": "saferange"
+			}
+		]
+	}, {
+		"type": "flot",
+		"category": [
+			"plot"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.Flot",
+		"config": {
+			"series": {
+				"shadowSize": 0,
+				"lines": {"show": true},
+				"points": {"show": true}
+			},
+			"crosshair": {"mode": "x"},
+			"zoom": {"interactive": true},
+			"pan": {"interactive": "true"},
+			"grid": {"show": "true"},
+			"legend": { "position": "nw" },
+			"grid": {
+				"show": "true",
+				"hoverable": "true",
+				"autoHighlight": "false"
+			}
+		},
+		"input": [
+			{
+				"datatype": "String[]",
+				"name": "data"
+			}
+		],
+		"output": [
+			{
+				"datatype": "object",
+				"name": "flot"
+			}
+		],
+		"js": [
+			"lib/flot/jquery.flot.time.js",
+			"lib/flot/jquery.flot.selection.js",
+			"lib/flot/jquery.flot.crosshair.js",
+			"lib/flot/jquery.flot.threshold.js",
+			"lib/flot/jquery.flot.navigate.js"
+		]
+	}, {
+		"type": "vumeter",
+		"category": [
+			"output"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.Vumeter",
+		"input": [],
+		"output": []
+	}, {
+		"type": "pos2d",
+		"category": [
+			"robot"
+		],
+		"class_name": "ROSDASH.Pos2d",
+		"input": [
+			{
+				"datatype": "Float32",
+				"name": "x"
+			}, {
+				"datatype": "Float32",
+				"name": "y"
+			}, {
+				"datatype": "Float32",
+				"name": "yaw"
+			}
+		],
+		"output": [
+			{
+				"datatype": "pos",
+				"name": "Pos2d"
+			}
+		]
+	}, {
+		"type": "GmapSimRobotByJoystick",
+		"category": [
+			"robot"
+		],
+		"class_name": "ROSDASH.GmapSimRobotByJoystick",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "joystick"
+			}
+		],
+		"output": [
+			{
+				"datatype": "pos",
+				"name": "Pos2d"
+			}
+		]
+	}, {
+		"type": "simrobot",
+		"category": [
+			"simulator"
+		],
+		"class_name": "ROSDASH.SimRobot",
+		"input": [],
+		"output": [
+			{
+				"datatype": "Float32",
+				"name": "x"
+			}, {
+				"datatype": "Float32",
+				"name": "y"
+			}, {
+				"datatype": "Float32",
+				"name": "speed"
+			}, {
+				"datatype": "Float32",
+				"name": "voltage"
+			}, {
+				"datatype": "Float32",
+				"name": "current"
+			}
+		]
+	}, {
 		"type": "UserLogin",
 		"category": [
 			"user"
@@ -1140,5 +1062,112 @@
 		"input": [],
 		"output": [],
 		"js": []
+	}, {
+		"type": "userList",
+		"category": [
+			"user"
+		],
+		"class_name": "ROSDASH.userList",
+		"input": [],
+		"output": [
+			{
+				"datatype": "String []",
+				"name": "list"
+			}
+		]
+	}, {
+		"type": "userWelcome",
+		"category": [
+			"user"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.userWelcome",
+		"input": [],
+		"output": [
+			{
+				"datatype": "String",
+				"name": "name"
+			}
+		],
+		"width": "600"
+	}, {
+		"type": "panelList",
+		"category": [
+			"user"
+		],
+		"class_name": "ROSDASH.panelList",
+		"input": [],
+		"output": [
+			{
+				"datatype": "String []",
+				"name": "list"
+			}
+		]
+	}, {
+		"type": "userConfig",
+		"category": [
+			"user"
+		],
+		"class_name": "ROSDASH.userConfig",
+		"input": [],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "conf"
+			}
+		]
+	}, {
+		"type": "jsonEditor",
+		"category": [
+			"user"
+		],
+		"class_name": "ROSDASH.jsonEditor",
+		"has_panel": "true",
+		"config": {
+			"readonly": "true",
+			"jsonname": ""
+		},
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "json"
+			}
+		],
+		"output": []
+	}, {
+		"type": "jsonVis",
+		"category": [
+			"user"
+		],
+		"class_name": "ROSDASH.jsonVis",
+		"has_panel": "true",
+		"input": [],
+		"output": []
+	}, {
+		"type": "youtube",
+		"category": [
+			"others"
+		],
+		"class_name": "ROSDASH.youtube",
+		"has_panel": "true",
+		"input": [],
+		"output": []
+	}, {
+		"type": "slide",
+		"category": [
+			"others"
+		],
+		"class_name": "ROSDASH.slide",
+		"input": [],
+		"output": []
+	}, {
+		"type": "DoodleGod",
+		"category": [
+			"fun"
+		],
+		"class_name": "ROSDASH.DoodleGod",
+		"has_panel": "true",
+		"input": [],
+		"output": []
 	}
 ]}

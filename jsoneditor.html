@@ -185,6 +185,13 @@ function startJsonEditor() {
         editor.toggleClass('expanded');
         $(this).text(editor.hasClass('expanded') ? 'Collapse' : 'Expand all');
     });
+    $('#reload').click(function() {
+		if (src_success)
+		{
+			ROSDASH.readJson(src);
+			ROSDASH.waitJson();
+		}
+    });
     $('#save').click(function() {
 		if (src_success)
 		{
@@ -209,10 +216,11 @@ function startJsonEditor() {
         <span class="boolean">boolean</span>
         <span class="null">null</span>
         <span>Remove item by deleting a property name.</span>
+        <button type="button" id="reload">reload</button>
         <button type="button" id="save">save</button>
     </div>
     <div id="editor" class="json-editor"></div>
     <p id="json-note">Note that you can edit your JSON directly in the textarea below. The JSON viewer will get updated when you leave the field.</p>
-    <textarea id="json" rows="20" cols="60"></textarea>
+    <textarea id="json" rows="50" cols="60"></textarea>
 </body>
 </html>

@@ -1,6 +1,6 @@
 //@bug@solved input.length does not work
 
-//////////////////////////////////// datatype
+//////////////////////////////////// datatypes
 
 // constant value
 ROSDASH.Constant = function (block)
@@ -309,7 +309,7 @@ ROSDASH.arrayToStr.prototype.run = function (input)
 
 //////////////////////////////////// functional flow
 
-// switch case function
+// switch-case function
 ROSDASH.Switch = function (block)
 {
 	this.block = block;
@@ -826,9 +826,9 @@ ROSDASH.Table.prototype.run = function (input)
 		}
 		aaData.push(tmp);
 	}
-	if (aaData[0].length == 0)
+	if (aaData[0].length < aoColumns.length)
 	{
-		for (var j = 0; j < input[1].length; ++ j)
+		for (var j = aaData[0].length; j < aoColumns.length; ++ j)
 		{
 			aaData[0].push(" ");
 		}
@@ -1806,7 +1806,7 @@ ROSDASH.HandTracker.prototype.createImage = function (imagesrc, imagedst)
 	return imagedst;
 };
 
-//////////////////////////////////// ROSJS
+//////////////////////////////////// roslibjs
 
 // Turtlesim from ROS desktop widget
 ROSDASH.Turtlesim = function (block)
@@ -2688,6 +2688,10 @@ ROSDASH.userList.prototype.init = function ()
 					list = new Array();
 				}
 			}
+			if (list.length > 0)
+			{
+				self.list.push(list);
+			}
 		},
 		error: function(jqXHR, textStatus, errorThrown)
 		{
@@ -2781,7 +2785,8 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 			widget.widgetContent += '<p style="color:Navy;">' + ROSDASH.userConf.discrip + '</p>';
 		}
 		// add "add new page"
-		widget.widgetContent += '<p>Please select your panel or diagram from the list, or</p>'
+		widget.widgetContent += //'Your ROS host name:<input type="text" name="ros" id="roshost">'
+			'<p>Please select your panel or diagram from the list, or</p>'
 			+ '<p>Add a new one '
 				+ '<input type="text" name="name" id="newname_' + this.block.id + '">'
 				+ '<input type="button" value="Submit" id="submit_' + this.block.id + '">'
@@ -2862,16 +2867,15 @@ ROSDASH.panelList.prototype.init = function ()
 				{
 					// first show the panel name
 					list.push(file_name);
-					list.push('<input type="text" name="ros">');
 					// a link to that panel
-					list.push('<a href="panel.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '" target="_blank">Panel</a>');
+					list.push('<a href="panel.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '&host=' + ROSDASH.userConf.ros_host + '&port=' + ROSDASH.userConf.ros_port + '" target="_blank">Panel</a>');
 					// a link to editor
-					list.push('<a href="editor.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '" target="_blank">Editor</a>');
+					list.push('<a href="editor.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '&host=' + ROSDASH.userConf.ros_host + '&port=' + ROSDASH.userConf.ros_port + '" target="_blank">Editor</a>');
 					// if exists diagram
 					if (self.panels.indexOf(file_name + "-diagram.json") != -1)
 					{
 						// a link to diagram
-						list.push('<a href="diagram.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '" target="_blank">Diagram</a>');
+						list.push('<a href="diagram.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '&host=' + ROSDASH.userConf.ros_host + '&port=' + ROSDASH.userConf.ros_port + '" target="_blank">Diagram</a>');
 						// delete diagram from name list
 						self.panels.splice(self.panels.indexOf(file_name + "-diagram.json"), 1);
 					} else // if diagram does not exist
@@ -2883,18 +2887,17 @@ ROSDASH.panelList.prototype.init = function ()
 				else if (self.panels[i].substring(pos) == "-diagram.json")
 				{
 					list.push(file_name);
-					list.push('<input type="text" name="ros">');
 					// if panel exists
 					if (self.panels.indexOf(file_name + "-panel.json") != -1)
 					{
-						list.push('<a href="panel.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '" target="_blank">Panel</a>');
-						list.push('<a href="editor.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '" target="_blank">Editor</a>');
+						list.push('<a href="panel.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '&host=' + ROSDASH.userConf.ros_host + '&port=' + ROSDASH.userConf.ros_port + '" target="_blank">Panel</a>');
+						list.push('<a href="editor.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '&host=' + ROSDASH.userConf.ros_host + '&port=' + ROSDASH.userConf.ros_port + '" target="_blank">Editor</a>');
 						self.panels.splice(self.panels.indexOf(file_name + "-panel.json"), 1);
 					} else
 					{
 						list.push(" ");
 					}
-					list.push('<a href="diagram.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '" target="_blank">Diagram</a>');
+					list.push('<a href="diagram.html?user=' + ROSDASH.userConf.name + '&panel=' + file_name + '&host=' + ROSDASH.userConf.ros_host + '&port=' + ROSDASH.userConf.ros_port + '" target="_blank">Diagram</a>');
 				} else
 				{
 					continue;
@@ -3091,8 +3094,8 @@ ROSDASH.slide = function (block)
 	this.block = block;
 	this.config = ("config" in this.block) ? this.block.config : {
 		src : "http://www.slideshare.net/slideshow/embed_code/16073451",
-		width : 427,
-		height : 356,
+		width : "100%",
+		height : "100%",
 		style : "border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px",
 	};
 }
@@ -3108,8 +3111,8 @@ ROSDASH.youtube = function (block)
 	this.block = block;
 	this.config = ("config" in this.block) ? this.block.config : {
 		src : "//www.youtube.com/embed/SxeVZdJFB4s",
-		width : 640,
-		height : 360
+		width : "100%",
+		height : "100%"
 	};
 	
 }

@@ -21,7 +21,8 @@
 	padding: 1px;
 	float: left;
 	width: 400px;
-	height: 230px; /*auto;*/
+	/*larger ones can be above smaller ones*/
+	height: /*230px;*/ auto;
 }
 
 /*dashboard widget css*/
