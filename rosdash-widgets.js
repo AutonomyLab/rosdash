@@ -2147,12 +2147,41 @@ ROSDASH.Gmap = function (block)
 			title : 'Autonomy Lab at Simon Fraser University'
 		}]
 	};
+	var script = document.createElement('script');
+	script.type = 'text/javascript';
+	script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&' + 'callback=ROSDASH.gmapInit';
+	document.body.appendChild(script);
 	this.gmap = undefined;
 }
 ROSDASH.Gmap.prototype.addWidget = function (widget)
 {
 	widget.widgetContent = '<div id="' + this.canvas_id + '" style="height:100%; width:100%;" />';
 	return widget;
+}
+ROSDASH.gmapInit = function ()
+{
+	if ($("#" + this.canvas_id).length <= 0)
+	{
+		return false;
+	}
+	var mapOptions = {
+	  center: new google.maps.LatLng(this.config.center[0], this.config.center[1]),
+	  zoom: this.config.zoom,
+	  mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	this.gmap = new google.maps.Map(document.getElementById(this.canvas_id), mapOptions);
+	if ("markers" in this.config)
+	{
+		for (var i in this.config.markers)
+		{
+			var marker = new google.maps.Marker({
+				position: new google.maps.LatLng(this.config.markers[i].position[0], this.config.markers[i].position[1]),
+				map: this.gmap,
+				title: this.config.markers[i].title
+			});
+		}
+	}
+	return true;
 }
 ROSDASH.Gmap.prototype.init = function ()
 {

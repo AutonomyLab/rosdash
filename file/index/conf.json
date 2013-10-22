@@ -6,6 +6,10 @@
 		"index"
 	],
 
+	"ros_host": "",
+	"ros_port": "",
+
+	"panel_names": [],
 	"js": [],
 	"css": [],
 	"json": [],
