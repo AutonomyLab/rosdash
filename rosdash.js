@@ -642,26 +642,34 @@ ROSDASH.resetPanelToolbar = function ()
 	{
 		ROSDASH.toolbar.removeItem(itemId);
 	});
+	var count = 0;
 	var logo_text = '<a href="index.html" target="_blank">ROSDASH</a>';
-    ROSDASH.toolbar.addText("logo", 0, logo_text);
-    ROSDASH.toolbar.addInput("input", 1, "", 160);
-    ROSDASH.toolbar.addButton("addwidget", 2, "add widget", "new.gif", "new_dis.gif");
-    ROSDASH.toolbar.addButton("find", 3, "find", "cut.gif", "cut_dis.gif");
-    //ROSDASH.toolbar.addButton("listwidget", 3, "list widget", "new.gif", "new_dis.gif");
-    ROSDASH.toolbar.addButton("adddiagram", 4, "add to diagram", "cut.gif", "cut_dis.gif");
-    ROSDASH.toolbar.addButton("property", 5, "property", "paste.gif", "paste_dis.gif");
-    ROSDASH.toolbar.addButton("undo", 6, "undo", "undo.gif", "undo_dis.gif");
-    ROSDASH.toolbar.addButton("redo", 7, "redo", "redo.gif", "redo_dis.gif");
-    ROSDASH.toolbar.addButton("zindex", 8, "zindex", "database.gif", "database.gif");
-    ROSDASH.toolbar.addButton("save", 9, "save", "save.gif", "save_dis.gif");
-    if ("panel" == ROSDASH.userConf.view_type)
-    {
-		ROSDASH.toolbar.addButton("editor", 10, "editor", "database.gif", "database.gif");
+	ROSDASH.toolbar.addText("logo", count, logo_text);
+	var username = '<a href="panel.html?user=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>';
+	ROSDASH.toolbar.addText("user", ++ count, username);
+	ROSDASH.toolbar.addText("panel", ++ count, ROSDASH.userConf.panel_name);
+	var ros_host = (undefined !== ROSDASH.userConf.ros_host && "" != ROSDASH.userConf.ros_host) ? ROSDASH.userConf.ros_host : "disconnected";
+	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
+	ROSDASH.toolbar.addSeparator("s0", ++ count);
+	ROSDASH.toolbar.addInput("input", ++ count, "", 160);
+	ROSDASH.toolbar.addButton("addwidget", ++ count, "add widget", "new.gif", "new_dis.gif");
+	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
+	//ROSDASH.toolbar.addButton("listwidget", ++ count, "list widget", "new.gif", "new_dis.gif");
+	ROSDASH.toolbar.addButton("adddiagram", ++ count, "add to diagram", "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addButton("property", ++ count, "property", "paste.gif", "paste_dis.gif");
+	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
+	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
+	ROSDASH.toolbar.addButton("zindex", ++ count, "zindex", "database.gif", "database.gif");
+	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
+	ROSDASH.toolbar.addSeparator("s1", ++ count);
+	if ("panel" == ROSDASH.userConf.view_type)
+	{
+		ROSDASH.toolbar.addButton("editor", ++ count, "editor", "database.gif", "database.gif");
 	} else
 	{
-		ROSDASH.toolbar.addButton("panel", 10, "panel", "database.gif", "database.gif");
+		ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
 	}
-    ROSDASH.toolbar.addButton("diagram", 11, "diagram", "database.gif", "database.gif");
+	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "database.gif", "database.gif");
 }
 // set the property of widget
 ROSDASH.setWidgetProperty = function ()
@@ -722,6 +730,12 @@ ROSDASH.initDiagramToolbar = function ()
 			break;
 		case "addblock":
 			window.cy.center(ROSDASH.addBlockByType(ROSDASH.toolbar.getValue("input")));
+			break;
+		case "reconnect":
+			if (ROSDASH.rosConnected || undefined !== ROSDASH.ros)
+			{
+				ROSDASH.ros.close();
+			}
 			break;
 		case "listblock":
 			ROSDASH.list_depth = ROSDASH.blockList;
@@ -834,15 +848,17 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addSeparator("s0", ++ count);
 	ROSDASH.toolbar.addInput("input", ++ count, "", 160);
+	ROSDASH.toolbar.addButton("reconnect", ++ count, "reconnect", "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addButton("addcomment", ++ count, "add comment", "new.gif", "new_dis.gif");
 	ROSDASH.toolbar.addButton("remove", ++ count, "remove", "remove-icon.gif", "remove-icon.gif");
+	ROSDASH.toolbar.addSeparator("s1", ++ count);
 	ROSDASH.toolbar.addButton("property", ++ count, "property", "paste.gif", "paste_dis.gif");
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
 	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
 	ROSDASH.toolbar.addButton("fit", ++ count, "fit", "stylesheet.gif", "stylesheet.gif");
-	ROSDASH.toolbar.addSeparator("s1", ++ count);
+	ROSDASH.toolbar.addSeparator("s2", ++ count);
 	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "database.gif", "database.gif");
 }
@@ -852,11 +868,12 @@ ROSDASH.addToolbarUserName = function ()
 {
 	if ($("#toolbarObj").length > 0)
 	{
-		var logo_text = ROSDASH.toolbar.getItemText("logo") + '-<a href="panel.html?user=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>' + "-" + ROSDASH.userConf.panel_name;
-		ROSDASH.toolbar.setItemText("logo", logo_text);
+		var user_text = '<a href="panel.html?user=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>';
+		ROSDASH.toolbar.setItemText("user", user_text);
+		ROSDASH.toolbar.setItemText("panel", ROSDASH.userConf.panel_name);
 	}
 }
-//ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarUserName);
+ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarUserName);
 // add ros host to toolbar
 ROSDASH.addToolbarRosValue = function ()
 {
@@ -984,6 +1001,12 @@ ROSDASH.connectROS = function (host, port)
 		console.log('ROS connection made: ', host + ":" + port);
 		ROSDASH.setRosValue(host, port);
 		ROSDASH.getROSNames(ROSDASH.ros);
+		// emit event for ros connected
+		ROSDASH.ee.emitEvent('rosConnected');
+	});
+	ROSDASH.ros.on('close', function() {
+		ROSDASH.rosConnected = false;
+		console.log('ROS connection closed: ', host + ":" + port);
 		// emit event for ros connected
 		ROSDASH.ee.emitEvent('rosConnected');
 	});
