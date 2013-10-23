@@ -193,6 +193,10 @@ ROSDASH.initForm = function ()
 				width: 180
 			});
 			break;
+		// add a new ros item from textbox
+		case "addfromtextbox":
+			ROSDASH.addTopic(ROSDASH.toolbar.getValue("input"));
+			break;
 		}
 	});
 }
@@ -281,6 +285,15 @@ ROSDASH.showBlocksInForm = function (parent)
 				}, ++ count);
 			}
 		}
+	}
+	if (undefined !== parent && "addROSitem" == parent.name)
+	{
+		ROSDASH.form.addItem(null, {
+			type: "button",
+			value: "add from textbox",
+			name: "addfromtextbox",
+			width: 180
+		}, ++ count);
 	}
 }
 // if clicking a directory
@@ -980,6 +993,7 @@ ROSDASH.getROSNames = function (ros)
 {
 	ROSDASH.ros.getTopics(function (topics)
 	{
+		console.log(topics)
 		//@todo change to deep copy
 		for (var i in topics)
 		{
@@ -1385,24 +1399,24 @@ ROSDASH.getNextNewBlockPos = function ()
 // a list of configurations for each block
 ROSDASH.blocks = new Object();
 //@deprecated add a new topic block @note not add one from json
-ROSDASH.addTopic = function (def)
+ROSDASH.addTopic = function (rosname)
 {
 	//@note maybe i should allow conflict?
-	if ("" == def.rosname || ROSDASH.checkRosConflict(def.rosname, "topic"))
+	if ("" == rosname || ROSDASH.checkRosConflict(rosname, "topic"))
 	{
-		console.error("topic name not valid: ", def.rosname);
+		console.error("topic name not valid: ", rosname);
 		return;
 	}
 	var next_pos = ROSDASH.getNextNewBlockPos();
-	var x = (typeof def.x !== "undefined") ? parseFloat(def.x) : next_pos[0];
-	var y = (typeof def.y !== "undefined") ? parseFloat(def.y) : next_pos[1];
+	var x = (typeof x !== "undefined") ? parseFloat(x) : next_pos[0];
+	var y = (typeof y !== "undefined") ? parseFloat(y) : next_pos[1];
 	var count = ROSDASH.rosBlocks.topic.length;
 	var id = "topic-" + count;
 	var body = window.cy.add({
 		group: "nodes",
 		data: {
 			id: id,
-			name: def.rosname,
+			name: rosname,
 			faveColor: 'Gold'
 		},
 		position: { x: x, y: y },
@@ -1429,14 +1443,33 @@ ROSDASH.addTopic = function (def)
 	var block = {
 		id: id,
 		type: "topic",
-		rosname: def.rosname,
+		name: rosname,
+		rosname: rosname,
 		rostype: 'std_msgs/String',
 		number: ROSDASH.rosBlocks.topic.length,
 		x: x,
 		y: y
 	};
+	// set the input of this block
+	if (undefined !== ROSDASH.widgetDef["topic"].input)
+	{
+		// assign by copy
+		block.input = ROSDASH.widgetDef["topic"].input.slice();
+	} else
+	{
+		block.input = new Array();
+	}
+	// set the output of this block
+	if (undefined !== ROSDASH.widgetDef["topic"].output)
+	{
+		// assign by copy
+		block.output = ROSDASH.widgetDef["topic"].output.slice();
+	} else
+	{
+		block.output = new Array();
+	}
 	ROSDASH.blocks[id] = block;
-	ROSDASH.rosBlocks.topic.push(name);
+	ROSDASH.rosBlocks.topic.push(rosname);
 	return body;
 }
 // add a new block based on type
@@ -1465,8 +1498,9 @@ ROSDASH.initBlockConf = function (block)
 		// for ros items
 		if ("topic" == block.type || "service" == block.type || "param" == block.type)
 		{
-			block.rosname = "";
-			block.rostype = "";
+			ROSDASH.rosBlocks.topic.push(block.rosname);
+			//block.rosname = "";
+			//block.rostype = "";
 		}
 	}
 	// for constant
