@@ -614,7 +614,6 @@ ROSDASH.ToggleButton.prototype.run = function (input)
 	return {o0: this.value};
 }
 
-//@todo show the zhunxin
 // a virtual joystick, support tablet
 ROSDASH.VirtualJoystick = function (block)
 {
@@ -675,9 +674,15 @@ ROSDASH.joystickToRosJoy = function (block)
 {
 	this.block = block;
 	this.seq = 0;
+	this.joy_input = undefined;
 }
 ROSDASH.joystickToRosJoy.prototype.run = function (input)
 {
+	if (undefined !== this.joy_input && input[0].left == this.joy_input.left && input[0].right == this.joy_input.right && input[0].up == this.joy_input.up && input[0].down == this.joy_input.down && input[0].lock == this.joy_input.lock)
+	{
+		return;
+	}
+	this.joy_input = jQuery.extend(true, {}, input[0]);
 	var joy = {
 		header : 
 		{
