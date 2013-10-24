@@ -798,7 +798,7 @@ ROSDASH.Speech.prototype.run = function (input)
 			ROSDASH.speakContent = input[0];
 		}
 		// if new message comes, speak
-		speak(ROSDASH.speakContent);
+		//speak(ROSDASH.speakContent);
 		$("#myDashboard").sDashboard("setContentById", this.block.id, ROSDASH.speakContent);
 	}
 }
