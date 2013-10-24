@@ -621,14 +621,29 @@ ROSDASH.VirtualJoystick = function (block)
 	this.block = block;
 	this.canvas_id = "VirtualJoystick_" + this.block.id;
 	this.joystick;
+	this.unlock = false;
 }
 ROSDASH.VirtualJoystick.prototype.addWidget = function (widget)
 {
+	widget.widgetTitle = this.block.id + ' <input type="button" id="' + this.canvas_id + '-lock" value="unlock" />';
 	widget.widgetContent = '<div id="' + this.canvas_id + '" style="width:100%; height:100%; -webkit-user-select: none; -moz-user-select: none;"></div>';
 	return widget;
 }
 ROSDASH.VirtualJoystick.prototype.init = function ()
 {
+	var that = this;
+	$("#" + that.canvas_id + "-lock").click(function ()
+	{
+		if ("lock" == $("#" + that.canvas_id + "-lock").val())
+		{
+			that.unlock = false;
+			$("#" + that.canvas_id + "-lock").val("unlock");
+		} else
+		{
+			that.unlock = true;
+			$("#" + that.canvas_id + "-lock").val("lock");
+		}
+	});
 	//console.log("touchscreen for VirtualJoystick is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
 	this.joystick = new VirtualJoystick({
 		container	: document.getElementById(this.canvas_id),
@@ -640,6 +655,7 @@ ROSDASH.VirtualJoystick.prototype.init = function ()
 //@output	joystick message
 ROSDASH.VirtualJoystick.prototype.run = function (input)
 {
+	var that = this;
 	if (undefined === this.joystick)
 	{
 		this.init();
@@ -650,8 +666,33 @@ ROSDASH.VirtualJoystick.prototype.run = function (input)
 		right: this.joystick.right(),
 		up: this.joystick.up(),
 		left: this.joystick.left(),
-		down: this.joystick.down()
+		down: this.joystick.down(),
+		lock: that.unlock
 	}};
+}
+
+ROSDASH.joystickToRosJoy = function (block)
+{
+	this.block = block;
+	this.seq = 0;
+}
+ROSDASH.joystickToRosJoy.prototype.run = function (input)
+{
+	var joy = {
+		header : 
+		{
+			seq : this.seq ++,
+			stamp : 
+			{
+				sec : parseInt(new Date().getTime() / 1000),
+				nsec : parseInt(new Date().getTime() % 1000 * 1000000)
+			},
+			frame_id : ""
+		},
+		axes : [Number(input[0].left - input[0].right), Number(input[0].up - input[0].down), 0, 0, 0, 0],
+		buttons : [Number(input[0].lock), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	};
+	return {o0 : joy};
 }
 
 //////////////////////////////////// basic output
@@ -722,32 +763,44 @@ ROSDASH.Speech.prototype.addWidget = function (widget)
 // add callback function to speak button
 ROSDASH.Speech.prototype.init = function ()
 {
-	if ($("#" + this.canvas_id).length > 0)
+	if ($("#" + this.canvas_id).length <= 0)
 	{
-		// append the callback function to button
-		$("#" + this.canvas_id).click(function ()
-		{
-			// speak by speak.js
-			speak(ROSDASH.speakContent);
-		});
-		return true;
+		return false;
 	}
-	return false;
+	// append the callback function to button
+	$("#" + this.canvas_id).click(function ()
+	{
+		// speak by speak.js
+		speak(ROSDASH.speakContent);
+	});
+	return true;
 }
 //@input	the content to speak
 //@output	none
 ROSDASH.Speech.prototype.run = function (input)
 {
-	input[0] = (undefined === input[0]) ? "(empty content)" : input[0];
+	input[0] = (undefined !== input[0]) ? input[0] : "";
 	if (this.content != input[0])
 	{
-		// if new message comes, speak
-		//this.speak();
 		this.content = input[0];
 		// class variable does not work
-		ROSDASH.speakContent = input[0];
+		if (typeof input[0] == "object" || typeof input[0] == "array")
+		{
+			if ("data" in input[0])
+			{
+				ROSDASH.speakContent = JSON.stringify(input[0]);
+			} else
+			{
+				ROSDASH.speakContent = JSON.stringify(input[0]);
+			}
+		} else
+		{
+			ROSDASH.speakContent = input[0];
+		}
+		// if new message comes, speak
+		speak(ROSDASH.speakContent);
+		$("#myDashboard").sDashboard("setContentById", this.block.id, ROSDASH.speakContent);
 	}
-	$("#myDashboard").sDashboard("setContentById", this.block.id, input[0]);
 }
 
 // table
@@ -2104,13 +2157,14 @@ ROSDASH.RosMjpeg.prototype.init = function ()
 	{
 		return false;
 	}
+	var that = this;
 	this.viewer = new MJPEGCANVAS.Viewer({
 		divID : this.canvas,
 		host : ROSDASH.userConf.ros_host,
-		width : 640, //ROSDASH.userConf.widget_width,
-		height : 480, //ROSDASH.userConf.content_height,
+		width : ROSDASH.userConf.widget_width, //640,
+		height : ROSDASH.userConf.content_height, //480,
 		// get from block config
-		topic : '/ardrone/image_raw'
+		topic : that.block.config.topic
 	});
 /*
     var viewer = new MJPEGCANVAS.MultiStreamViewer({
@@ -2415,6 +2469,18 @@ ROSDASH.Flot.prototype.run = function (input)
 	return {o0 : this.plot};
 }
 
+ROSDASH.raserScanToFlot = function (block)
+{
+	this.block = block;
+}
+ROSDASH.raserScanToFlot.prototype.run = function (input)
+{
+	var output = new Array();
+	output.push(input[0].ranges);
+	//output.push(input[0].intensities);
+	return {o0 : output};
+}
+
 //////////////////////////////////// other outputs
 
 // V U meter
@@ -2517,6 +2583,8 @@ ROSDASH.Vumeter = function (block)
 	};
 	this.update = function (){};
 	this.meter = undefined;
+	this.left_val = 0;
+	this.right_val = 0;
 }
 ROSDASH.Vumeter.prototype.addWidget = function (widget)
 {
@@ -2525,10 +2593,13 @@ ROSDASH.Vumeter.prototype.addWidget = function (widget)
 }
 ROSDASH.Vumeter.prototype.init = function ()
 {
+	var that = this;
 	this.meter = $('#' + this.canvas_id).highcharts(this.config,
 	// Let the music play
-	function(chart) {
-	    setInterval(function() {
+	function(chart)
+	{
+	    setInterval(function()
+	    {
 	        var left = chart.series[0].points[0],
 	            right = chart.series[1].points[0],
 	            leftVal, 
@@ -2542,9 +2613,8 @@ ROSDASH.Vumeter.prototype.init = function ()
 	        if (rightVal < -20 || rightVal > 6) {
 	            rightVal = leftVal;
 	        }
-	
-	        left.update(leftVal, false);
-	        right.update(rightVal, false);
+	        left.update(that.left_val, false);
+	        right.update(that.right_val, false);
 	        chart.redraw();
 	    }, 500);
 	});
@@ -2554,6 +2624,8 @@ ROSDASH.Vumeter.prototype.init = function ()
 //@output	meter object
 ROSDASH.Vumeter.prototype.run = function (input)
 {
+	this.left_val = input[0];
+	this.right_val = input[1];
 	return {o0 : this.meter};
 }
 

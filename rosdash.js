@@ -647,7 +647,7 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addText("logo", count, logo_text);
 	var username = '<a href="panel.html?user=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>';
 	ROSDASH.toolbar.addText("user", ++ count, username);
-	ROSDASH.toolbar.addText("panel", ++ count, ROSDASH.userConf.panel_name);
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.userConf.panel_name);
 	var ros_host = (undefined !== ROSDASH.userConf.ros_host && "" != ROSDASH.userConf.ros_host) ? ROSDASH.userConf.ros_host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addSeparator("s0", ++ count);
@@ -843,7 +843,7 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addText("logo", count, logo_text);
 	var username = '<a href="panel.html?user=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>';
 	ROSDASH.toolbar.addText("user", ++ count, username);
-	ROSDASH.toolbar.addText("panel", ++ count, ROSDASH.userConf.panel_name);
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.userConf.panel_name);
 	var ros_host = (undefined !== ROSDASH.userConf.ros_host && "" != ROSDASH.userConf.ros_host) ? ROSDASH.userConf.ros_host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addSeparator("s0", ++ count);
@@ -870,7 +870,7 @@ ROSDASH.addToolbarUserName = function ()
 	{
 		var user_text = '<a href="panel.html?user=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>';
 		ROSDASH.toolbar.setItemText("user", user_text);
-		ROSDASH.toolbar.setItemText("panel", ROSDASH.userConf.panel_name);
+		ROSDASH.toolbar.setItemText("panelname", ROSDASH.userConf.panel_name);
 	}
 }
 ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarUserName);
@@ -879,8 +879,7 @@ ROSDASH.addToolbarRosValue = function ()
 {
 	if ($("#toolbarObj").length > 0)
 	{
-		var logo_text = ROSDASH.toolbar.getItemText("logo") + "-" + ROSDASH.userConf.ros_host;
-		ROSDASH.toolbar.setItemText("logo", logo_text);
+		ROSDASH.toolbar.setItemText("ros", ROSDASH.userConf.ros_host);
 	}
 }
 
@@ -974,7 +973,7 @@ ROSDASH.setRosValue = function (host, port)
 {
 	ROSDASH.userConf.ros_host = host;
 	ROSDASH.userConf.ros_port = port;
-	//ROSDASH.addToolbarRosValue();
+	ROSDASH.addToolbarRosValue();
 }
 
 ///////////////////////////////////// ROS

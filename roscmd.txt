@@ -20,6 +20,7 @@ mjpeg server:
 rosrun mjpeg_server mjpeg_server
 rosbag play wall2.bag
 http://192.168.1.116:8080/stream?topic=/ardrone/image_raw
+// (for Husky) http://localhost:8080/stream?topic=/axis/image_raw
 
 mjpegcanvasjs, keyboardteleopjs:
 
@@ -35,3 +36,9 @@ pi_face_tracker_gui:
 
 roslaunch ros2opencv openni_node.launch
 roslaunch pi_face_tracker face_tracker_kinect.launch
+
+
+gps/fix				"sensor_msgs/NavSatFix"
+/teleop/joy			sensor_msgs/Joy
+
+["/clearpath/announce/robots", "/axis/image_raw/compressed", "/husky/cmd_freq", "/husky/robot", "/tf", "/husky/data/differential_output", "/husky/data/encoders", "/teleop/joy", "/husky_marker_server/update_full", "/gps/fix", "/imu_data", "/husky/cmd_vel", "/husky/data/power_status", "/axis/camera_info", "/imu/rpy", "/lidar/scan", "/husky/data/safety_status", "/diagnostics", "/clearpath/announce/teleops", "/dead_reckoning/parameter_updates", "/imu/data", "/husky/application/app_status", "/joint_states", "/rosout", "/imu/mag", "/rosout_agg", "/gps/time_reference", "/gps/vel", "/husky/app_list", "/dead_reckoning/parameter_descriptions", "/husky/data/differential_speed", "/husky_marker_server/update", "/husky/data/system_status", "/encoder"]

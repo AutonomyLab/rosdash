@@ -400,6 +400,28 @@
 			"lib/virtualjoystick.js/virtualjoystick.js"
 		]
 	}, {
+		"type": "joystickToRosJoy",
+		"category": [
+			"input"
+		],
+		"class_name": "ROSDASH.joystickToRosJoy",
+		"has_panel": "false",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "joystickinput"
+			}
+		],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "joystickOutput"
+			}
+		],
+		"js": [
+			"lib/virtualjoystick.js/virtualjoystick.js"
+		]
+	}, {
 		"type": "text",
 		"category": [
 			"output"
@@ -847,6 +869,9 @@
 				"name": "viewer"
 			}
 		],
+		"config": {
+			"topic": "/ardrone/image_raw"
+		},
 		"js": [
 			"lib/mjpegcanvasjs/build/mjpegcanvas.js"
 		]
@@ -947,8 +972,14 @@
 				"lines": {"show": true},
 				"points": {"show": true}
 			},
+			"xaxis": {
+				"zoomRange": ["0.1", "10"]
+			},
+			"yaxis": {
+				"zoomRange": ["0.1", "10"]
+			},
 			"crosshair": {"mode": "x"},
-			"zoom": {"interactive": true},
+			"zoom": {"interactive": "true"},
 			"pan": {"interactive": "true"},
 			"grid": {"show": "true"},
 			"legend": { "position": "nw" },
@@ -978,13 +1009,44 @@
 			"lib/flot/jquery.flot.navigate.js"
 		]
 	}, {
+		"type": "raserScanToFlot",
+		"category": [
+			"plot"
+		],
+		"has_panel": "false",
+		"class_name": "ROSDASH.raserScanToFlot",
+		"config": {
+		},
+		"input": [
+			{
+				"datatype": "String[]",
+				"name": "data"
+			}
+		],
+		"output": [
+			{
+				"datatype": "object",
+				"name": "flot"
+			}
+		],
+		"js": [
+		]
+	}, {
 		"type": "vumeter",
 		"category": [
 			"output"
 		],
 		"has_panel": "true",
 		"class_name": "ROSDASH.Vumeter",
-		"input": [],
+		"input": [
+			{
+				"datatype": "number",
+				"name": "left"
+			}, {
+				"datatype": "number",
+				"name": "right"
+			}
+		],
 		"output": []
 	}, {
 		"type": "pos2d",
