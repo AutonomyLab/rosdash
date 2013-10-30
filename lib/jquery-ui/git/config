@@ -1,0 +1,11 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	fetch = +refs/heads/*:refs/remotes/origin/*
+	url = https://github.com/jquery/jquery-ui.git
+[branch "1-10-stable"]
+	remote = origin
+	merge = refs/heads/1-10-stable
