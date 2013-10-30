@@ -866,6 +866,7 @@ ROSDASH.resetDiagramToolbar = function ()
 // add user name and panel name to toolbar. called when json files are ready
 ROSDASH.addToolbarUserName = function ()
 {
+	$('title').text($('title').text() + " - " + ROSDASH.userConf.name + " - " + ROSDASH.userConf.panel_name);
 	if ($("#toolbarObj").length > 0)
 	{
 		var user_text = '<a href="panel.html?user=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>';
@@ -877,6 +878,7 @@ ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarUserName);
 // add ros host to toolbar
 ROSDASH.addToolbarRosValue = function ()
 {
+	$('title').text($('title').text() + " - " + ROSDASH.userConf.ros_host);
 	if ($("#toolbarObj").length > 0)
 	{
 		ROSDASH.toolbar.setItemText("ros", ROSDASH.userConf.ros_host);
