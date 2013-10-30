@@ -380,7 +380,7 @@
 			}
 		],
 		"js": [
-			"lib/bootstrap-switch/static/js/bootstrapSwitch.js"
+			"lib/bootstrap-switch/static/js/bootstrap-switch.min.js"
 		]
 	}, {
 		"type": "joystick",
