@@ -456,7 +456,7 @@
 		],
 		"output": [],
 		"js": [
-			"lib/speak-js/speakClient.js"
+			"lib/speak.js/speakClient.js"
 		]
 	}, {
 		"type": "table",
