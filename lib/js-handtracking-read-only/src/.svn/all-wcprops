@@ -3,15 +3,15 @@ svn:wc:ra_dav:version-url
 V 25
 /svn/!svn/ver/3/trunk/src
 END
-handtracking.js
-K 25
-svn:wc:ra_dav:version-url
-V 41
-/svn/!svn/ver/3/trunk/src/handtracking.js
-END
 cv.js
 K 25
 svn:wc:ra_dav:version-url
 V 31
 /svn/!svn/ver/2/trunk/src/cv.js
+END
+handtracking.js
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/3/trunk/src/handtracking.js
 END
