@@ -6,28 +6,20 @@
 		<!-- load jquery library -->
 		<script src="lib/jquery-2.0.3.min.js"></script>
 		<script src="lib/jquery-ui-1.10.3/ui/jquery-ui.js"></script>
-		<!-- load jquery ui bootstrap css theme -->
-		<link type="text/css" href="lib/sDashboard/example/css/bootstrap/css/custom-theme/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
- 		<!-- not compatible with dhtmlxForm -->
-		<link href="lib/sDashboard/example/css/bootstrap/bootstrap/bootstrap.css" rel="stylesheet">
-		<link href="lib/sDashboard/example/css/bootstrap/css/demo.css" rel="stylesheet">
-		<!--[if IE]>
-		<link rel="stylesheet" type="text/css" href="lib/sDashboard/example/css/bootstrap/css/custom-theme/custom-theme/jquery.ui.1.8.16.ie.css"/>
-		<![endif]-->
-		<!-- load the dashboard css -->
-		<link href="lib/sDashboard/example/../sDashboard.css" rel="stylesheet">
 
 		<!-- load touch punch library to enable dragging on touch based devices -->
-		<script src="lib/sDashboard/example/libs/touchpunch/jquery.ui.touch-punch.js" type="text/javascript"> </script>
+		<script src="lib/sDashboard-rosdash2/example/libs/touchpunch/jquery.ui.touch-punch.js" type="text/javascript"> </script>
 		<!-- load gitter notification library -->
-		<script src="lib/sDashboard/example/libs/gitter/jquery.gritter.js" type="text/javascript"> </script>
+		<script src="lib/sDashboard-rosdash2/example/libs/gitter/jquery.gritter.js" type="text/javascript"> </script>
+		<link href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" rel="stylesheet">
 		<!-- load datatables library -->
-		<script src="lib/sDashboard/example/libs/datatables/jquery.dataTables.js"> </script>
+		<script src="lib/sDashboard-rosdash2/example/libs/datatables/jquery.dataTables.js"> </script>
 		<!-- load flotr2 charting library -->
-		<script src="lib/sDashboard/example/libs/flotr2/flotr2.js" type="text/javascript"> </script>
+		<script src="lib/sDashboard-rosdash2/example/libs/flotr2/flotr2.js" type="text/javascript"> </script>
  		<!-- load dashboard library -->
-		<script src="lib/sDashboard/example/../jquery-sDashboard.js" type="text/javascript"> </script>
-		<script src="lib/sDashboard/example/libs/exampleData.js" type="text/javascript"> </script>
+		<link href="lib/sDashboard-rosdash2/sDashboard.css" rel="stylesheet">
+		<script src="lib/sDashboard-rosdash2/example/../jquery-sDashboard.js" type="text/javascript"> </script>
+		<script src="lib/sDashboard-rosdash2/example/libs/exampleData.js" type="text/javascript"> </script>
 
  		<!-- dhtmlxToolbar -->
 		<script type="text/javascript" src="lib/dhtmlxSuite/dhtmlxToolbar/codebase/dhtmlxcommon.js"></script>
@@ -68,13 +60,6 @@ $(function() {
 		<div style="background-color: MediumTurquoise; position: absolute; left: 0px; top: 50px; width: 200px; height: 94%; z-index: 10;">
 			<div id="rosform"></div>
 			<div id="jsoneditor" class="json-editor"></div>
-		</div>
-		<div id="dialog-form" title="Property">
-			<form>
-			<fieldset>
-				<span id="property"></span>
-			</fieldset>
-			</form>
 		</div>
 		<ul id="myDashboard" style="position: absolute; left: 200px; border: 1px solid green; "></ul>
 	</body>
