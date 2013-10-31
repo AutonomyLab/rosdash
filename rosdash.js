@@ -130,12 +130,14 @@ ROSDASH.form;
 ROSDASH.formItemType;
 // current directory in the form
 ROSDASH.formList;
+ROSDASH.formCount = 4;
 // init a new form when beginning or return to main page
 ROSDASH.initForm = function ()
 {
 	ROSDASH.removeForm();
 	// create a new form
 	ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, ROSDASH.formMainPage);
+	ROSDASH.formCount = 4;
 	// callbacks for buttons in form
 	ROSDASH.form.attachEvent("onButtonClick", function(id)
 	{
@@ -197,6 +199,12 @@ ROSDASH.initForm = function ()
 		case "addfromtextbox":
 			ROSDASH.addTopic(ROSDASH.toolbar.getValue("input"));
 			break;
+		case "property":
+		case "config":
+		case "allproperty":
+			ROSDASH.jsonFormType = id;
+			ROSDASH.blockForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
+			break;
 		}
 	});
 }
@@ -213,6 +221,8 @@ ROSDASH.removeForm = function ()
 	}
 	ROSDASH.formList = undefined;
 	ROSDASH.formItemType = undefined;
+	ROSDASH.formClickBlockId = undefined;
+	ROSDASH.formCount = 0;
 }
 // clear the form except title
 ROSDASH.clearForm = function ()
@@ -225,6 +235,8 @@ ROSDASH.clearForm = function ()
 			ROSDASH.form.removeItem(items[i]);
 		}
 	}
+	ROSDASH.formCount = 1;
+	ROSDASH.formClickBlockId = undefined;
 }
 ROSDASH.showBlocksInForm = function (parent)
 {
@@ -239,21 +251,20 @@ ROSDASH.showBlocksInForm = function (parent)
 		value: "Home",
 		name: "backhome",
 		width: 180
-	}, 1);
-	var count = 1;
+	}, ROSDASH.formCount);
 	// previous page button
 	if (typeof parent == "object")
 	{
-		++ count;
-		ROSDASH.form.addItem(null, parent, count);
+		++ ROSDASH.formCount;
+		ROSDASH.form.addItem(null, parent, ROSDASH.formCount);
 	}
-	++ count;
+	++ ROSDASH.formCount;
 	ROSDASH.form.addItem(null, {
 		type: "label",
 		label: "Directories:",
 		name: "directories",
 		width: 180
-		}, count);
+		}, ROSDASH.formCount);
 	for (var i in ROSDASH.formList)
 	{
 		// add a directory
@@ -264,16 +275,16 @@ ROSDASH.showBlocksInForm = function (parent)
 				value: i,
 				name: "dir-" + i,
 				width: 180
-			}, ++ count);
+			}, ++ ROSDASH.formCount);
 		} else
 		{
-			++ count;
+			++ ROSDASH.formCount;
 			ROSDASH.form.addItem(null, {
 				type: "label",
 				label: "Items:",
 				name: "items",
 				width: 180
-				}, count);
+				}, ROSDASH.formCount);
 			// add an item
 			for (var i in ROSDASH.formList["_"])
 			{
@@ -282,7 +293,7 @@ ROSDASH.showBlocksInForm = function (parent)
 					value: ROSDASH.formList["_"][i],
 					name: "item-" + ROSDASH.formList["_"][i],
 					width: 180
-				}, ++ count);
+				}, ++ ROSDASH.formCount);
 			}
 		}
 	}
@@ -293,7 +304,7 @@ ROSDASH.showBlocksInForm = function (parent)
 			value: "add from textbox",
 			name: "addfromtextbox",
 			width: 180
-		}, ++ count);
+		}, ++ ROSDASH.formCount);
 	}
 }
 // if clicking a directory
@@ -318,36 +329,43 @@ ROSDASH.formClickItem = function (name)
 		console.error("form click item error", ROSDASH.formItemType, typeof fn, name);
 	}
 }
+// if clicking a block
+ROSDASH.formClickBlockId = undefined;
+ROSDASH.formClickBlock = function (id)
+{
+	if (undefined === ROSDASH.formClickBlockId)
+	{
+		ROSDASH.form.addItem(null, {
+			type: "label",
+			label: "Selected Block:",
+			name: "selected",
+			width: 180
+			}, ++ ROSDASH.formCount);
+		ROSDASH.form.addItem(null, {
+			type: "button",
+			value: "Property",
+			name: "property",
+			width: 180
+			}, ++ ROSDASH.formCount);
+		ROSDASH.form.addItem(null, {
+			type: "button",
+			value: "Config",
+			name: "config",
+			width: 180
+			}, ++ ROSDASH.formCount);
+		ROSDASH.form.addItem(null, {
+			type: "button",
+			value: "All Properties",
+			name: "allproperty",
+			width: 180
+			}, ++ ROSDASH.formCount);
+	}
+	ROSDASH.formClickBlockId = id;
+}
 
 // sidebar form by FlexiJsonEditor
-// if it is a config or not
+// form type
 ROSDASH.jsonFormType = "property";
-// init the sidebar when start
-ROSDASH.initJsonEditor = function ()
-{
-	$('#jsoneditor').html('<p></p><button id="property_form" type="button">property</button><button id="conf_form" type="button">config</button><button id="additem" type="button">add new</button>');
-	// button for config form
-	$("#conf_form").click(function () {
-		ROSDASH.jsonFormType = "config";
-		ROSDASH.blockForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
-	});
-	// button for property form
-	$("#property_form").click(function () {
-		ROSDASH.jsonFormType = "property";
-		ROSDASH.blockForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
-	});
-	// button to get back to add new items
-	$("#additem").click(function () {
-		$("#property_form").hide();
-		$("#conf_form").hide();
-		$("#additem").hide();
-		ROSDASH.initForm();
-	});
-	// initially hide the button
-	$("#property_form").hide();
-	$("#conf_form").hide();
-	$("#additem").hide();
-}
 // a form for block
 ROSDASH.blockForm = function (block)
 {
@@ -355,21 +373,19 @@ ROSDASH.blockForm = function (block)
 	{
 		return;
 	}
-	//ROSDASH.removeForm();
-	$("#property_form").show();
-	$("#conf_form").show();
-	$("#additem").show();
 	switch (ROSDASH.jsonFormType)
 	{
-	// for property of block
+	// for selective property of block
 	case "property":
-		$('#jsoneditor').find("p").html(block.id + " property");
 		ROSDASH.jsonForm(ROSDASH.getBlockEditableConf(block.id));
 		break;
 	// for config of block
 	case "config":
-		$('#jsoneditor').find("p").html(block.id + " config");
 		ROSDASH.jsonForm(block.config);
+		break;
+	// for all property of block
+	case "allproperty":
+		ROSDASH.jsonForm(block);
 		break;
 	default:
 	}
@@ -380,6 +396,20 @@ ROSDASH.updateJsonForm = function (data)
 	switch (ROSDASH.jsonFormType)
 	{
 	case "property":
+		if (ROSDASH.blocks[ROSDASH.selectedBlock].x != data.x || ROSDASH.blocks[ROSDASH.selectedBlock].y != data.y)
+		{
+			window.cy.$('#' + ROSDASH.selectedBlock).position({x: parseFloat(data.x), y: parseFloat(data.y)});
+		}
+		if (("value" in data) && ROSDASH.blocks[ROSDASH.selectedBlock].value != data.value)
+		{
+			ROSDASH.blocks[ROSDASH.selectedBlock].value = data.value;
+			window.cy.$('#' + ROSDASH.selectedBlock).data("name", ROSDASH.getDisplayName(ROSDASH.blocks[ROSDASH.selectedBlock]));
+		}
+		if (("rosname" in data) && ROSDASH.blocks[ROSDASH.selectedBlock].rosname != data.rosname)
+		{
+			ROSDASH.blocks[ROSDASH.selectedBlock].rosname = data.rosname;
+			window.cy.$('#' + ROSDASH.selectedBlock).data("name", ROSDASH.getDisplayName(ROSDASH.blocks[ROSDASH.selectedBlock]));
+		}
 		for (var i in data)
 		{
 			ROSDASH.blocks[ROSDASH.selectedBlock][i] = data[i];
@@ -389,6 +419,8 @@ ROSDASH.updateJsonForm = function (data)
 		ROSDASH.blocks[ROSDASH.selectedBlock].config = data;
 		break;
 	default:
+		console.error("You cannot make change to that.", ROSDASH.jsonFormType, data);
+		break;
 	}
 }
 // show the form
@@ -409,7 +441,6 @@ ROSDASH.jsonForm = function (json)
 ROSDASH.initSidebar = function ()
 {
 	ROSDASH.initForm();
-	ROSDASH.initJsonEditor();
 }
 
 ///////////////////////////////////// toolbars
@@ -1654,6 +1685,38 @@ ROSDASH.getBlockNum = function (block, block_type)
 	}
 	return block;
 }
+ROSDASH.getDisplayName = function (block)
+{
+	var true_name = block.name;
+	switch (block.type)
+	{
+	case "constant":
+		if (undefined !== block.value)
+		{
+			if ("array" == typeof block.value || "object" == typeof block.value)
+			{
+				true_name = JSON.stringify(block.value);
+			} else
+			{
+				true_name = block.value;
+			}
+		}
+		break;
+	case "topic":
+	case "service":
+	case "param":
+		if (undefined !== block.rosname)
+		{
+			true_name = block.rosname;
+		}
+		break;
+	}
+	if (16 < true_name.length)
+	{
+		true_name = true_name.substring(0, 16 - 3) + "...";
+	}
+	return true_name;
+}
 ROSDASH.addBlock = function (block)
 {
 	var block = ROSDASH.initBlockConf(block);
@@ -1678,17 +1741,7 @@ ROSDASH.addBlock = function (block)
 		break;
 	}
 	//@note true name, temporarily for old blocks
-	var true_name = block.name;
-	if ("constant" == block.type && undefined !== block.value)
-	{
-		if ("array" == typeof block.value || "object" == typeof block.value)
-		{
-			true_name = JSON.stringify(block.value);
-		} else
-		{
-			true_name = block.value;
-		}
-	}
+	var true_name = ROSDASH.getDisplayName(block);
 	// add the body of the block
 	var body = window.cy.add({
 		group: "nodes",
@@ -2183,6 +2236,7 @@ ROSDASH.selectBlockCallback = function (evt)
 			// a sidebar for block json information
 			ROSDASH.jsonFormType = "property";
 			ROSDASH.blockForm(block);
+			ROSDASH.formClickBlock(evt.cyTarget.id());
 			ROSDASH.selectBody(evt);
 		}
 		// select popup
