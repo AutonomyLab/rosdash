@@ -3049,7 +3049,7 @@ ROSDASH.jsonEditor = function (block)
 ROSDASH.jsonEditor.prototype.updateJson = function (data)
 {
 	this.json = data;
-	console.debug(this.json, ROSDASH.userConf)
+	console.log("json update", this.json, ROSDASH.userConf)
 }
 ROSDASH.jsonEditor.prototype.addWidget = function (widget)
 {
