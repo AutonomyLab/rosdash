@@ -803,11 +803,31 @@ ROSDASH.Speech.prototype.run = function (input)
 ROSDASH.Table = function (block)
 {
 	this.block = block;
+	this.last = "";
+}
+//@note addWidget for built-in widgets, avoid parseExampleData
+ROSDASH.Table.prototype.addWidget = function (widget)
+{
+	widget.widgetContent = myExampleData.tableWidgetData;
+	widget.widgetContent.aoColumns = [{
+		"sTitle" : "rosdash"
+	}, {
+		"sTitle" : "rosdash"
+	}, {
+		"sTitle" : "rosdash"
+	}];
+	return widget;
 }
 //@input	header, titles, and contents for table
 //@output	none
 ROSDASH.Table.prototype.run = function (input)
 {
+	var str = JSON.stringify(input);
+	if (this.last == str)
+	{
+		return;
+	}
+	this.last = str;
 	// default value for header
 	input[0] = (undefined === input[0]) ? this.block.name : input[0];
 	$("#myDashboard").sDashboard("setHeaderById", this.block.id, input[0]);
@@ -894,15 +914,18 @@ ROSDASH.Table.prototype.run = function (input)
 	var tableDef = {
 		"aaData" : aaData,
 		"aoColumns" : aoColumns,
-        "bPaginate": false,
+		"iDisplayLength": 25,
+		"aLengthMenu": [[1, 25, 50, -1], [1, 25, 50, "All"]],
+        "bPaginate": true,
         "bLengthChange": false,
         "bFilter": true,
         "bSort": false,
         "bInfo": false,
         "bAutoWidth": false
 	};
-	var dataTable = $('<table cellpadding="0" cellspacing="0" border="0" class="display sDashboardTableView table table-bordered"></table>').dataTable(tableDef);
-	$("#myDashboard").sDashboard("setContentById", this.block.id, dataTable);
+	//var dataTable = $('<table cellpadding="0" cellspacing="0" border="0" class="display sDashboardTableView table table-bordered"></table>');
+	//$("#myDashboard").sDashboard("setContentById", this.block.id, dataTable);
+	$("#myDashboard").sDashboard("refreshTableById", this.block.id, tableDef);
 }
 
 //////////////////////////////////// networks

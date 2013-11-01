@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<title>ROSDASH JSON Editor</title>
 		<script src="lib/jquery-2.0.3.min.js"></script>
 		<script src="lib/FlexiJsonEditor/json2.js"></script>
 		<script src="lib/FlexiJsonEditor/jquery.jsoneditor.js"></script>
@@ -10,7 +11,6 @@
 		<!-- rosdash -->
 		<script src="rosdash.js"></script>
 		<script src="rosdash-widgets.js"></script>
-    <title>JSON Editor and Inspector</title>
     <style>
         body {
           padding: 0 70px;
@@ -114,7 +114,9 @@
           border-top: 1px solid gray;
           border-bottom: 1px solid gray;
         }
-
+		.json-editor .value {
+		  width: 600px;
+		}
     </style>
 	<script type="text/javascript">
 var src = "<?php echo $_GET["src"]; ?>";
@@ -205,7 +207,7 @@ function startJsonEditor() {
 </head>
 <body>
     <h1>
-        <span>JSON Editor and Inspector</span>
+        <span>ROSDASH JSON Editor</span>
     </h1>
     <div id="legend">
         <span id="expander">Expand all</span>

@@ -408,6 +408,7 @@ ROSDASH.blockForm = function (block)
 // when changes, update the form
 ROSDASH.updateJsonForm = function (data)
 {
+	ROSDASH.ee.emitEvent('change');
 	switch (ROSDASH.jsonFormType)
 	{
 	case "property":
@@ -451,15 +452,23 @@ ROSDASH.callbackUpdatePanelForm = function (data)
 {
 	if (("widgetTitle" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].widgetTitle != data.widgetTitle)
 	{
-		console.log("update", ROSDASH.widgets[ROSDASH.selectedWidget].widgetTitle, data.widgetTitle);
+		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetHeader span.header").html(data.widgetTitle);
 	}
 	if (("width" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].width != data.width)
 	{
-		console.log("update", ROSDASH.widgets[ROSDASH.selectedWidget].width, data.width);
+		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget").width(parseFloat(data.width));
 	}
 	if (("height" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].height != data.height)
 	{
-		console.log("update", ROSDASH.widgets[ROSDASH.selectedWidget].height, data.height);
+		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget").height(parseFloat(data.height));
+	}
+	if (("content_height" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].content_height != data.content_height)
+	{
+		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetContent").height(parseFloat(data.height));
+	}
+	if (("header_height" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].header_height != data.header_height)
+	{
+		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetHeader").height(parseFloat(data.height));
 	}
 }
 ROSDASH.callbackUpdateDiagramForm = function (data)
@@ -686,6 +695,10 @@ ROSDASH.initPanelToolbar = function ()
 			}
 			window.open(url);
 			break;
+		case "jsoneditor":
+			var url = 'jsoneditor.html?user=' + ROSDASH.userConf.name;
+			window.open(url);
+			break;
 		case "zindex":
 			$("#myCanvas").zIndex( ($("#myCanvas").zIndex() == 100) ? -10 : 100 );
 			break;
@@ -739,6 +752,7 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.userConf.panel_name);
 	var ros_host = (undefined !== ROSDASH.userConf.ros_host && "" != ROSDASH.userConf.ros_host) ? ROSDASH.userConf.ros_host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
+	ROSDASH.toolbar.addText("saving", ++ count, "unchanged");
 	ROSDASH.toolbar.addSeparator("s0", ++ count);
 	ROSDASH.toolbar.addInput("input", ++ count, "", 160);
 	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
@@ -760,6 +774,7 @@ ROSDASH.resetPanelToolbar = function ()
 		ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
 	}
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "database.gif", "database.gif");
+	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
 }
 // set the property of widget
 ROSDASH.setWidgetProperty = function ()
@@ -876,6 +891,10 @@ ROSDASH.initDiagramToolbar = function ()
 			}
 			window.open(url);
 			break;
+		case "jsoneditor":
+			var url = 'jsoneditor.html?user=' + ROSDASH.userConf.name;
+			window.open(url);
+			break;
 		case "fit":
 			window.cy.fit();
 			break;
@@ -938,6 +957,7 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.userConf.panel_name);
 	var ros_host = (undefined !== ROSDASH.userConf.ros_host && "" != ROSDASH.userConf.ros_host) ? ROSDASH.userConf.ros_host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
+	ROSDASH.toolbar.addText("saving", ++ count, "unchanged");
 	ROSDASH.toolbar.addSeparator("s0", ++ count);
 	ROSDASH.toolbar.addInput("input", ++ count, "", 160);
 	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "cut.gif", "cut_dis.gif");
@@ -953,6 +973,7 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addSeparator("s2", ++ count);
 	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "database.gif", "database.gif");
+	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
 }
 
 // add user name and panel name to toolbar. called when json files are ready
@@ -976,7 +997,18 @@ ROSDASH.addToolbarRosValue = function ()
 		ROSDASH.toolbar.setItemText("ros", ROSDASH.userConf.ros_host);
 	}
 }
-
+// when changes, notify user
+ROSDASH.onChange = function ()
+{
+	ROSDASH.toolbar.setItemText("saving", '<font color="red">unsaved</font>');
+}
+ROSDASH.ee.addListener("change", ROSDASH.onChange);
+// when saves, notify user
+ROSDASH.onSave = function ()
+{
+	ROSDASH.toolbar.setItemText("saving", 'saved');
+}
+ROSDASH.ee.addListener("saved", ROSDASH.onSave);
 ///////////////////////////////////// user configuration
 
 ROSDASH.userConf = {
@@ -1320,7 +1352,8 @@ ROSDASH.saveJson = function (data, filename)
 		},
 		success: function( data, textStatus, jqXHR )
 		{
-			console.log("saveJson success: ", filename, textStatus);
+			console.log("saveJson success: ", filename, data, textStatus, jqXHR.responseText);
+			ROSDASH.ee.emitEvent("saved");
 		},
 		error: function(jqXHR, textStatus, errorThrown)
 		{
@@ -2953,6 +2986,7 @@ ROSDASH.addWidgetByType = function (name)
 		++ ROSDASH.widgets[i].pos;
 	}
 	ROSDASH.addWidget(widget);
+	ROSDASH.ee.emitEvent('change');
 }
 // add a widget, usually from json
 ROSDASH.addWidget = function (def)
@@ -2985,6 +3019,7 @@ ROSDASH.removeWidget = function (id)
 		}
 	}
 	delete ROSDASH.widgets[id];
+	ROSDASH.ee.emitEvent('change');
 }
 // callback function of sDashboard widget move
 ROSDASH.moveWidget = function (sorted)
@@ -2997,6 +3032,7 @@ ROSDASH.moveWidget = function (sorted)
 			ROSDASH.widgets[sorted[i].widgetId].pos = i;
 		}
 	}
+	ROSDASH.ee.emitEvent('change');
 }
 ROSDASH.selectedWidget;
 ROSDASH.selectWidgetCallback = function (e, data)
@@ -3535,5 +3571,4 @@ ROSDASH.addToDiagram = function ()
 		x: 400,
 		y: 0
 	};
-	//ROSDASH.saveJson(ROSDASH.diagram, ROSDASH.userConf.name + "test4-diagram");
 }
