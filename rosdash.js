@@ -102,9 +102,9 @@ ROSDASH.saveProperty = function (dialog)
 
 // sidebar form by dhtmlXForm
 ROSDASH.formCanvas = "rosform";
-ROSDASH.formMainPage = [{
+ROSDASH.formDiagramMain = [{
 	type: "label",
-	label: "Choose a block to add",
+	label: "Add a New Block",
 	name: "rosform",
 	width: 180
 	}, {
@@ -124,20 +124,45 @@ ROSDASH.formMainPage = [{
 		width: 180
 	}
 ];
+ROSDASH.formPanelMain = [{
+	type: "label",
+	label: "Add a New Widget",
+	name: "rosform",
+	width: 180
+	}, {
+		type: "button",
+		value: "Widgets",
+		name: "addwidget",
+		width: 180
+	}
+];
 // the form object
 ROSDASH.form;
 // the function handle for clicking
 ROSDASH.formItemType;
 // current directory in the form
 ROSDASH.formList;
-ROSDASH.formCount = 4;
+ROSDASH.formCount = 1;
 // init a new form when beginning or return to main page
 ROSDASH.initForm = function ()
 {
 	ROSDASH.removeForm();
 	// create a new form
-	ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, ROSDASH.formMainPage);
-	ROSDASH.formCount = 4;
+	switch (ROSDASH.userConf.view_type)
+	{
+	case "editor":
+		ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, ROSDASH.formPanelMain);
+		ROSDASH.formCount = 2;
+		break;
+	case "diagram":
+		ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, ROSDASH.formDiagramMain);
+		ROSDASH.formCount = 4;
+		break;
+	default:
+		ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, []);
+		ROSDASH.formCount = 1;
+		break;
+	}
 	// callbacks for buttons in form
 	ROSDASH.form.attachEvent("onButtonClick", function(id)
 	{
@@ -195,6 +220,17 @@ ROSDASH.initForm = function ()
 				width: 180
 			});
 			break;
+		// add a new widget
+		case "addwidget":
+			ROSDASH.formList = ROSDASH.widgetList;
+			ROSDASH.formItemType = "addWidgetByType";
+			ROSDASH.showBlocksInForm({
+				type: "button",
+				value: "Widgets",
+				name: "addwidget",
+				width: 180
+			});
+			break;
 		// add a new ros item from textbox
 		case "addfromtextbox":
 			ROSDASH.addTopic(ROSDASH.toolbar.getValue("input"));
@@ -203,7 +239,16 @@ ROSDASH.initForm = function ()
 		case "config":
 		case "allproperty":
 			ROSDASH.jsonFormType = id;
-			ROSDASH.blockForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
+			switch (ROSDASH.userConf.view_type)
+			{
+			case "panel":
+			case "editor":
+				ROSDASH.blockForm(ROSDASH.widgets[ROSDASH.selectedWidget]);
+				break;
+			case "diagram":
+				ROSDASH.blockForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
+				break;
+			}
 			break;
 		}
 	});
@@ -361,6 +406,18 @@ ROSDASH.formClickBlock = function (id)
 			}, ++ ROSDASH.formCount);
 	}
 	ROSDASH.formClickBlockId = id;
+	var show;
+	switch (ROSDASH.userConf.view_type)
+	{
+	case "panel":
+	case "editor":
+		show = ROSDASH.widgets[id];
+		break;
+	case "diagram":
+		show = ROSDASH.blocks[id];
+		break;
+	}
+	ROSDASH.blockForm(show);
 }
 
 // sidebar form by FlexiJsonEditor
@@ -369,6 +426,7 @@ ROSDASH.jsonFormType = "property";
 // a form for block
 ROSDASH.blockForm = function (block)
 {
+	// block can be widget
 	if (undefined === block || undefined === ROSDASH.jsonFormType)
 	{
 		return;
@@ -377,15 +435,42 @@ ROSDASH.blockForm = function (block)
 	{
 	// for selective property of block
 	case "property":
-		ROSDASH.jsonForm(ROSDASH.getBlockEditableConf(block.id));
+		switch (ROSDASH.userConf.view_type)
+		{
+		case "panel":
+		case "editor":
+			ROSDASH.jsonForm(ROSDASH.getWidgetEditableConf(block.widgetId));
+			break;
+		case "diagram":
+			ROSDASH.jsonForm(ROSDASH.getBlockEditableConf(block.id));
+			break;
+		}
 		break;
 	// for config of block
 	case "config":
-		ROSDASH.jsonForm(block.config);
+		switch (ROSDASH.userConf.view_type)
+		{
+		case "panel":
+		case "editor":
+			ROSDASH.jsonForm(block.config);
+			break;
+		case "diagram":
+			ROSDASH.jsonForm(block.config);
+			break;
+		}
 		break;
 	// for all property of block
 	case "allproperty":
-		ROSDASH.jsonForm(block);
+		switch (ROSDASH.userConf.view_type)
+		{
+		case "panel":
+		case "editor":
+			ROSDASH.jsonForm(block);
+			break;
+		case "diagram":
+			ROSDASH.jsonForm(block);
+			break;
+		}
 		break;
 	default:
 	}
@@ -396,31 +481,72 @@ ROSDASH.updateJsonForm = function (data)
 	switch (ROSDASH.jsonFormType)
 	{
 	case "property":
-		if (ROSDASH.blocks[ROSDASH.selectedBlock].x != data.x || ROSDASH.blocks[ROSDASH.selectedBlock].y != data.y)
+		switch (ROSDASH.userConf.view_type)
 		{
-			window.cy.$('#' + ROSDASH.selectedBlock).position({x: parseFloat(data.x), y: parseFloat(data.y)});
-		}
-		if (("value" in data) && ROSDASH.blocks[ROSDASH.selectedBlock].value != data.value)
-		{
-			ROSDASH.blocks[ROSDASH.selectedBlock].value = data.value;
-			window.cy.$('#' + ROSDASH.selectedBlock).data("name", ROSDASH.getDisplayName(ROSDASH.blocks[ROSDASH.selectedBlock]));
-		}
-		if (("rosname" in data) && ROSDASH.blocks[ROSDASH.selectedBlock].rosname != data.rosname)
-		{
-			ROSDASH.blocks[ROSDASH.selectedBlock].rosname = data.rosname;
-			window.cy.$('#' + ROSDASH.selectedBlock).data("name", ROSDASH.getDisplayName(ROSDASH.blocks[ROSDASH.selectedBlock]));
-		}
-		for (var i in data)
-		{
-			ROSDASH.blocks[ROSDASH.selectedBlock][i] = data[i];
+		case "panel":
+		case "editor":
+			ROSDASH.callbackUpdatePanelForm(data);
+			for (var i in data)
+			{
+				ROSDASH.widgets[ROSDASH.selectedWidget][i] = data[i];
+			}
+			break;
+		case "diagram":
+			ROSDASH.callbackUpdateDiagramForm(data);
+			for (var i in data)
+			{
+				ROSDASH.blocks[ROSDASH.selectedBlock][i] = data[i];
+			}
+			break;
 		}
 		break;
 	case "config":
-		ROSDASH.blocks[ROSDASH.selectedBlock].config = data;
+		switch (ROSDASH.userConf.view_type)
+		{
+		case "panel":
+		case "editor":
+			ROSDASH.widgets[ROSDASH.selectedWidget].config = data;
+			break;
+		case "diagram":
+			ROSDASH.blocks[ROSDASH.selectedBlock].config = data;
+			break;
+		}
 		break;
 	default:
 		console.error("You cannot make change to that.", ROSDASH.jsonFormType, data);
 		break;
+	}
+}
+ROSDASH.callbackUpdatePanelForm = function (data)
+{
+	if (("widgetTitle" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].widgetTitle != data.widgetTitle)
+	{
+		console.debug("update", ROSDASH.widgets[ROSDASH.selectedWidget].widgetTitle, data.widgetTitle);
+	}
+	if (("width" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].width != data.width)
+	{
+		console.debug("update", ROSDASH.widgets[ROSDASH.selectedWidget].width, data.width);
+	}
+	if (("height" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].height != data.height)
+	{
+		console.debug("update", ROSDASH.widgets[ROSDASH.selectedWidget].height, data.height);
+	}
+}
+ROSDASH.callbackUpdateDiagramForm = function (data)
+{
+	if (ROSDASH.blocks[ROSDASH.selectedBlock].x != data.x || ROSDASH.blocks[ROSDASH.selectedBlock].y != data.y)
+	{
+		window.cy.$('#' + ROSDASH.selectedBlock).position({x: parseFloat(data.x), y: parseFloat(data.y)});
+	}
+	if (("value" in data) && ROSDASH.blocks[ROSDASH.selectedBlock].value != data.value)
+	{
+		ROSDASH.blocks[ROSDASH.selectedBlock].value = data.value;
+		window.cy.$('#' + ROSDASH.selectedBlock).data("name", ROSDASH.getDisplayName(ROSDASH.blocks[ROSDASH.selectedBlock]));
+	}
+	if (("rosname" in data) && ROSDASH.blocks[ROSDASH.selectedBlock].rosname != data.rosname)
+	{
+		ROSDASH.blocks[ROSDASH.selectedBlock].rosname = data.rosname;
+		window.cy.$('#' + ROSDASH.selectedBlock).data("name", ROSDASH.getDisplayName(ROSDASH.blocks[ROSDASH.selectedBlock]));
 	}
 }
 // show the form
@@ -2209,9 +2335,6 @@ ROSDASH.getBlockEditableConf = function (id)
 	}
 	return conf;
 }
-//
-ROSDASH.changeBlockName = function ()
-{}
 
 ///////////////////////////////////// block selection (cytoscape, etc.)
 
@@ -2235,7 +2358,6 @@ ROSDASH.selectBlockCallback = function (evt)
 			ROSDASH.addBlockPopup(evt.cyTarget.id());
 			// a sidebar for block json information
 			ROSDASH.jsonFormType = "property";
-			ROSDASH.blockForm(block);
 			ROSDASH.formClickBlock(evt.cyTarget.id());
 			ROSDASH.selectBody(evt);
 		}
@@ -2421,34 +2543,37 @@ ROSDASH.addBlockPopup = function (id)
 	{
 		ROSDASH.blocks[id].popup = new Array();
 	}
+	var text = target.id;
+	var discrip_weight = 100;
 	// if has description, popup
 	if (undefined !== ROSDASH.widgetDef[target.type] && undefined !== ROSDASH.widgetDef[target.type].descrip)
 	{
-		var text = target.id + " : " + ROSDASH.widgetDef[target.type].descrip;
-		window.cy.add({
-			group: "nodes",
-			data: {
-				id: target.id + "-pd",
-				name: text,
-				weight: 400,
-				height: 80,
-				faveShape: "roundrectangle",
-				"faveColor": "Cornsilk",
-			},
-			position: { x: target.x, y: target.y - 100 },
-			classes: "popup"
-		});
-		window.cy.add({
-			group: "edges",
-			"data": {
-			"source": target.id + "-pd",
-			"target": target.id,
-			"strength": 100,
-			'target-arrow-shape': 'triangle'
-			}
-		});
-		ROSDASH.blocks[id].popup.push("pd");
+		text += " : " + ROSDASH.widgetDef[target.type].descrip;
+		discrip_weight += 300;
 	}
+	window.cy.add({
+		group: "nodes",
+		data: {
+			id: target.id + "-pd",
+			name: text,
+			weight: discrip_weight,
+			height: 80,
+			faveShape: "roundrectangle",
+			"faveColor": "Cornsilk",
+		},
+		position: { x: target.x, y: target.y - 100 },
+		classes: "popup"
+	});
+	window.cy.add({
+		group: "edges",
+		"data": {
+		"source": target.id + "-pd",
+		"target": target.id,
+		"strength": 100,
+		'target-arrow-shape': 'triangle'
+		}
+	});
+	ROSDASH.blocks[id].popup.push("pd");
 	// popup names for inputs
 	for (var i = 0; i < target.input.length; ++ i)
 	{
@@ -2914,7 +3039,8 @@ ROSDASH.addWidgetByType = function (name)
 		width: ("width" in ROSDASH.widgetDef[name]) ? ROSDASH.widgetDef[name].width : ROSDASH.userConf.widget_width,
 		height: ("height" in ROSDASH.widgetDef[name]) ? ROSDASH.widgetDef[name].height : ROSDASH.userConf.widget_height,
 		header_height: ROSDASH.userConf.header_height,
-		content_height: ROSDASH.userConf.content_height
+		content_height: ROSDASH.userConf.content_height,
+		config: ROSDASH.widgetDef[name].config
 	};
 	// move other widgets backward by one
 	for (var i in ROSDASH.widgets)
@@ -2972,6 +3098,9 @@ ROSDASH.selectWidgetCallback = function (e, data)
 {
 	ROSDASH.selectedWidget = data.selectedWidgetId;
 	var w = ROSDASH.widgets[ROSDASH.selectedWidget];
+	// a sidebar for widget json information
+	ROSDASH.jsonFormType = "property";
+	ROSDASH.formClickBlock(ROSDASH.selectedWidget);
 	//@deprecated update the property dialog
 	/*var div = $("#dialog-form");
 	if (undefined === w)
@@ -2985,6 +3114,24 @@ ROSDASH.selectWidgetCallback = function (e, data)
 	html += "<p>pos: " + w.pos + "</p>";
 	div.find("#property").html(html);*/
 	return w;
+}
+
+// get a editable subset config in widget to edit
+ROSDASH.getWidgetEditableConf = function (id)
+{
+	if (! (id in ROSDASH.widgets))
+	{
+		return;
+	}
+	var widget = ROSDASH.widgets[id];
+	var conf = {
+		widgetTitle: widget.widgetTitle,
+		width: widget.width,
+		height: widget.height,
+		header_height: widget.header_height,
+		content_height: widget.content_height
+	};
+	return conf;
 }
 
 ///////////////////////////////////// panel
