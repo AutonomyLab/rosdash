@@ -395,16 +395,6 @@ ROSDASH.RosList.prototype.run = function (input)
 	return {o0: output};
 }
 
-//@todo merge to RosList
-ROSDASH.TopicList = function (block)
-{
-	this.block = block;
-}
-ROSDASH.TopicList.prototype.run = function (input)
-{
-	return {o0: ROSDASH.rosNames.topic["_"]};
-}
-
 // ROS topic
 ROSDASH.Topic = function (block)
 {
@@ -437,7 +427,7 @@ ROSDASH.Topic.prototype.init = function ()
 	this.init_success = true;
 	return true;
 }
-//@input	none
+//@input	ROS topic message to publish
 //@output	ROS topic message
 ROSDASH.Topic.prototype.run = function (input)
 {
@@ -670,6 +660,7 @@ ROSDASH.VirtualJoystick.prototype.run = function (input)
 	}};
 }
 
+//@todo uniform joystick message
 ROSDASH.joystickToRosJoy = function (block)
 {
 	this.block = block;
