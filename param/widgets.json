@@ -1111,11 +1111,11 @@
 		"output": [],
 		"js": []
 	}, {
-		"type": "userList",
+		"type": "OwnerList",
 		"category": [
 			"user"
 		],
-		"class_name": "ROSDASH.userList",
+		"class_name": "ROSDASH.OwnerList",
 		"input": [],
 		"output": [
 			{
@@ -1152,11 +1152,11 @@
 			}
 		]
 	}, {
-		"type": "userConfig",
+		"type": "ownerConfig",
 		"category": [
 			"user"
 		],
-		"class_name": "ROSDASH.userConfig",
+		"class_name": "ROSDASH.ownerConfig",
 		"input": [],
 		"output": [
 			{

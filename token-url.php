@@ -294,16 +294,7 @@ if(strlen($token) == 40) {//test the length of the token; it should be 40 charac
 }
 $debug_out = ob_get_contents();
 ob_end_clean();
+
+//echo $debug_out;
+//var_dump($auth_info["profile"]["displayName"]);
 ?>
-<html>
-<head>
-<title>Janrain Engage example</title>
-</head>
-<body>
-<!-- content -->
-<pre>
-<?php echo $debug_out; ?>
-</pre>
-<!-- javascript -->
-</body>
-</html>

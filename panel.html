@@ -93,9 +93,29 @@
 		<script type="text/javascript" src="lib/EaselJS/src/easeljs/ui/Touch.js"></script>
 		<script type="text/javascript" src="lib/EaselJS/src/easeljs/geom/Point.js"></script>
 		<script type="text/javascript">
+var status = "<?php echo $_GET['status'] ?>";
+if ("login" == status)
+{
+	<?php require ('token-url.php'); ?>
+}
 $(function() {
+	var user;
+	switch (status)
+	{
+	case "login":
+		user = '<?php echo $auth_info["profile"]["displayName"]; ?>';
+		break;
+	case "logout":
+		user = ROSDASH.logOut();
+		break;
+	default:
+		user = ROSDASH.checkCookie();
+		break;
+	}
+	ROSDASH.setUser(user);
 	ROSDASH.connectROS("<?php echo $_GET["host"]; ?>", "<?php echo $_GET["port"]; ?>");
-	ROSDASH.startPanel("<?php echo $_GET["user"]; ?>", "<?php echo $_GET["panel"]; ?>", "<?php echo $_GET["selected"]; ?>");
+	var owner = "<?php echo $_GET["owner"]; ?>";
+	ROSDASH.startPanel(owner, "<?php echo $_GET["panel"]; ?>", "<?php echo $_GET["selected"]; ?>");
 });
 		</script>
 	</head>

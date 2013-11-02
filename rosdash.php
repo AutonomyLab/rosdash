@@ -6,7 +6,7 @@ function saveFile ()
 	$json = json_encode($_POST['data']);
 	echo file_put_contents($file, $json);
 }
-function getUserList ()
+function getOwnerList ()
 {
 	$dirs = glob('./file/*', GLOB_ONLYDIR);
 	foreach ($dirs as $i)
