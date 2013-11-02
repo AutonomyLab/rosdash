@@ -1,6 +1,6 @@
 {
 "author": "fzhan",
-"version": "v1.0",
+"version": "0.1",
 "widgets": [
 	{
 		"type": "constant",

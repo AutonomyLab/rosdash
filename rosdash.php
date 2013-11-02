@@ -66,6 +66,16 @@ function newUser ()
 	$json = json_decode($conf, true);
 	$json["user"] = $user;
 	$json["discrip"] = "";
+	// save user conf to database
+	$con = mysqli_connect("localhost", "root", "123456", "rosdash");
+	if (mysqli_connect_errno($con))
+	{
+		echo "Failed to connect to MySQL: " . mysqli_connect_error();
+	} else
+	{
+		mysqli_query($con,'INSERT INTO users (Name, Openid) VALUES ("' . $user . '", "'. $conf .'")');
+	}
+	mysqli_close($con);
 	if (! file_put_contents('file/'.$user.'/conf.json', json_encode($json)))
 	{
 		echo "unable to create user conf file";

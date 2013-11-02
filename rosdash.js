@@ -1376,7 +1376,8 @@ ROSDASH.initJson = function ()
 
 ///////////////////////////////////// msg type definitions
 
-ROSDASH.msgJson = ["param/std_msgs"];
+ROSDASH.msgJson = ["param/msgs"];
+ROSDASH.msgs = new Object();
 // load message type definitions from json
 ROSDASH.loadMsg = function ()
 {
@@ -1388,31 +1389,64 @@ ROSDASH.loadMsg = function ()
 // parse message for sidebar list
 ROSDASH.parseMsg = function ()
 {
+	if (undefined === ROSDASH.blockList.constant)
+	{
+		ROSDASH.blockList.constant = new Object();
+	}
+	if (undefined === ROSDASH.blockList.constant["_"])
+	{
+		ROSDASH.blockList.constant["_"] = new Array();
+	}
+	// add to block list constant
+	var list = ROSDASH.blockList.constant["_"];
 	for (var i in ROSDASH.msgJson)
 	{
-		var data = ROSDASH.jsonReadArray[ROSDASH.msgJson[i]].data;
+		var data = ROSDASH.jsonReadArray[ROSDASH.msgJson[i]].data.msgs;
 		for (var j in data)
 		{
-			// add to block list constant
-			if (undefined === ROSDASH.blockList.constant)
+			if (undefined != data[j].name)
 			{
-				ROSDASH.blockList.constant = new Object();
-			}
-			if (undefined === ROSDASH.blockList.constant["_"])
-			{
-				ROSDASH.blockList.constant["_"] = new Array();
-			}
-			var list = ROSDASH.blockList.constant["_"];
-			for (var k in data[j])
-			{
-				if (undefined != data[j][k].name)
-				{
-					// add to block list for toolbar
-					list.push(data[j][k].name);
-				}
+				ROSDASH.msgs[data[j].name] = data[j];
+				// add to block list for sidebar
+				list.push(data[j].name);
 			}
 		}
 	}
+}
+ROSDASH.getMsgDefaultValue = function (name)
+{
+	if (! (name in ROSDASH.msgs) || ! ("definition" in ROSDASH.msgs[name]))
+	{
+		console.error("getMsgDefaultValue error", name);
+		return null;
+	}
+	var value;
+	if (1 == ROSDASH.msgs[name].definition.length)
+	{
+		switch (ROSDASH.msgs[name].definition[0].type)
+		{
+		case "int32":
+		case "int64":
+			value = 0;
+			break;
+		case "float32":
+		case "float64":
+			value = 0.0;
+			break;
+		case "string":
+		default:
+			value = "";
+			break;
+		}
+	} else
+	{
+		value = new Object();
+		for (var i in ROSDASH.msgs[name].definition)
+		{
+			value[ROSDASH.msgs[name].definition[i].name] = "";
+		}
+	}
+	return value;
 }
 // get message type definitions from ROSDASH.msg_json
 ROSDASH.getMsgDef = function (name)
@@ -1647,11 +1681,12 @@ ROSDASH.addBlockByType = function (type)
 // add a new constant block based on type
 ROSDASH.addConstant = function (const_type)
 {
+	var value = ROSDASH.getMsgDefaultValue(const_type);
 	var block = {
 		type: "constant",
 		constant: true,
 		constname: const_type,
-		value: ""
+		value: value
 	};
 	return ROSDASH.addBlock(block);
 }
