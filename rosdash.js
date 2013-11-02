@@ -1006,6 +1006,10 @@ ROSDASH.ee.addListener("change", ROSDASH.onChange);
 // when saves, notify user
 ROSDASH.onSave = function ()
 {
+	if (undefined === ROSDASH.toolbar)
+	{
+		return;
+	}
 	ROSDASH.toolbar.setItemText("saving", 'saved');
 }
 ROSDASH.ee.addListener("saved", ROSDASH.onSave);

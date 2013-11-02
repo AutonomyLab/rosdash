@@ -133,17 +133,20 @@ var json = {
 		}
 	}
 };
+ROSDASH.userConf.view_type = "jsoneditor";
 if (undefined !== src && "" != src)
 {
-	ROSDASH.userConf.view_type = "jsoneditor";
+	// wait and read json file
 	ROSDASH.readJson(src);
 	ROSDASH.waitJson();
 } else
 {
+	// start jsoneditor with default setting
 	$(document).ready(function() {
 		startJsonEditor();
 	});
 }
+// show in textbox
 function printJSON() {
     $('#json').val(JSON.stringify(json));
 
@@ -152,10 +155,12 @@ function updateJSON(data) {
     json = data;
     printJSON();
 }
+//@deprecated
 function showPath(path) {
     $('#path').text(path);
 }
 function startJsonEditor() {
+	//@deprecated
     $('#rest > button').click(function() {
         var url = $('#rest-url').val();
         $.ajax({
