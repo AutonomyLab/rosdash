@@ -905,6 +905,27 @@
 			}
 		]
 	}, {
+		"type": "GmapEnergyGrid",
+		"category": [
+			"map"
+		],
+		"class_name": "ROSDASH.GmapEnergyGrid",
+		"input": [
+			{
+				"datatype": "GmapObject",
+				"name": "gmap"
+			}, {
+				"datatype": "robot",
+				"name": "robot"
+			}
+		],
+		"output": [
+			{
+				"datatype": "GmapObject",
+				"name": "gmap"
+			}
+		]
+	}, {
 		"type": "saferange",
 		"category": [
 			"plot"

@@ -46,6 +46,8 @@
 		<script src="rosdash-widgets.js"></script>
 		<script type="text/javascript">
 $(function() {
+	var user = ROSDASH.checkCookie();
+	ROSDASH.setUser(user);
 	ROSDASH.connectROS("<?php echo $_GET["host"]; ?>", "<?php echo $_GET["port"]; ?>");
 	ROSDASH.startEditor("<?php echo $_GET["owner"]; ?>", "<?php echo $_GET["panel"]; ?>", "<?php echo $_GET["selected"]; ?>");
 });

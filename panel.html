@@ -108,6 +108,9 @@ $(function() {
 	case "logout":
 		user = ROSDASH.logOut();
 		break;
+	case "sudo":
+		user = "@@sudo@@";
+		break;
 	default:
 		user = ROSDASH.checkCookie();
 		break;

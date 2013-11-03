@@ -786,7 +786,7 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
 	ROSDASH.toolbar.addButton("zindex", ++ count, "zindex", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
-	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name)
+	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name && "@@sudo@@" != ROSDASH.userConf.name)
 	{
 		ROSDASH.toolbar.disableItem("save");
 	}
@@ -997,7 +997,7 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
 	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
-	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name)
+	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name && "@@sudo@@" != ROSDASH.userConf.name)
 	{
 		ROSDASH.toolbar.disableItem("save");
 	}
@@ -1493,7 +1493,7 @@ ROSDASH.jsonReadyFunc = function ()
 //@note PHP will ignore empty json part
 ROSDASH.saveJson = function (data, filename)
 {
-	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name)
+	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name && "@@sudo@@" != ROSDASH.userConf.name)
 	{
 		console.error("are you the owner?", ROSDASH.userConf.name);
 		return;
@@ -3744,17 +3744,17 @@ ROSDASH.runWidgets = function ()
 				{
 					// the object of widget class
 					var obj = ROSDASH.diagramConnection[i].instance;
-					try
-					{
+					//try
+					//{
 						ROSDASH.diagramConnection[i].output = ROSDASH.runFuncByName("run", obj, input);
 						ROSDASH.diagramConnection[i].done = true;
 						ROSDASH.diagramConnection[i].error = false;
 						++ ROSDASH.doneCount;
-					} catch (err)
-					{
-						console.error("widget runs in error:", i, err.message, err); //, err.fileName, err.lineNumber);
-						ROSDASH.diagramConnection[i].error = true;
-					}
+					//} catch (err)
+					//{
+					//	console.error("widget runs in error:", i, err.message, err); //, err.fileName, err.lineNumber);
+					//	ROSDASH.diagramConnection[i].error = true;
+					//}
 				}
 				else
 				{
