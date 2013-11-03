@@ -12,10 +12,10 @@ ROSDASH.ee = ("EventEmitter" in window) ? new EventEmitter() : undefined;
 // sidebar form by dhtmlXForm
 ROSDASH.formCanvas = "rosform";
 ROSDASH.formDiagramMain = [{
-	type: "label",
-	label: "Add a New Block",
-	name: "rosform",
-	width: 180
+		type: "label",
+		label: "Add a New Block",
+		name: "addlabel",
+		width: 180
 	}, {
 		type: "button",
 		value: "Blocks",
@@ -31,12 +31,22 @@ ROSDASH.formDiagramMain = [{
 		value: "ROS items",
 		name: "addROSitem",
 		width: 180
+	}, {
+		type: "label",
+		label: "Debug Info",
+		name: "debuglabel",
+		width: 180
+	}, {
+		type: "button",
+		value: "msgs",
+		name: "msgs",
+		width: 180
 	}
 ];
 ROSDASH.formPanelMain = [{
 	type: "label",
 	label: "Add a New Widget",
-	name: "rosform",
+	name: "addlabel",
 	width: 180
 	}, {
 		type: "button",
@@ -62,11 +72,11 @@ ROSDASH.initForm = function ()
 	{
 	case "editor":
 		ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, ROSDASH.formPanelMain);
-		ROSDASH.formCount = 2;
+		ROSDASH.formCount = ROSDASH.formPanelMain.length;
 		break;
 	case "diagram":
 		ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, ROSDASH.formDiagramMain);
-		ROSDASH.formCount = 4;
+		ROSDASH.formCount = ROSDASH.formDiagramMain.length;
 		break;
 	default:
 		ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, []);
@@ -160,6 +170,13 @@ ROSDASH.initForm = function ()
 				break;
 			}
 			break;
+		case "msgs":
+			ROSDASH.jsonFormType = id;
+			ROSDASH.blockForm(ROSDASH.msgTypes);
+			break;
+		default:
+			console.error("sidebar click error", id);
+			break;
 		}
 	});
 }
@@ -185,7 +202,7 @@ ROSDASH.clearForm = function ()
 	var items = ROSDASH.form.getItemsList();
 	for (var i in items)
 	{
-		if (items[i] != "rosform")
+		if (items[i] != "addlabel")
 		{
 			ROSDASH.form.removeItem(items[i]);
 		}
@@ -313,7 +330,7 @@ ROSDASH.formClickBlock = function (id)
 		ROSDASH.form.addItem(null, {
 			type: "label",
 			label: "Selected Block:",
-			name: "selected",
+			name: "selectedlabel",
 			width: 180
 			}, ++ ROSDASH.formCount);
 		ROSDASH.form.addItem(null, {
@@ -357,7 +374,7 @@ ROSDASH.jsonFormType = "property";
 ROSDASH.blockForm = function (block)
 {
 	// block can be widget
-	if (undefined === block || undefined === ROSDASH.jsonFormType)
+	if (undefined === block)
 	{
 		return;
 	}
@@ -403,6 +420,8 @@ ROSDASH.blockForm = function (block)
 		}
 		break;
 	default:
+		ROSDASH.jsonForm(block);
+		break;
 	}
 }
 // when changes, update the form
@@ -508,7 +527,7 @@ ROSDASH.initSidebar = function ()
 	ROSDASH.initForm();
 }
 
-///////////////////////////////////// toolbars
+///////////////////////////////////// toolbars (dhtmlXToolbar)
 
 // toolbar on the top for either panel or diagram
 ROSDASH.toolbar;
@@ -767,6 +786,10 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
 	ROSDASH.toolbar.addButton("zindex", ++ count, "zindex", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
+	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name)
+	{
+		ROSDASH.toolbar.disableItem("save");
+	}
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 	if ("panel" == ROSDASH.ownerConf.view_type)
 	{
@@ -974,6 +997,10 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
 	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
+	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name)
+	{
+		ROSDASH.toolbar.disableItem("save");
+	}
 	ROSDASH.toolbar.addButton("fit", ++ count, "fit", "stylesheet.gif", "stylesheet.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
@@ -1466,6 +1493,11 @@ ROSDASH.jsonReadyFunc = function ()
 //@note PHP will ignore empty json part
 ROSDASH.saveJson = function (data, filename)
 {
+	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name)
+	{
+		console.error("are you the owner?", ROSDASH.userConf.name);
+		return;
+	}
 	$.ajax({
 		type: "POST",
 		url: "rosdash.php",
@@ -1533,7 +1565,32 @@ ROSDASH.parseMsg = function ()
 			}
 		}
 	}
+	ROSDASH.traverseMsgType();
 }
+ROSDASH.msgTypes = new Object();
+ROSDASH.traverseMsgType = function ()
+{
+	for (var i in ROSDASH.msgs)
+	{
+		if (! (i in ROSDASH.msgTypes))
+		{
+			ROSDASH.msgTypes[i] = "msgs";
+		}
+		if (typeof ROSDASH.msgs[i].definition != "array")
+		{
+			continue;
+		}
+		for (var j in ROSDASH.msgs[i].definition)
+		{
+			if (! ("type" in ROSDASH.msgs[i].definition[j]))
+			{
+				continue;
+			}
+			ROSDASH.msgTypes[ROSDASH.msgs[i].definition[j].type] = "def";
+		}
+	}
+}
+
 ROSDASH.getMsgDefaultValue = function (name)
 {
 	if (! (name in ROSDASH.msgs) || ! ("definition" in ROSDASH.msgs[name]))

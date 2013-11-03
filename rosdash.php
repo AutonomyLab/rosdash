@@ -13,7 +13,7 @@ function getOwnerList ()
 	{
 		if (strlen($i) > 7)
 		{
-			echo substr($i, 7)." ";
+			echo substr($i, 7).",";
 		}
 	}
 }

@@ -883,6 +883,10 @@ ROSDASH.Table.prototype.run = function (input)
 				tmp.push(input[2][i][j]);
 			}
 		}
+		while (tmp.length < input[1].length)
+		{
+			tmp.push("");
+		}
 		aaData.push(tmp);
 	}
 	// if empty
@@ -2225,9 +2229,14 @@ ROSDASH.Gmap = function (block)
 	script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&' + 'callback=ROSDASH.gmapInit';
 	document.body.appendChild(script);
 	this.gmap = undefined;
+	this.remove_grids = false;
+	this.grids = new Object();
+	this.grid_value = new Object()
+	this.update_grid = new Object()
 }
 ROSDASH.Gmap.prototype.addWidget = function (widget)
 {
+	widget.widgetTitle += ' <input type="button" id="' + this.canvas_id + '-grid" value="grids" />';
 	widget.widgetContent = '<div id="' + this.canvas_id + '" style="height:100%; width:100%;" />';
 	return widget;
 }
@@ -2262,6 +2271,11 @@ ROSDASH.Gmap.prototype.init = function ()
 	{
 		return false;
 	}
+	var that = this;
+	$("#" + that.canvas_id + "-grid").click(function ()
+	{
+		that.showGrids();
+	});
 	var mapOptions = {
 	  center: new google.maps.LatLng(this.config.center[0], this.config.center[1]),
 	  zoom: this.config.zoom,
@@ -2290,6 +2304,106 @@ ROSDASH.Gmap.prototype.run = function (input)
 ROSDASH.Gmap.prototype.resizeGmap = function ()
 {
 	google.maps.event.trigger(this.gmap, "resize");
+}
+ROSDASH.Gmap.prototype.coordToGrid = function (x, y)
+{
+	var GRID_SIZE = .001;
+	return [Math.round((x - this.config.center[0] - GRID_SIZE/2) / GRID_SIZE), Math.round((y - this.config.center[1] - GRID_SIZE/2) / GRID_SIZE)];
+}
+ROSDASH.Gmap.prototype.clearGrids = function ()
+{
+	for (i in this.grids)
+	{
+		google.maps.event.clearListeners(this.grids[i], "click");
+		this.grids[i].setMap(null);
+	}
+}
+ROSDASH.Gmap.prototype.showGrids = function ()
+{
+	if (this.remove_grids)
+	{
+		this.remove_grids = false;
+		this.clearGrids();
+		return;
+	} else
+	{
+		this.remove_grids = true;
+	}
+	var that = this;
+	// I guess it is the way to calculate the grid size, don't need to fix the size of grid
+	var grid_size = .001; // * Math.pow(17, 10) / Math.pow(map.getZoom(), 10);
+	var center_pos = that.coordToGrid(that.gmap.getCenter().lat(), that.gmap.getCenter().lng());
+	ret = [0, 0, 5, 13, 0, 2, 5, 13, 1, 11, 5, 13, 5, 8, 5, 13, 12, 7, 5, 13, 1, 4, 5, 13];
+	var dist, min;
+	update_grid = new Object();
+	for (var i = 0; i + 3 < ret.length; i += 4)
+	{
+		// the format of the data is "x y color value"
+		var x = ret[i];//Math.round(Math.random() * GRID_NUM - GRID_NUM / 2);
+		var y = ret[i+1];
+		var color = parseInt(ret[i+2]).toString(16);//Math.round(Math.random() * 160).toString(16);
+		if (color.length == 1)
+		{
+			color = "0" + color;
+		}
+		else if (color.length > 2)
+		{
+			color = color.substr(0, 2);
+		}
+		color = "#FF" + color + color;
+		var tmp_grid;
+		if ((x + " " + y) in that.grids)
+		{
+			tmp_grid = that.grids[x + " " + y];
+		}
+		that.grids[x + " " + y] = new google.maps.Rectangle({
+			strokeColor: 'grey',
+			strokeOpacity: 0.2,
+			strokeWeight: 1,
+			fillColor: color,
+			fillOpacity: 0.8,
+			map: that.gmap,
+			title: "value: " + ret[i+3],
+			bounds: new google.maps.LatLngBounds(
+				new google.maps.LatLng(this.config.center[0] + x * grid_size, this.config.center[1] + y * grid_size),
+				new google.maps.LatLng(this.config.center[0] + x * grid_size + grid_size, this.config.center[1] + y * grid_size + grid_size))
+		});
+		// old grid need to be deleted, and tmp_grid is used to avoid flashing
+		if (typeof tmp_grid != "undefined")
+		{
+			google.maps.event.clearListeners(that.grids[x + " " + y], "click");
+			tmp_grid.setMap(null);
+		}
+		// add the info window into the grid
+		google.maps.event.addListener(that.grids[x + " " + y], "click", function (event)
+		{
+			var grid_pos = that.coordToGrid(event.latLng.lat(), event.latLng.lng());
+			if (! ((grid_pos[0] + " " + grid_pos[1]) in that.grid_value))
+			{
+				return;
+			}
+			var info = '<table border="1"><tr><td>grid</td><td>('+grid_pos[0] + ", " + grid_pos[1]+')</td></tr>'
+				+ '<tr><td>location</td><td>('+event.latLng.lat()+', '+event.latLng.lng()+')</td></tr>'
+				+ '<tr><td>value</td><td>'+ that.grid_value[grid_pos[0] + " " + grid_pos[1]] +'</td></tr>'
+				+ '<tr><td>color</td><td>'+ that.grids[grid_pos[0] + " " + grid_pos[1]].fillColor +'</td></tr></table>';
+			var infownd = new google.maps.InfoWindow({
+				content: info,
+				position: event.latLng
+			});
+			infownd.open(that.gmap);
+		});
+		// save the grid value in order to be displayed on the info window
+		that.grid_value[x + " " + y] = ret[i+3];
+		that.update_grid[x + " " + y] = true;
+	}
+	for (i in that.grids)
+	{
+		if (! (i in that.update_grid) || ! that.update_grid[i])
+		{
+			google.maps.event.clearListeners(that.grids[i], "click");
+			that.grids[i].setMap(null);
+		}
+	}
 }
 
 // google maps robot trajectory overlay (temporarily it is just position)
@@ -2793,7 +2907,7 @@ ROSDASH.OwnerList.prototype.init = function ()
 		{
 			self.ajax_return = true;
 			self.list = new Array();
-			self.owners = data.split(" ");
+			self.owners = data.split(",");
 			var list = new Array();
 			for (var i in self.owners)
 			{
