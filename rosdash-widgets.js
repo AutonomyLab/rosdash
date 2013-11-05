@@ -3025,7 +3025,7 @@ ROSDASH.userWelcome.prototype.newPanel = function (name)
 		{
 			console.log("newUser success: ", data);
 			// relocate to new panel page
-			location.replace("panel.html?owner=" + ROSDASH.ownerConf.name + "&panel=" + name);
+			location.replace("editor.html?owner=" + ROSDASH.ownerConf.name + "&panel=" + name);
 		},
 		error: function(jqXHR, textStatus, errorThrown)
 		{
@@ -3066,11 +3066,14 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 		}
 		// add "add new page"
 		widget.widgetContent += //'Your ROS host name:<input type="text" name="ros" id="roshost">'
-			'<p>Please select your panel or diagram from the list, or</p>'
-			+ '<p>Add a new one '
-				+ '<input type="text" name="name" id="newname_' + this.block.id + '">'
-				+ '<input type="button" value="Submit" id="submit_' + this.block.id + '">'
-			+ '</p>';
+			'<p>Please select a panel or diagram from the list</p>';
+		if (ROSDASH.userConf.name == ROSDASH.ownerConf.name || "@@sudo@@" == ROSDASH.userConf.name)
+		{
+			widget.widgetContent += '<p>or Add a new one '
+					+ '<input type="text" name="name" id="newname_' + this.block.id + '">'
+					+ '<input type="button" value="Submit" id="submit_' + this.block.id + '">'
+				+ '</p>';
+		}
 	}
 	return widget;
 }
@@ -3396,6 +3399,37 @@ ROSDASH.slide.prototype.addWidget = function (widget)
 {
 	widget.widgetContent = '<iframe src="' + this.config.src + '" width="' + this.config.width + '" height="' + this.config.height + '" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="' + this.config.style + '" allowfullscreen webkitallowfullscreen mozallowfullscreen> </iframe>';
 	return widget;
+}
+
+ROSDASH.FathomSlide = function (block)
+{
+	this.block = block;
+}
+ROSDASH.FathomSlide.prototype.addWidget = function (widget)
+{
+	widget.widgetContent = 
+			'<div id="presentation">'
+				+ '<div class="slide">'
+					+ '<h1>Slide 1</h1>'
+				+ '</div>'
+				+ '<div class="slide">'
+					+ '<h1>Slide 2</h1>'
+				+ '</div>'
+				+ '<div class="slide">'
+					+ '<h1>Slide 3</h1>'
+				+ '</div>'
+				+ '<div class="slide">'
+					+ '<h1>Slide 4</h1>'
+				+ '</div>'
+				+ '<div class="slide">'
+					+ '<h1>Slide 5</h1>'
+				+ '</div>'
+			+ '</div>';
+	return widget;
+}
+ROSDASH.FathomSlide.prototype.init = function ()
+{
+	$("#presentation").fathom();
 }
 
 // video from youtube

@@ -655,6 +655,7 @@
 			"multimedia"
 		],
 		"class_name": "ROSDASH.UserCamera",
+		"has_panel": "true",
 		"input": [],
 		"output": [
 			{
@@ -668,6 +669,7 @@
 			"multimedia"
 		],
 		"class_name": "ROSDASH.HeadTracker",
+		"has_panel": "true",
 		"input": [],
 		"output": [
 			{
@@ -684,6 +686,7 @@
 			"multimedia"
 		],
 		"class_name": "ROSDASH.HandTracker",
+		"has_panel": "true",
 		"input": [],
 		"output": []
 	}, {
@@ -1228,6 +1231,18 @@
 		],
 		"class_name": "ROSDASH.slide",
 		"has_panel": "true",
+		"input": [],
+		"output": []
+	}, {
+		"type": "FathomSlide",
+		"category": [
+			"others"
+		],
+		"class_name": "ROSDASH.FathomSlide",
+		"has_panel": "true",
+		"js": [
+			"lib/fathom/fathom.js"
+		],
 		"input": [],
 		"output": []
 	}, {
