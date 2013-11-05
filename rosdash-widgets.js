@@ -2986,8 +2986,8 @@ ROSDASH.userWelcome = function (block)
 {
 	this.block = block;
 }
-// callback function for createFirst button
-ROSDASH.userWelcome.prototype.createFirst = function (name)
+// callback function for createPersonal button
+ROSDASH.userWelcome.prototype.createPersonal = function (name)
 {
 	var self = this;
 	$.ajax({
@@ -3039,14 +3039,14 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 	// if index page
 	if ("index" == ROSDASH.ownerConf.name)
 	{
-		// add createFirst
 		widget.widgetContent = '<h1 style="color:blue;">Welcome to ROSDASH !</h1>'
 			+ '<p style="color:Navy;">A web-based platform of dashboards for roboticists and ROS users.</p>'
 			+ '<p>Please select a Dashboard from the list</p>';
 		if ("Guest" != ROSDASH.userConf.name)
 		{
+			// add createPersonal
 			widget.widgetContent += '<p>or'
-				+ '<input type="button" value="Create your first Dashboard" id="submit_' + this.block.id + '">'
+				+ '<input type="button" value="Goto your personal Dashboard" id="submit_' + this.block.id + '">'
 			+ '</p>';
 		} else
 		{
@@ -3086,15 +3086,14 @@ ROSDASH.userWelcome.prototype.init = function (input)
 	{
 		if ("Guest" != ROSDASH.userConf.name)
 		{
-			// append createFirst callback function to that button
+			// append createPersonal callback function to that button
 			$("#submit_" + that.block.id).click(function ()
 			{
 				// send user input to function
-				that.createFirst(ROSDASH.userConf.name);
+				that.createPersonal(ROSDASH.userConf.name);
 			});
 		} else
 		{
-			// append createFirst callback function to that button
 			$("#submit_" + that.block.id).click(function ()
 			{
 				// send user input to function

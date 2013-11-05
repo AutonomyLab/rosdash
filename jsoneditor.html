@@ -155,28 +155,7 @@ function updateJSON(data) {
     json = data;
     printJSON();
 }
-//@deprecated
-function showPath(path) {
-    $('#path').text(path);
-}
 function startJsonEditor() {
-	//@deprecated
-    $('#rest > button').click(function() {
-        var url = $('#rest-url').val();
-        $.ajax({
-            url: url,
-            dataType: 'jsonp',
-            jsonp: $('#rest-callback').val(),
-            success: function(data) {
-                json = data;
-                $('#editor').jsonEditor(json, { change: updateJSON, propertyclick: showPath });
-                printJSON();
-            },
-            error: function() {
-                alert('Something went wrong, double-check the URL and callback parameter.');
-            }
-        });
-    });
     $('#json').change(function() {
         var val = $('#json').val();
         if (val) {
@@ -185,7 +164,7 @@ function startJsonEditor() {
         } else {
             json = {};
         }
-        $('#editor').jsonEditor(json, { change: updateJSON, propertyclick: showPath });
+        $('#editor').jsonEditor(json, { change: updateJSON, propertyclick: null });
     });
     $('#expander').click(function() {
         var editor = $('#editor');
@@ -206,7 +185,7 @@ function startJsonEditor() {
 		}
     });
     printJSON();
-    $('#editor').jsonEditor(json, { change: updateJSON, propertyclick: showPath });
+    $('#editor').jsonEditor(json, { change: updateJSON, propertyclick: null });
 }
 	</script>
 </head>

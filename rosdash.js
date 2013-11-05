@@ -1070,7 +1070,7 @@ ROSDASH.ee.addListener("saved", ROSDASH.onSave);
 
 ROSDASH.userConf = {
 	// basic
-	version: "1.0",
+	version: "0.1",
 	name: "Guest",
 	discrip: "",
 	auth_info: new Object(),
@@ -1166,7 +1166,7 @@ ROSDASH.logOut = function ()
 
 ROSDASH.ownerConf = {
 	// basic
-	version: "1.0",
+	version: "0.1",
 	name: "index",
 	discrip: "",
 	panel_name: "index",
@@ -1222,7 +1222,7 @@ ROSDASH.setownerConf = function (conf)
 		{
 			if ("version" == i && ROSDASH.ownerConf.version != conf.version)
 			{
-				console.error("configure version conflicts", conf.version);
+				console.error("configure version conflicts", conf.version, ROSDASH.ownerConf.version);
 				return;
 			}
 			if ("name" == i && ROSDASH.ownerConf.name != conf.name)

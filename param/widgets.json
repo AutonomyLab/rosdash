@@ -1227,6 +1227,7 @@
 			"others"
 		],
 		"class_name": "ROSDASH.slide",
+		"has_panel": "true",
 		"input": [],
 		"output": []
 	}, {

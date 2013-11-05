@@ -1,15 +1,11 @@
 {
-	"user":"index",
-	"discrip":"The default settings of ROSDASH.",
+	"user":"tests",
+	"discrip":"Tests for ROSDASH",
 	"version":"0.1",
-	"panel_names": [
-		"index"
-	],
 
-	"ros_host": "",
+	"ros_host": "localhost",
 	"ros_port": "",
 
-	"panel_names": [],
 	"js": [],
 	"css": [],
 	"json": [],

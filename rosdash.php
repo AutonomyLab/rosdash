@@ -48,6 +48,11 @@ function newUser ()
 		echo "user name error: ".$user;
 		return false;
 	}
+	if (file_exists("file/".$user."/"))
+	{
+		echo "user dir exists " . $user;
+		return false;
+	}
 	// create user dir
 	$old_mask = umask(0); 
 	if (! mkdir("file/".$user, 0777))
@@ -76,6 +81,7 @@ function newUser ()
 		mysqli_query($con,'INSERT INTO users (Name, Openid) VALUES ("' . $user . '", "'. $conf .'")');
 	}
 	mysqli_close($con);
+	// save user conf to file
 	if (! file_put_contents('file/'.$user.'/conf.json', json_encode($json)))
 	{
 		echo "unable to create user conf file";
