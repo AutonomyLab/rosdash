@@ -27,18 +27,21 @@ ROSDASH.Constant.prototype.run = function (input)
 ROSDASH.multiArray = function (block)
 {
 	this.block = block;
+	this.array = new Array();
 }
 //@input	each value
 //@output	an array of all the values
 ROSDASH.multiArray.prototype.run = function (input)
 {
-	//@todo implement add to array
-	var a = new Array();
 	for (var i in input)
 	{
-		a.push(input[i]);
+		this.array.push(input[i]);
 	}
-	return {o0: a};
+	return {o0: this.array};
+}
+ROSDASH.multiArray.prototype.addTo = function (pos, value)
+{
+	this.array.push(value);
 }
 
 // memorable array, can memorize historic data with max length
@@ -61,6 +64,119 @@ ROSDASH.memArray.prototype.run = function (input)
 		this.data.splice(0, this.data.length - this.max_length);
 	}
 	return {o0: this.data};
+}
+
+// json
+ROSDASH.Json = function (block)
+{
+	this.block = block;
+	this.json = new Array();
+}
+//@input	
+//@output	
+ROSDASH.Json.prototype.run = function (input)
+{
+	var count = 0;
+	for (var i in input)
+	{
+		++ count;
+		if (count % 2)
+		{
+			continue;
+		}
+		this.json[input[i - 1]] = input[i];
+	}
+	return {o0: this.json};
+}
+ROSDASH.Json.prototype.addTo = function (key, value)
+{
+	this.json[key] = value;
+}
+
+
+//////////////////////////////////// datatype operations
+
+ROSDASH.AddTo = function (block)
+{
+	this.block = block;
+}
+ROSDASH.AddTo.prototype.run = function (input)
+{
+	switch (typeof input[0])
+	{
+	case "array":
+		var a = new ROSDASH.multiArray();
+		a.run(input[0]);
+		a.addTo(input[1]);
+		break;
+	case "object":
+		var a = new ROSDASH.Json();
+		a.run(input[0]);
+		a.addTo(input[1], input[2]);
+		break;
+	}
+	return {o0 : a};
+}
+
+ROSDASH.ValueAt = function (block)
+{
+	this.block = block;
+}
+ROSDASH.ValueAt.prototype.run = function (input)
+{
+	var value;
+	switch (typeof input[0])
+	{
+	case "array":
+		value = input[0][input[1]];
+		break;
+	case "object":
+		value = input[0][input[1]];
+		break;
+	}
+	return {o0 : value};
+}
+
+// transform json into string
+ROSDASH.arrayToStr = function (block)
+{
+	this.block = block;
+}
+//@input	the array (object, associative array, or topic message)
+//@output	the corresponding string
+//@todo str to json, simply JSON.stringify
+ROSDASH.arrayToStr.prototype.run = function (input)
+{
+	// if empty
+	if (undefined === input || undefined === input[0])
+	{
+		return {o0: ""};
+	}
+	var msg = input[0];
+	var str = "";
+	if (typeof msg == "object" || typeof msg == "array")
+	{
+		for (var i in msg)
+		{
+			str += " ( " + i + ": ";
+			// recursive call for sub-array
+			str += this.run({0: msg[i]}).o0;
+			str += " ) ";
+		}
+	} else
+	{
+		str += msg;
+	}
+	return {o0: str};
+}
+
+ROSDASH.StrToJson = function (block)
+{
+	this.block = block;
+}
+ROSDASH.StrToJson.prototype.run = function (input)
+{
+	return {o0 : JSON.parse(input[0])};
 }
 
 //////////////////////////////////// arithmetics
@@ -272,39 +388,6 @@ ROSDASH.addToAssocArray.prototype.run = function (input)
 	assoc = input[0];
 	assoc[input[1]] = input[2];
 	return {o0: assoc};
-}
-
-// transform array (object, associative array, or topic message) into string
-ROSDASH.arrayToStr = function (block)
-{
-	this.block = block;
-}
-//@input	the array (object, associative array, or topic message)
-//@output	the corresponding string
-//@todo str to json
-ROSDASH.arrayToStr.prototype.run = function (input)
-{
-	// if empty
-	if (undefined === input || undefined === input[0])
-	{
-		return {o0: ""};
-	}
-	var msg = input[0];
-	var str = "";
-	if (typeof msg == "object" || typeof msg == "array")
-	{
-		for (var i in msg)
-		{
-			str += " ( " + i + ": ";
-			// recursive call for sub-array
-			str += this.run({0: msg[i]}).o0;
-			str += " ) ";
-		}
-	} else
-	{
-		str += msg;
-	}
-	return {o0: str};
 }
 
 //////////////////////////////////// functional flow

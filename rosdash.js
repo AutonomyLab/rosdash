@@ -119,7 +119,7 @@ ROSDASH.initForm = function ()
 			break;
 		// add a new constant
 		case "addconstant":
-			ROSDASH.formList = ROSDASH.blockList.constant;
+			ROSDASH.formList = ROSDASH.msgList;
 			ROSDASH.formItemType = "addConstant";
 			ROSDASH.showBlocksInForm({
 				type: "button",
@@ -311,6 +311,20 @@ ROSDASH.formClickItem = function (name)
 		default:
 			fn(name);
 			break;
+		}
+		var count = 0;
+		for (var i in ROSDASH.blocks)
+		{
+			++ count;
+			if (count > 1)
+			{
+				break;
+			}
+		}
+		if (1 == count)
+		{
+			window.cy.fit();
+			window.cy.zoom(1.0);
 		}
 	} else
 	{
@@ -669,9 +683,6 @@ ROSDASH.initPanelToolbar = function ()
 		case "find":
 			console.log("find");
 			break;
-		case "adddiagram":// add widget to diagram
-			ROSDASH.addToDiagram();
-			break;
 		case "save": // save to json file
 			ROSDASH.savePanel();
 			break;
@@ -780,7 +791,6 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addButton("addwidget", ++ count, "add widget", "new.gif", "new_dis.gif");
 	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
 	//ROSDASH.toolbar.addButton("listwidget", ++ count, "list widget", "new.gif", "new_dis.gif");
-	ROSDASH.toolbar.addButton("adddiagram", ++ count, "add to diagram", "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addButton("property", ++ count, "property", "paste.gif", "paste_dis.gif");
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
@@ -1469,10 +1479,7 @@ ROSDASH.jsonReadyFunc = function ()
 		// load widgets and blocks
 		ROSDASH.loadWidgetDef();
 		// show panel editor after loading json
-		//ROSDASH.readDiagram(ROSDASH.jsonReadArray['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram"].data);
 		ROSDASH.loadPanel(ROSDASH.jsonReadArray['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel"].data);
-		// wait for js loading
-		//setTimeout(ROSDASH.exePanel, 100);
 		break;
 	case "diagram":
 		// parse msgs after loading json
@@ -1530,6 +1537,7 @@ ROSDASH.initJson = function ()
 ///////////////////////////////////// msg type definitions
 
 ROSDASH.msgJson = ["param/msgs"];
+ROSDASH.msgList = new Object();
 ROSDASH.msgs = new Object();
 // load message type definitions from json
 ROSDASH.loadMsg = function ()
@@ -1542,16 +1550,16 @@ ROSDASH.loadMsg = function ()
 // parse message for sidebar list
 ROSDASH.parseMsg = function ()
 {
-	if (undefined === ROSDASH.blockList.constant)
+	if (undefined === ROSDASH.msgList)
 	{
-		ROSDASH.blockList.constant = new Object();
+		ROSDASH.msgList = new Object();
 	}
-	if (undefined === ROSDASH.blockList.constant["_"])
+	if (undefined === ROSDASH.msgList["_"])
 	{
-		ROSDASH.blockList.constant["_"] = new Array();
+		ROSDASH.msgList["_"] = new Array();
 	}
 	// add to block list constant
-	var list = ROSDASH.blockList.constant["_"];
+	var list = ROSDASH.msgList["_"];
 	for (var i in ROSDASH.msgJson)
 	{
 		var data = ROSDASH.jsonReadArray[ROSDASH.msgJson[i]].data.msgs;
@@ -1689,7 +1697,7 @@ ROSDASH.loadWidgetList = function (json)
 			list = list[c];
 		} else
 		{
-			// add to category directory
+			// add to block category directory
 			list[c] = new Object();
 			list = list[c];
 		}
@@ -3374,9 +3382,8 @@ ROSDASH.startEditor = function (owner, panel_name, selected)
 	ROSDASH.selectedWidget = selected;
 
 	ROSDASH.initJson();
-	// load diagram for analysis
-	ROSDASH.readJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
-	//ROSDASH.readDiagram();
+	// checkDiagram
+	ROSDASH.checkDiagram('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
 	// load panel from json file
 	ROSDASH.readJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel");
 	ROSDASH.waitJson();
@@ -3399,7 +3406,6 @@ ROSDASH.startPanel = function (owner, panel_name, selected)
 	ROSDASH.initJson();
 	// load diagram for analysis
 	ROSDASH.readJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
-	//ROSDASH.readDiagram();
 	// load panel from json file
 	ROSDASH.readJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel");
 	ROSDASH.waitJson();
@@ -3426,7 +3432,45 @@ ROSDASH.headerSetCallback = function (e, data)
 ///////////////////////////////////// diagram analysis
 
 // diagram for analysis
-ROSDASH.diagram;
+ROSDASH.diagram = undefined;
+
+ROSDASH.checkDiagram = function (file)
+{
+	$.getJSON(file + ".json", function (data, status, xhr)
+	{
+		if (JSON.stringify(ROSDASH.diagram) != JSON.stringify(data))
+		{
+			for (var i in data.block)
+			{
+				if (! (i in ROSDASH.widgets) && ("type" in data.block[i]) && (data.block[i].type in ROSDASH.widgetDef) && ROSDASH.widgetDef[data.block[i].type].has_panel)
+				{
+					console.debug("add", i, data.block[i])
+					var widget = {
+						widgetTitle : data.block[i].name,
+						widgetId : data.block[i].id,
+						widgetType : data.block[i].type,
+						number : data.block[i].number,
+						widgetContent : undefined,
+						pos : 0,
+						width: ("width" in ROSDASH.widgetDef[data.block[i].type]) ? ROSDASH.widgetDef[data.block[i].type].width : ROSDASH.ownerConf.widget_width,
+						height: ("height" in ROSDASH.widgetDef[data.block[i].type]) ? ROSDASH.widgetDef[data.block[i].type].height : ROSDASH.ownerConf.widget_height,
+						header_height: ROSDASH.ownerConf.header_height,
+						content_height: ROSDASH.ownerConf.content_height,
+						config : data.block[i].config
+					};
+					ROSDASH.addWidget(widget);
+					ROSDASH.ee.emitEvent('change');
+				}
+			}
+			ROSDASH.diagram = data;
+		}
+		setTimeout(function ()
+		{
+			ROSDASH.checkDiagram('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
+		}, 2000);
+	})
+}
+
 // read diagram json for panel execution
 ROSDASH.readDiagram = function (data)
 {
@@ -3766,26 +3810,4 @@ ROSDASH.runWidgets = function ()
 	}
 	// sleep for a while and start next cycle
 	setTimeout(ROSDASH.runWidgets, ROSDASH.ownerConf.run_msec);
-}
-
-///////////////////////////////////// others
-
-//@todo
-ROSDASH.addToDiagram = function ()
-{
-	if (undefined === ROSDASH.selectedWidget)
-	{
-		console.error("cannot add to diagram");
-		return;
-	}
-	var find = ROSDASH.selectedWidget.lastIndexOf("-");
-	var widget_type = ROSDASH.selectedWidget.substring(0, find);
-	var widget_num = parseFloat(ROSDASH.selectedWidget.substring(find));
-	ROSDASH.diagram.block[ROSDASH.selectedWidget] = {
-		id: ROSDASH.selectedWidget,
-		type: widget_type,
-		number: widget_num,
-		x: 400,
-		y: 0
-	};
 }
