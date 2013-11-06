@@ -229,7 +229,7 @@ ROSDASH.Division.prototype.run = function (input)
 
 //////////////////////////////////// matrix operations
 
-// just for array @todo remove
+// just for array @deprecated
 ROSDASH.Insert = function (block)
 {
 	this.block = block;
@@ -356,7 +356,7 @@ ROSDASH.Reshape.prototype.run = function (input)
 	}
 }
 
-//@todo json, add to json, diagram representation
+//@deprecated json, add to json, diagram representation
 ROSDASH.AssocArray = function (block)
 {
 	this.block = block;
@@ -371,6 +371,7 @@ ROSDASH.AssocArray.prototype.run = function (input)
 	return {o0: assoc};
 }
 
+//@deprecated
 ROSDASH.addToAssocArray = function (block)
 {
 	this.block = block;
@@ -447,11 +448,11 @@ ROSDASH.RosList = function (block)
 ROSDASH.RosList.prototype.run = function (input)
 {
 	var output = new Array();
-	var tmp = new Array();
 	var max = Math.max( Math.max(ROSDASH.rosNames.topic["_"].length, ROSDASH.rosNames.service["_"].length), ROSDASH.rosNames.param["_"].length);
+	// rotate the table @todo should I rotate that?
 	for (var i = 0; i < max; ++ i)
 	{
-		tmp = new Array();
+		var tmp = new Array();
 		if (ROSDASH.rosNames.topic["_"].length > i)
 		{
 			tmp[0] = ROSDASH.rosNames.topic["_"][i];
