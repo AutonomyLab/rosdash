@@ -1602,9 +1602,9 @@ ROSDASH.widgetJson = ["param/widgets.json"];
 ROSDASH.widgetDef = new Object();
 // block lists for diagram sidebar
 ROSDASH.blockList = new Object();
-// widget lists for panel sidebar
+// widget lists for editor sidebar
 ROSDASH.widgetList = new Object();
-// save to list for sidebar
+// save to sidebar list
 ROSDASH.loadWidgetList = function (json)
 {
 	// alias for block list for sidebar
@@ -1665,6 +1665,7 @@ ROSDASH.loadWidgetDef = function (data)
 		// for each widget json
 		for (var k in data)
 		{
+			// wrong format
 			if (! ("type" in data[k]))
 			{
 				continue;
@@ -1679,7 +1680,7 @@ ROSDASH.loadWidgetDef = function (data)
 // load widget json from files
 ROSDASH.loadWidgetJson = function ()
 {
-	// read from widget definition json
+	// load from widget definition json
 	for (var i in ROSDASH.widgetJson)
 	{
 		ROSDASH.loadJson(ROSDASH.widgetJson[i]);
@@ -1688,13 +1689,7 @@ ROSDASH.loadWidgetJson = function ()
 // if widget name valid in widget definition list
 ROSDASH.checkWidgetTypeValid = function (name)
 {
-	if ((name in ROSDASH.widgetDef) && undefined !== ROSDASH.widgetDef[name].class_name)
-	{
-		return true;
-	} else
-	{
-		return false;
-	}
+	return (name in ROSDASH.widgetDef) && ("class_name" in ROSDASH.widgetDef[name]);
 }
 
 ///////////////////////////////////// blocks in diagram
@@ -1722,8 +1717,8 @@ ROSDASH.addRosItem = function (rosname, type)
 	var next_pos = ROSDASH.getNextNewBlockPos();
 	var x = (typeof x !== "undefined") ? parseFloat(x) : next_pos[0];
 	var y = (typeof y !== "undefined") ? parseFloat(y) : next_pos[1];
-	var count = ROSDASH.rosBlocks.topic.length;
-	var id = "topic-" + count;
+	var count = ROSDASH.rosBlocks[type].length;
+	var id = type + "-" + count;
 	var body = window.cy.add({
 		group: "nodes",
 		data: {
@@ -1765,7 +1760,7 @@ ROSDASH.addRosItem = function (rosname, type)
 	// set the input of this block
 	if (undefined !== ROSDASH.widgetDef[type].input)
 	{
-		// assign by copy
+		// assign by deep copy
 		block.input = ROSDASH.widgetDef[type].input.slice();
 	} else
 	{
@@ -1781,8 +1776,9 @@ ROSDASH.addRosItem = function (rosname, type)
 		block.output = new Array();
 	}
 	ROSDASH.blocks[id] = block;
-	ROSDASH.rosBlocks.topic.push(rosname);
-	return body;
+	ROSDASH.rosBlocks[type].push(rosname);
+	// return to facilitate fitting to
+	return id;
 }
 // add a new block based on type
 ROSDASH.addBlockByType = function (type)
@@ -1811,9 +1807,7 @@ ROSDASH.initBlockConf = function (block)
 		// for ros items
 		if ("topic" == block.type || "service" == block.type || "param" == block.type)
 		{
-			ROSDASH.rosBlocks.topic.push(block.rosname);
-			//block.rosname = "";
-			//block.rostype = "";
+			ROSDASH.rosBlocks[block.type].push(block.rosname);
 		}
 	}
 	// for constant
@@ -1833,7 +1827,7 @@ ROSDASH.initBlockConf = function (block)
 	// set the input of this block
 	if (undefined !== ROSDASH.widgetDef[block.type].input)
 	{
-		// assign by copy
+		// assign by deep copy
 		block.input = ROSDASH.widgetDef[block.type].input.slice();
 	} else
 	{
@@ -1842,7 +1836,7 @@ ROSDASH.initBlockConf = function (block)
 	// set the output of this block
 	if (undefined !== ROSDASH.widgetDef[block.type].output)
 	{
-		// assign by copy
+		// assign by deep copy
 		block.output = ROSDASH.widgetDef[block.type].output.slice();
 	} else
 	{
@@ -1854,6 +1848,9 @@ ROSDASH.initBlockConf = function (block)
 		if (undefined !== ROSDASH.widgetDef[block.type].config)
 		{
 			block.config = ROSDASH.transformRawJson(ROSDASH.widgetDef[block.type].config);
+		} else
+		{
+			block.config = {};
 		}
 	} else
 	{
@@ -1935,6 +1932,7 @@ ROSDASH.getBlockNum = function (block, block_type)
 	}
 	return block;
 }
+// get a suitable name displayed in diagram
 ROSDASH.getDisplayName = function (block)
 {
 	var true_name = block.name;
@@ -1973,7 +1971,7 @@ ROSDASH.addBlock = function (block)
 	// if fail to init a block
 	if (undefined === block)
 	{
-		return;
+		return undefined;
 	}
 	// determine the block number
 	block = ROSDASH.getBlockNum(block, block.list_name);
@@ -2031,8 +2029,7 @@ ROSDASH.addBlock = function (block)
 	}
 	// save the information of the block into ROSDASH.blocks by id
 	ROSDASH.blocks[block.id] = block;
-	//@note why return?
-	return body;
+	return block.id;
 }
 
 ///////////////////////////////////// pins
@@ -2088,25 +2085,29 @@ ROSDASH.addPin = function (block, type, num)
 // get the body name of a pin
 ROSDASH.getBlockParent = function (block)
 {
+	// Blockname-TypeNumber
 	var index = block.lastIndexOf("-");
 	return block.substring(0, index);
 }
 // get the number of a pin
 ROSDASH.getPinNum = function (pin)
 {
+	// Blockname-TypeNumber
 	var index = pin.lastIndexOf("-");
 	return parseFloat(pin.substring(index + 2));
 }
 // get the type of a pin
 ROSDASH.getPinType = function (pin)
 {
+	// Blockname-TypeNumber
 	var index = pin.lastIndexOf("-");
-	// 1 is not always true
+	//@note 1 is not always true
 	return pin.substring(index + 1, 1);
 }
 // get the type and number of a pin
 ROSDASH.getPinTypeNum = function (pin)
 {
+	// Blockname-TypeNumber
 	var index = pin.lastIndexOf("-");
 	return pin.substring(index + 1);
 }
@@ -2250,28 +2251,27 @@ ROSDASH.removeBlock = function (name)
 	{
 		ROSDASH.removeBlock(id + "-o" + i);
 	}
-	//@todo remove popups
+	//@todo remove popups from block config
+	ROSDASH.removeAllPopup();
 }
 
 ROSDASH.movingBlock;
 // move a block body
-ROSDASH.moveBlock = function (target)
+ROSDASH.moveBlock = function (id)
 {
-	var id = target.id();
+	// target does not exist
 	if (undefined === ROSDASH.blocks[id])
 	{
-		// target does not exist
 		return;
 	}
-	var type = ROSDASH.blocks[id].type;
 	// hide input pins
-	var pin_num = ROSDASH.widgetDef[type].input.length;
+	var pin_num = ROSDASH.blocks[id].input.length;
 	for (var i = 0; i < pin_num; ++ i)
 	{
 		window.cy.nodes('[id = "' + id + "-i" + i + '"]').hide();
 	}
 	// hide input pins
-	pin_num = ROSDASH.widgetDef[type].output.length;
+	pin_num = ROSDASH.blocks[id].output.length;
 	for (var i = 0; i < pin_num; ++ i)
 	{
 		window.cy.nodes('[id = "' + id + "-o" + i + '"]').hide();
@@ -2303,7 +2303,7 @@ ROSDASH.followBlock = function (target)
 			});
 		}).show();
 	}
-	// input pins follow
+	// output pins follow
 	pin_num = ROSDASH.blocks[id].output.length;
 	for (var i = 0; i < pin_num; ++ i)
 	{
@@ -2324,14 +2324,14 @@ ROSDASH.blockMoveCallback = function ()
 		if (evt.cyTarget.id() != ROSDASH.movingBlock)
 		{
 			ROSDASH.movingBlock = evt.cyTarget.id();
-			ROSDASH.moveBlock(evt.cyTarget);
+			ROSDASH.moveBlock(ROSDASH.movingBlock);
 		}
 	});
 	// when releasing, let pins follow
 	window.cy.on('free', function(evt)
 	{
-		ROSDASH.movingBlock = undefined;
 		ROSDASH.followBlock(evt.cyTarget);
+		ROSDASH.movingBlock = undefined;
 	});
 }
 
