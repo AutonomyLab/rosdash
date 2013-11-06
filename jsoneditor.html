@@ -137,7 +137,7 @@ ROSDASH.ownerConf.view_type = "jsoneditor";
 if (undefined !== src && "" != src)
 {
 	// wait and read json file
-	ROSDASH.readJson(src);
+	ROSDASH.loadJson(src);
 	ROSDASH.waitJson();
 } else
 {
@@ -174,7 +174,7 @@ function startJsonEditor() {
     $('#reload').click(function() {
 		if (src_success)
 		{
-			ROSDASH.readJson(src);
+			ROSDASH.loadJson(src);
 			ROSDASH.waitJson();
 		}
     });

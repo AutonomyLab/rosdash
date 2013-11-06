@@ -672,7 +672,7 @@ ROSDASH.initToolbar = function ()
 			{
 			case "panel":
 			case "editor":
-				ROSDASH.resetPanelToolbar();
+				ROSDASH.resetEditorToolbar();
 				break;
 			case "diagram":
 				ROSDASH.resetDiagramToolbar();
@@ -806,15 +806,15 @@ ROSDASH.initToolbar = function ()
 	{
 	case "panel":
 	case "editor":
-		ROSDASH.resetPanelToolbar();
+		ROSDASH.resetEditorToolbar();
 		break;
 	case "diagram":
 		ROSDASH.resetDiagramToolbar();
 		break;
 	}
 }
-// reset the toolbar for panel
-ROSDASH.resetPanelToolbar = function ()
+// reset the toolbar for editor
+ROSDASH.resetEditorToolbar = function ()
 {
 	// remove previous items
 	ROSDASH.toolbar.forEachItem(function(itemId)
@@ -913,6 +913,7 @@ ROSDASH.addToolbarUserName = function ()
 		{
 			user_text = '<a href="panel.html?owner=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>(<a href="panel.html?status=logout">logout</a>)';
 		}
+		// add to toolbar
 		ROSDASH.toolbar.setItemText("user", user_text);
 	}
 }
@@ -920,16 +921,12 @@ ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarUserName);
 // add panel name to toolbar. called when json files are ready
 ROSDASH.addToolbarPanelName = function ()
 {
+	// add to HTML title
 	$('title').text($('title').text() + " - " + ROSDASH.ownerConf.name + " - " + ROSDASH.ownerConf.panel_name);
 	if ($("#toolbarObj").length > 0)
 	{
-		var user_text = ROSDASH.userConf.name;
-		if ("Guest" != ROSDASH.userConf.name)
-		{
-			user_text = '<a href="panel.html?owner=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>';
-		}
-		ROSDASH.toolbar.setItemText("user", user_text);
 		var owner_text = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
+		// add to toolbar
 		ROSDASH.toolbar.setItemText("owner", owner_text);
 		ROSDASH.toolbar.setItemText("panelname", ROSDASH.ownerConf.panel_name);
 	}
@@ -938,15 +935,22 @@ ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarPanelName);
 // add ros host to toolbar
 ROSDASH.addToolbarRosValue = function ()
 {
+	// add to HTML title
 	$('title').text($('title').text() + " - " + ROSDASH.ownerConf.ros_host);
 	if ($("#toolbarObj").length > 0)
 	{
+		// add to toolbar
 		ROSDASH.toolbar.setItemText("ros", ROSDASH.ownerConf.ros_host);
 	}
 }
+
 // when changes, notify user
 ROSDASH.onChange = function ()
 {
+	if (undefined === ROSDASH.toolbar)
+	{
+		return;
+	}
 	ROSDASH.toolbar.setItemText("saving", '<font color="red">unsaved</font>');
 }
 ROSDASH.ee.addListener("change", ROSDASH.onChange);
@@ -963,6 +967,7 @@ ROSDASH.ee.addListener("saved", ROSDASH.onSave);
 
 ///////////////////////////////////// user configuration
 
+// user configuration
 ROSDASH.userConf = {
 	// basic
 	version: "0.1",
@@ -988,6 +993,7 @@ ROSDASH.userConf = {
 	header_height: 16,
 	content_height: 180
 };
+// save user name into ROSDASH.userConf and cookie
 ROSDASH.setUser = function (user)
 {
 	/*
@@ -1011,14 +1017,16 @@ ROSDASH.setUser = function (user)
 	}
 	ROSDASH.setCookie("username", ROSDASH.userConf.name);
 }
+// save to cookie
 ROSDASH.setCookie = function (c_name, value)
 {
 	var exdays = 1;
 	var exdate = new Date();
 	exdate.setDate(exdate.getDate() + exdays);
 	var c_value = encodeURI(value) + ((exdays==null) ? "" : "; expires=" + exdate.toUTCString());
-	document.cookie=c_name + "=" + c_value;
+	document.cookie = c_name + "=" + c_value;
 }
+// get value from cookie
 ROSDASH.getCookie = function (c_name)
 {
 	var c_value = document.cookie;
@@ -1043,6 +1051,7 @@ ROSDASH.getCookie = function (c_name)
 	}
 	return c_value;
 }
+// check username from cookie
 ROSDASH.checkCookie = function ()
 {
 	var username = ROSDASH.getCookie("username");
@@ -1051,6 +1060,7 @@ ROSDASH.checkCookie = function ()
 		return username;
 	}
 }
+// log out and remove cookie
 ROSDASH.logOut = function ()
 {
 	ROSDASH.setCookie("username", "");
@@ -1059,6 +1069,7 @@ ROSDASH.logOut = function ()
 
 ///////////////////////////////////// panel configuration
 
+// dashboard owner configuration
 ROSDASH.ownerConf = {
 	// basic
 	version: "0.1",
@@ -1134,11 +1145,10 @@ ROSDASH.setownerConf = function (conf)
 		}
 	}
 	ROSDASH.checkownerConfValid();
-
 	// load json specified by user config
 	for (var i in ROSDASH.ownerConf.json)
 	{
-		ROSDASH.readJson(ROSDASH.ownerConf.json[i]);
+		ROSDASH.loadJson(ROSDASH.ownerConf.json[i]);
 	}
 }
 // if connected ROS, set the ROS names. called when ROS connection made
@@ -1151,7 +1161,9 @@ ROSDASH.setRosValue = function (host, port)
 
 ///////////////////////////////////// ROS
 
+// the instance of ROS connection
 ROSDASH.ros;
+// ROS connected or not
 ROSDASH.rosConnected = false;
 ROSDASH.connectROS = function (host, port)
 {
@@ -1162,6 +1174,7 @@ ROSDASH.connectROS = function (host, port)
 	}
 	// default value for port
 	port = (typeof port !== "undefined" && "" != port && " " != port) ? port : "9090";
+	// close original ROS connection
 	if (ROSDASH.rosConnected || undefined !== ROSDASH.ros)
 	{
 		ROSDASH.ros.close();
@@ -1193,11 +1206,11 @@ ROSDASH.connectROS = function (host, port)
 		console.log('ROS connection closed: ', host + ":" + port);
 		ROSDASH.ros = undefined;
 		// emit event for ros connected
-		ROSDASH.ee.emitEvent('rosConnected');
+		ROSDASH.ee.emitEvent('rosClosed');
 	});
 	ROSDASH.ros.connect('ws://' + host + ':' + port);
 }
-// ROS list for toolbar
+// ROS item list for sidebar
 ROSDASH.rosNames = {
 	topic: {"_": new Array()},
 	service: {"_": new Array()},
@@ -1220,7 +1233,7 @@ ROSDASH.getROSNames = function (ros)
 		ROSDASH.rosNames.param["_"] = $.extend(true, [], params);
 	});
 }
-// check if the name is an existing ROS name
+// check if the name is an existing ROS item name
 ROSDASH.checkRosNameExisting = function (name, type)
 {
 	var array;
@@ -1232,6 +1245,7 @@ ROSDASH.checkRosNameExisting = function (name, type)
 	case "param":
 		array = ROSDASH.rosNames.param["_"];
 		break;
+	case "topic":
 	default:
 		// default is topic
 		array = ROSDASH.rosNames.topic["_"];
@@ -1255,9 +1269,9 @@ ROSDASH.checkRosConflict = function (name, type)
 
 ///////////////////////////////////// load json
 
-ROSDASH.jsonReadArray = new Object();
-// transform from raw json into real json
-//@note check number or not?
+// the data list from json files
+ROSDASH.jsonLoadList = new Object();
+// transform from raw json into real json. @note check number or not?
 ROSDASH.transformRawJson = function (raw)
 {
 	for (var i in raw)
@@ -1278,53 +1292,65 @@ ROSDASH.transformRawJson = function (raw)
 	}
 	return raw;
 }
-// uniform function to read json and register
-ROSDASH.readJson = function (file)
+// uniform function to load json and register them
+ROSDASH.loadJson = function (file)
 {
-	if (! (file in ROSDASH.jsonReadArray))
+	// if end with .json, you can ignore that
+	if (".json" != file.slice(-5))
 	{
-		ROSDASH.jsonReadArray[file] = new Object();
-		ROSDASH.jsonReadArray[file].status = 0;
+		file = file + ".json";
 	}
-	$.getJSON(file + ".json", function (data, status, xhr)
+	// init status
+	if (! (file in ROSDASH.jsonLoadList))
 	{
-		ROSDASH.jsonReadArray[file].data = data;
-		++ ROSDASH.jsonReadArray[file].status;
+		ROSDASH.jsonLoadList[file] = new Object();
+		ROSDASH.jsonLoadList[file].status = 0;
+	}
+	$.getJSON(file, function (data, status, xhr)
+	{
+		ROSDASH.jsonLoadList[file].data = data;
+		// if successful, status = 2
+		++ ROSDASH.jsonLoadList[file].status;
 	})
 	.fail(function (jqXHR, textStatus) {
 		console.error("load json file", file, "failed", jqXHR, textStatus);
-		ROSDASH.jsonReadArray[file].status = -1;
+		ROSDASH.jsonLoadList[file].status = -1;
 	})
 	.always(function () {
-		++ ROSDASH.jsonReadArray[file].status;
+		// if not successful, status = 1
+		++ ROSDASH.jsonLoadList[file].status;
 	});
 }
+// status if json load is ready
 ROSDASH.jsonReady = false;
-// wait loading of jsons
+// wait when loading jsons
 ROSDASH.waitJson = function ()
 {
-	// if user conf is loaded, load specified jsons. must be executed before examine jsonReadArray
-	var conf_path = "file/" + ROSDASH.ownerConf.name + "/conf";
-	if ((conf_path in ROSDASH.jsonReadArray) && 2 == ROSDASH.jsonReadArray[conf_path].status)
+	// if owner conf is loaded, load specified jsons. must be executed before examine jsonLoadList
+	var conf_path = "file/" + ROSDASH.ownerConf.name + "/conf.json";
+	if ((conf_path in ROSDASH.jsonLoadList) && 2 == ROSDASH.jsonLoadList[conf_path].status)
 	{
-		ROSDASH.setownerConf(ROSDASH.jsonReadArray[conf_path].data);
+		ROSDASH.setownerConf(ROSDASH.jsonLoadList[conf_path].data);
 	}
+	// if loading finishes
 	var flag = true;
-	for (var i in ROSDASH.jsonReadArray)
+	for (var i in ROSDASH.jsonLoadList)
 	{
-		if (ROSDASH.jsonReadArray[i].status < 0)
+		// if loading fails
+		if (ROSDASH.jsonLoadList[i].status < 0)
 		{
 			flag = false;
 			break;
 		}
-		else if (ROSDASH.jsonReadArray[i].status < 2)
+		// if loading unsuccessfully
+		else if (ROSDASH.jsonLoadList[i].status < 2)
 		{
 			flag = false;
 			// if returned but not succeed, read again
-			if (1 == ROSDASH.jsonReadArray[i].status)
+			if (1 == ROSDASH.jsonLoadList[i].status)
 			{
-				console.warn("load json file", i, "failed");
-				ROSDASH.readJson(i);
+				console.warn("load json file", i, "again");
+				ROSDASH.loadJson(i);
 			}
 			break;
 		}
@@ -1332,7 +1358,8 @@ ROSDASH.waitJson = function ()
 	// if not ready
 	if (! flag)
 	{
-		setTimeout(ROSDASH.waitJson, 100);
+		// wait again
+		setTimeout(ROSDASH.waitJson, 200);
 	} else
 	{
 		ROSDASH.jsonReadyFunc();
@@ -1348,46 +1375,49 @@ ROSDASH.jsonReadyFunc = function ()
 	switch (ROSDASH.ownerConf.view_type)
 	{
 	case "panel":
-		// parse msgs after loading json
-		ROSDASH.parseMsg();
+		// parse msgs
+		ROSDASH.loadMsgDef();
 		// load widgets and blocks
 		ROSDASH.loadWidgetDef();
-		// run panel after loading json
-		ROSDASH.readDiagram(ROSDASH.jsonReadArray['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram"].data);
-		ROSDASH.loadPanel(ROSDASH.jsonReadArray['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel"].data);
+		// run panel
+		ROSDASH.readDiagram(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json"].data);
+		ROSDASH.loadPanel(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json"].data);
 		// wait for js loading
-		setTimeout(ROSDASH.exePanel, 100);
+		setTimeout(ROSDASH.exePanel, 300);
 		break;
 	case "editor":
 		// parse msgs after loading json
-		ROSDASH.parseMsg();
+		ROSDASH.loadMsgDef();
 		// load widgets and blocks
 		ROSDASH.loadWidgetDef();
-		// show panel editor after loading json
-		ROSDASH.loadPanel(ROSDASH.jsonReadArray['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel"].data);
+		// show panel editor
+		ROSDASH.loadPanel(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json"].data);
 		break;
 	case "diagram":
 		// parse msgs after loading json
-		ROSDASH.parseMsg();
+		ROSDASH.loadMsgDef();
 		// load widgets and blocks
 		ROSDASH.loadWidgetDef();
 		// run diagram after loading json
-		ROSDASH.runDiagram(ROSDASH.jsonReadArray['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram"].data);
+		ROSDASH.runDiagram(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json"].data);
 		break;
 	case "jsoneditor":
-		json = ROSDASH.jsonReadArray[src].data;
+		json = ROSDASH.jsonLoadList[src].data;
 		src_success = true;
+		// run jsoneditor
 		startJsonEditor();
+		break;
+	default:
 		break;
 	}
 }
-// save data to json file in server
-//@note PHP will ignore empty json part
+// save data to json file in server. @note PHP will ignore empty json part
 ROSDASH.saveJson = function (data, filename)
 {
+	// prevent others from saving
 	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name && "@@sudo@@" != ROSDASH.userConf.name)
 	{
-		console.error("are you the owner?", ROSDASH.userConf.name);
+		alert("are you the owner?", ROSDASH.userConf.name);
 		return;
 	}
 	$.ajax({
@@ -1401,7 +1431,7 @@ ROSDASH.saveJson = function (data, filename)
 		},
 		success: function( data, textStatus, jqXHR )
 		{
-			console.log("saveJson success: ", filename, data, textStatus, jqXHR.responseText);
+			console.log("saveJson successful: ", filename, data, textStatus, jqXHR.responseText);
 			ROSDASH.ee.emitEvent("saved");
 		},
 		error: function(jqXHR, textStatus, errorThrown)
@@ -1414,26 +1444,29 @@ ROSDASH.saveJson = function (data, filename)
 ROSDASH.initJson = function ()
 {
 	// load user config json
-	ROSDASH.readJson("file/" + ROSDASH.ownerConf.name + "/conf");
-	ROSDASH.loadMsg();
+	ROSDASH.loadJson("file/" + ROSDASH.ownerConf.name + "/conf.json");
+	ROSDASH.loadMsgJson();
 	ROSDASH.loadWidgetJson();
 }
 
 ///////////////////////////////////// msg type definitions
 
-ROSDASH.msgJson = ["param/msgs"];
+// file path list for msg jsons
+ROSDASH.msgJson = ["param/msgs.json"];
+// msg list for sidebar
 ROSDASH.msgList = new Object();
+// msg definitions
 ROSDASH.msgs = new Object();
 // load message type definitions from json
-ROSDASH.loadMsg = function ()
+ROSDASH.loadMsgJson = function ()
 {
 	for (var i in ROSDASH.msgJson)
 	{
-		ROSDASH.readJson(ROSDASH.msgJson[i]);
+		ROSDASH.loadJson(ROSDASH.msgJson[i]);
 	}
 }
 // parse message for sidebar list
-ROSDASH.parseMsg = function ()
+ROSDASH.loadMsgDef = function ()
 {
 	if (undefined === ROSDASH.msgList)
 	{
@@ -1447,11 +1480,12 @@ ROSDASH.parseMsg = function ()
 	var list = ROSDASH.msgList["_"];
 	for (var i in ROSDASH.msgJson)
 	{
-		var data = ROSDASH.jsonReadArray[ROSDASH.msgJson[i]].data.msgs;
+		var data = ROSDASH.jsonLoadList[ROSDASH.msgJson[i]].data.msgs;
 		for (var j in data)
 		{
 			if (undefined != data[j].name)
 			{
+				// add to definition list
 				ROSDASH.msgs[data[j].name] = data[j];
 				// add to block list for sidebar
 				list.push(data[j].name);
@@ -1460,6 +1494,8 @@ ROSDASH.parseMsg = function ()
 	}
 	ROSDASH.traverseMsgType();
 }
+
+//@todo msg type relations
 ROSDASH.msgTypes = new Object();
 ROSDASH.traverseMsgType = function ()
 {
@@ -1484,14 +1520,17 @@ ROSDASH.traverseMsgType = function ()
 	}
 }
 
+// the default value for a msg
 ROSDASH.getMsgDefaultValue = function (name)
 {
+	// not exist
 	if (! (name in ROSDASH.msgs) || ! ("definition" in ROSDASH.msgs[name]))
 	{
 		console.error("getMsgDefaultValue error", name);
 		return null;
 	}
 	var value;
+	// if a simple value as one
 	if (1 == ROSDASH.msgs[name].definition.length)
 	{
 		switch (ROSDASH.msgs[name].definition[0].type)
@@ -1511,6 +1550,7 @@ ROSDASH.getMsgDefaultValue = function (name)
 		}
 	} else
 	{
+		// an json value
 		value = new Object();
 		for (var i in ROSDASH.msgs[name].definition)
 		{
@@ -1519,12 +1559,12 @@ ROSDASH.getMsgDefaultValue = function (name)
 	}
 	return value;
 }
-// get message type definitions from ROSDASH.msg_json
+//@deprecated get message type definitions from ROSDASH.msg_json
 ROSDASH.getMsgDef = function (name)
 {
 	for (var i in ROSDASH.msgJson)
 	{
-		var json = ROSDASH.jsonReadArray[ROSDASH.msgJson[i]].data;
+		var json = ROSDASH.jsonLoadList[ROSDASH.msgJson[i]].data;
 		for (var j in json)
 		{
 			var json2 = json[j];
@@ -1557,7 +1597,7 @@ ROSDASH.checkMsgTypeValid = function (name)
 ///////////////////////////////////// widget definitions
 
 // json file names for widgets
-ROSDASH.widgetJson = ["param/widgets"];
+ROSDASH.widgetJson = ["param/widgets.json"];
 // widget definitions
 ROSDASH.widgetDef = new Object();
 // block lists for diagram sidebar
@@ -1621,7 +1661,7 @@ ROSDASH.loadWidgetDef = function (data)
 	// for each json file
 	for (var i in ROSDASH.widgetJson)
 	{
-		var data = ROSDASH.jsonReadArray[ROSDASH.widgetJson[i]].data.widgets;
+		var data = ROSDASH.jsonLoadList[ROSDASH.widgetJson[i]].data.widgets;
 		// for each widget json
 		for (var k in data)
 		{
@@ -1642,7 +1682,7 @@ ROSDASH.loadWidgetJson = function ()
 	// read from widget definition json
 	for (var i in ROSDASH.widgetJson)
 	{
-		ROSDASH.readJson(ROSDASH.widgetJson[i]);
+		ROSDASH.loadJson(ROSDASH.widgetJson[i]);
 	}
 }
 // if widget name valid in widget definition list
@@ -2871,7 +2911,7 @@ ROSDASH.startDiagram = function (owner, panel_name, selected)
 		{
 			window.cy = this;
 			ROSDASH.selectedBlock = selected;
-			ROSDASH.readJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
+			ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
 			ROSDASH.waitJson();
 			// set callback functions
 			ROSDASH.blockMoveCallback();
@@ -3270,7 +3310,7 @@ ROSDASH.startEditor = function (owner, panel_name, selected)
 	// checkDiagram
 	ROSDASH.checkDiagram('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
 	// load panel from json file
-	ROSDASH.readJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel");
+	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel");
 	ROSDASH.waitJson();
 }
 // the main function for panel
@@ -3290,9 +3330,9 @@ ROSDASH.startPanel = function (owner, panel_name, selected)
 
 	ROSDASH.initJson();
 	// load diagram for analysis
-	ROSDASH.readJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
+	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
 	// load panel from json file
-	ROSDASH.readJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel");
+	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel");
 	ROSDASH.waitJson();
 }
 // start to execute widgets
