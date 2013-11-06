@@ -485,16 +485,15 @@ ROSDASH.Topic = function (block)
 	this.block = block;
 	this.ros_msg = {error: "cannot connect to this topic"};
 	this.topic;
-	this.init_success = false;
 }
 // subscribe a ROS topic for once
 ROSDASH.Topic.prototype.init = function ()
 {
 	if (! ROSDASH.rosConnected)
 	{
-		return;
+		return false;
 	}
-	this.block.rostype = (undefined !== this.block.rostype) ? this.block.rostype : 'std_msgs/String';
+	this.block.rostype = (undefined !== this.block.rostype && "" !== this.block.rostype) ? this.block.rostype : 'std_msgs/String';
 	this.ros_msg = {error: "cannot connect to this topic"};
 	this.topic = new ROSLIB.Topic({
 		ros : ROSDASH.ros,
@@ -508,25 +507,15 @@ ROSDASH.Topic.prototype.init = function ()
 		self.ros_msg = message;
 		//listener.unsubscribe();
 	});
-	this.init_success = true;
 	return true;
 }
 //@input	ROS topic message to publish
 //@output	ROS topic message
 ROSDASH.Topic.prototype.run = function (input)
 {
-	if (! ROSDASH.rosConnected)
-	{
-		return undefined;
-	}
-	if (ROSDASH.rosConnected && ! this.init_success)
-	{
-		this.init();
-	}
 	var output;
 	if (undefined !== this.block.rosname)
 	{
-		//this.ros_msg = "running";
 		output = this.ros_msg;
 	}
 	if (undefined !== input[0])
@@ -547,14 +536,13 @@ ROSDASH.Topic.prototype.run = function (input)
 ROSDASH.Service = function (block)
 {
 	this.block = block;
-	this.init_success = false;
 	this.service;
 }
 ROSDASH.Service.prototype.init = function ()
 {
 	if (! ROSDASH.rosConnected)
 	{
-		return;
+		return false;
 	}
 	// First, we create a Service client with details of the service's name and service type.
 	this.service = new ROSLIB.Service({
@@ -562,19 +550,10 @@ ROSDASH.Service.prototype.init = function ()
 		name : this.block.rosname,
 		messageType : this.block.rostype
 	});
-	this.init_success = true;
 	return true;
 }
 ROSDASH.Service.prototype.run = function (input)
 {
-	if (! ROSDASH.rosConnected/* || undefined === input[0]*/)
-	{
-		return undefined;
-	}
-	if (ROSDASH.rosConnected && ! this.init_success)
-	{
-		this.init();
-	}
 	var msg = (undefined !== input[0]) ? input[0] : {A : 1, B : 2};
 	var request = new ROSLIB.ServiceRequest(msg);
 	var output = new Object();
@@ -590,7 +569,6 @@ ROSDASH.Service.prototype.run = function (input)
 ROSDASH.Param = function (block)
 {
 	this.block = block;
-	this.init_success = false;
 	this.param;
 	this.output;
 }
@@ -598,26 +576,17 @@ ROSDASH.Param.prototype.init = function ()
 {
 	if (! ROSDASH.rosConnected)
 	{
-		return;
+		return false;
 	}
 	// First, we create a Service client with details of the service's name and service type.
 	this.param = new ROSLIB.Param({
 		ros : ROSDASH.ros,
 		name : this.block.rosname
 	});
-	this.init_success = true;
 	return true;
 }
 ROSDASH.Param.prototype.run = function (input)
 {
-	if (! ROSDASH.rosConnected)
-	{
-		return undefined;
-	}
-	if (ROSDASH.rosConnected && ! this.init_success)
-	{
-		this.init();
-	}
 	var that = this;
 	this.param.get(function(value) {
 		that.output = value;
@@ -729,10 +698,6 @@ ROSDASH.VirtualJoystick.prototype.init = function ()
 ROSDASH.VirtualJoystick.prototype.run = function (input)
 {
 	var that = this;
-	if (undefined === this.joystick)
-	{
-		this.init();
-	}
 	return {o0: {
 		dx: this.joystick.deltaX(),
 		dy: this.joystick.deltaY(),

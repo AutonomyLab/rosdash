@@ -31,7 +31,8 @@ ROSDASH.formDiagramMain = [{
 		value: "ROS items",
 		name: "addROSitem",
 		width: 180
-	}, {
+	}
+	/*, {
 		type: "label",
 		label: "Debug Info",
 		name: "debuglabel",
@@ -41,7 +42,7 @@ ROSDASH.formDiagramMain = [{
 		value: "msgs",
 		name: "msgs",
 		width: 180
-	}
+	}*/
 ];
 ROSDASH.formPanelMain = [{
 	type: "label",
@@ -59,10 +60,12 @@ ROSDASH.formPanelMain = [{
 ROSDASH.form;
 // the function handle for clicking
 ROSDASH.formItemType;
+// the second parameter
 ROSDASH.formItemType2;
 // current directory in the form
 ROSDASH.formList;
-ROSDASH.formCount = 1;
+// count the items in the form in order to help append buttons
+ROSDASH.formCount = 0;
 // init a new form when beginning or return to main page
 ROSDASH.initForm = function ()
 {
@@ -102,9 +105,9 @@ ROSDASH.initForm = function ()
 		{
 		// back to the main page
 		case "backhome":
-			ROSDASH.initForm();
 			ROSDASH.formList = undefined;
 			ROSDASH.formItemType = undefined;
+			ROSDASH.initForm();
 			break;
 		// add a new block
 		case "addblock":
@@ -163,16 +166,16 @@ ROSDASH.initForm = function ()
 			{
 			case "panel":
 			case "editor":
-				ROSDASH.blockForm(ROSDASH.widgets[ROSDASH.selectedWidget]);
+				ROSDASH.jsonForm(ROSDASH.widgets[ROSDASH.selectedWidget]);
 				break;
 			case "diagram":
-				ROSDASH.blockForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
+				ROSDASH.jsonForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
 				break;
 			}
 			break;
 		case "msgs":
 			ROSDASH.jsonFormType = id;
-			ROSDASH.blockForm(ROSDASH.msgTypes);
+			ROSDASH.jsonForm(ROSDASH.msgTypes);
 			break;
 		default:
 			console.error("sidebar click error", id);
@@ -227,16 +230,14 @@ ROSDASH.showBlocksInForm = function (parent)
 	// previous page button
 	if (typeof parent == "object")
 	{
-		++ ROSDASH.formCount;
-		ROSDASH.form.addItem(null, parent, ROSDASH.formCount);
+		ROSDASH.form.addItem(null, parent, ++ ROSDASH.formCount);
 	}
-	++ ROSDASH.formCount;
 	ROSDASH.form.addItem(null, {
 		type: "label",
 		label: "Directories:",
 		name: "directories",
 		width: 180
-		}, ROSDASH.formCount);
+		}, ++ ROSDASH.formCount);
 	for (var i in ROSDASH.formList)
 	{
 		// add a directory
@@ -250,13 +251,12 @@ ROSDASH.showBlocksInForm = function (parent)
 			}, ++ ROSDASH.formCount);
 		} else
 		{
-			++ ROSDASH.formCount;
 			ROSDASH.form.addItem(null, {
 				type: "label",
 				label: "Items:",
 				name: "items",
 				width: 180
-				}, ROSDASH.formCount);
+				}, ++ ROSDASH.formCount);
 			// add an item
 			for (var i in ROSDASH.formList["_"])
 			{
@@ -292,7 +292,7 @@ ROSDASH.formClickDir = function (name, parent)
 	}
 	if (name in ROSDASH.formList && (typeof ROSDASH.formList[name] == "object" || typeof ROSDASH.formList[name] == "array"))
 	{
-		// new form
+		// new form of sub-directory
 		ROSDASH.formList = ROSDASH.formList[name];
 		ROSDASH.showBlocksInForm(parent);
 	}
@@ -300,6 +300,7 @@ ROSDASH.formClickDir = function (name, parent)
 // if clicking an item
 ROSDASH.formClickItem = function (name)
 {
+	// the callback function of clicking
 	var fn = ROSDASH[ROSDASH.formItemType];
 	if(typeof fn === 'function')
 	{
@@ -321,6 +322,7 @@ ROSDASH.formClickItem = function (name)
 				break;
 			}
 		}
+		// if adding the first item, zoom to a good view
 		if (1 == count)
 		{
 			window.cy.fit();
@@ -335,10 +337,12 @@ ROSDASH.formClickItem = function (name)
 ROSDASH.formClickBlockId = undefined;
 ROSDASH.formClickBlock = function (id)
 {
+	// don't view in panel
 	if ("panel" == ROSDASH.ownerConf.view_type)
 	{
 		return;
 	}
+	// if clicking a new block
 	if (undefined === ROSDASH.formClickBlockId)
 	{
 		ROSDASH.form.addItem(null, {
@@ -378,16 +382,16 @@ ROSDASH.formClickBlock = function (id)
 		show = ROSDASH.blocks[id];
 		break;
 	}
-	ROSDASH.blockForm(show);
+	// show in jsoneditor
+	ROSDASH.jsonForm(show);
 }
 
-// sidebar form by FlexiJsonEditor
+// sidebar json form by FlexiJsonEditor
 // form type
 ROSDASH.jsonFormType = "property";
-// a form for block
-ROSDASH.blockForm = function (block)
+// a json form for block or widget
+ROSDASH.jsonForm = function (block)
 {
-	// block can be widget
 	if (undefined === block)
 	{
 		return;
@@ -441,7 +445,6 @@ ROSDASH.blockForm = function (block)
 // when changes, update the form
 ROSDASH.updateJsonForm = function (data)
 {
-	ROSDASH.ee.emitEvent('change');
 	switch (ROSDASH.jsonFormType)
 	{
 	case "property":
@@ -450,6 +453,7 @@ ROSDASH.updateJsonForm = function (data)
 		case "panel":
 		case "editor":
 			ROSDASH.callbackUpdatePanelForm(data);
+			// save changed data to widget
 			for (var i in data)
 			{
 				ROSDASH.widgets[ROSDASH.selectedWidget][i] = data[i];
@@ -457,6 +461,7 @@ ROSDASH.updateJsonForm = function (data)
 			break;
 		case "diagram":
 			ROSDASH.callbackUpdateDiagramForm(data);
+			// save changed data to block
 			for (var i in data)
 			{
 				ROSDASH.blocks[ROSDASH.selectedBlock][i] = data[i];
@@ -477,16 +482,20 @@ ROSDASH.updateJsonForm = function (data)
 		}
 		break;
 	default:
-		console.error("You cannot make change to that.", ROSDASH.jsonFormType, data);
+		console.error("You cannot make change to that", ROSDASH.jsonFormType, data);
 		break;
 	}
+	ROSDASH.ee.emitEvent('change');
 }
+// if change json form in panel or editor
 ROSDASH.callbackUpdatePanelForm = function (data)
 {
+	// update widget title
 	if (("widgetTitle" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].widgetTitle != data.widgetTitle)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetHeader span.header").html(data.widgetTitle);
 	}
+	// update height or width
 	if (("width" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].width != data.width)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget").width(parseFloat(data.width));
@@ -504,17 +513,21 @@ ROSDASH.callbackUpdatePanelForm = function (data)
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetHeader").height(parseFloat(data.height));
 	}
 }
+// if change json form in diagram
 ROSDASH.callbackUpdateDiagramForm = function (data)
 {
+	// update position
 	if (ROSDASH.blocks[ROSDASH.selectedBlock].x != data.x || ROSDASH.blocks[ROSDASH.selectedBlock].y != data.y)
 	{
 		window.cy.$('#' + ROSDASH.selectedBlock).position({x: parseFloat(data.x), y: parseFloat(data.y)});
 	}
+	// update name
 	if (("value" in data) && ROSDASH.blocks[ROSDASH.selectedBlock].value != data.value)
 	{
 		ROSDASH.blocks[ROSDASH.selectedBlock].value = data.value;
 		window.cy.$('#' + ROSDASH.selectedBlock).data("name", ROSDASH.getDisplayName(ROSDASH.blocks[ROSDASH.selectedBlock]));
 	}
+	// update name
 	if (("rosname" in data) && ROSDASH.blocks[ROSDASH.selectedBlock].rosname != data.rosname)
 	{
 		ROSDASH.blocks[ROSDASH.selectedBlock].rosname = data.rosname;
@@ -543,7 +556,7 @@ ROSDASH.initSidebar = function ()
 
 ///////////////////////////////////// toolbars (dhtmlXToolbar)
 
-// toolbar on the top for either panel or diagram
+// toolbar on the top
 ROSDASH.toolbar;
 ROSDASH.toolbarCanvas = "toolbarObj";
 ROSDASH.list_depth;
@@ -637,7 +650,7 @@ ROSDASH.listProperty = function (type)
 ROSDASH.selected_property;
 
 // init the toolbar for panel
-ROSDASH.initPanelToolbar = function ()
+ROSDASH.initToolbar = function ()
 {
 	if ($("#toolbarObj").length <= 0)
 	{
@@ -651,25 +664,22 @@ ROSDASH.initPanelToolbar = function ()
 	// onclick event for each button in toolbar
 	ROSDASH.toolbar.attachEvent("onClick", function(id)
 	{
-		// if widget property buttons
-		if ("property-" == id.substring(0, 9))
-		{
-			if (undefined === ROSDASH.selectedWidget)
-			{
-				return;
-			}
-			var selected = ROSDASH.widgets[ROSDASH.selectedWidget];
-			var property = id.substring(9);
-			// show the value of selected property in the input box
-			ROSDASH.toolbar.setValue("input", selected[property], true);
-			ROSDASH.selected_property = property;
-			return;
-		}
 		switch (id)
 		{
-		case "main": // back to main view of toolbar
-			ROSDASH.resetPanelToolbar();
+		// back to main view of toolbar
+		case "main":
+			switch (ROSDASH.ownerConf.view_type)
+			{
+			case "panel":
+			case "editor":
+				ROSDASH.resetPanelToolbar();
+				break;
+			case "diagram":
+				ROSDASH.resetDiagramToolbar();
+				break;
+			}
 			break;
+		// connect with ROS
 		case "connect":
 			ROSDASH.connectROS(ROSDASH.toolbar.getValue("input"));
 			break;
@@ -680,11 +690,56 @@ ROSDASH.initPanelToolbar = function ()
 			ROSDASH.list_depth = ROSDASH.widgetList;
 			ROSDASH.listInToolbar();
 			break;
+		case "listblock":
+			ROSDASH.list_depth = ROSDASH.blockList;
+			ROSDASH.listInToolbar();
+			break;
+		case "listconst":
+			ROSDASH.list_depth = ROSDASH.blockList.constant;
+			ROSDASH.listInToolbar();
+			break;
+		case "addros":
+			window.cy.center(ROSDASH.addRosItem(ROSDASH.toolbar.getValue("input")));
+			break;
+		case "listros":
+			ROSDASH.list_depth = ROSDASH.rosNames;
+			ROSDASH.listInToolbar();
+			break;
 		case "find":
-			console.log("find");
+			switch (ROSDASH.ownerConf.view_type)
+			{
+			case "panel":
+			case "editor":
+				console.log("find");
+				break;
+			case "diagram":
+				ROSDASH.findBlock(ROSDASH.toolbar.getValue("input"));
+				break;
+			}
 			break;
 		case "save": // save to json file
-			ROSDASH.savePanel();
+			switch (ROSDASH.ownerConf.view_type)
+			{
+			case "panel":
+			case "editor":
+				ROSDASH.savePanel();
+				break;
+			case "diagram":
+				ROSDASH.saveDiagram();
+				break;
+			}
+			break;
+		case "remove":
+			switch (ROSDASH.ownerConf.view_type)
+			{
+			case "panel":
+			case "editor":
+				console.log("remove");
+				break;
+			case "diagram":
+				ROSDASH.removeBlock(ROSDASH.toolbar.getValue("input"));
+				break;
+			}
 			break;
 		case "undo":
 			console.log("undo");
@@ -695,8 +750,21 @@ ROSDASH.initPanelToolbar = function ()
 		case "property": // list the property of selected widget
 			ROSDASH.listProperty("panel");
 			break;
-		case "setproperty": // set the property of selected widget
-			ROSDASH.setWidgetProperty();
+		// zindex for overlay
+		case "zindex":
+			$("#myCanvas").zIndex( ($("#myCanvas").zIndex() == 100) ? -10 : 100 );
+			break;
+		// fit the canvas for diagram
+		case "fit":
+			window.cy.fit();
+			break;
+		// add a comment in diagram
+		case "addcomment":
+			var c = ROSDASH.addBlockComment(ROSDASH.toolbar.getValue("input"));
+			if (undefined !== c)
+			{
+				window.cy.center(c);
+			}
 			break;
 		case "diagram": // open the corresponding diagram
 			var url = 'diagram.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port;
@@ -729,42 +797,21 @@ ROSDASH.initPanelToolbar = function ()
 			var url = 'jsoneditor.html?owner=' + ROSDASH.ownerConf.name;
 			window.open(url);
 			break;
-		case "zindex":
-			$("#myCanvas").zIndex( ($("#myCanvas").zIndex() == 100) ? -10 : 100 );
-			break;
 		default:
-			// maybe clicked a widget or a directory in toolbar
-			var widget_id = id.substring(5);
-			if (widget_id in ROSDASH.list_depth)
-			{
-				// clicked a widget, add it
-				if (typeof ROSDASH.list_depth[widget_id] == "string")
-				{
-					ROSDASH.addWidgetByType(widget_id);
-				} else // clicked a directory, open it
-				{
-					ROSDASH.list_depth = ROSDASH.list_depth[widget_id];
-					ROSDASH.listInToolbar();
-				}
-			}
-			// list widgets in a directory
-			else if (("_" in ROSDASH.list_depth))
-			{
-				for (var i in ROSDASH.list_depth["_"])
-				{
-					if (ROSDASH.list_depth["_"][i] == widget_id)
-					{
-						ROSDASH.addWidgetByType(widget_id);
-					}
-				}
-			} else
-			{
-				console.error("unknown widget in toolbar: ", id);
-			}
+			console.error("unknown button in toolbar: ", id);
 			break;
 		}
 	});
-	ROSDASH.resetPanelToolbar();
+	switch (ROSDASH.ownerConf.view_type)
+	{
+	case "panel":
+	case "editor":
+		ROSDASH.resetPanelToolbar();
+		break;
+	case "diagram":
+		ROSDASH.resetDiagramToolbar();
+		break;
+	}
 }
 // reset the toolbar for panel
 ROSDASH.resetPanelToolbar = function ()
@@ -779,6 +826,7 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addText("logo", count, logo_text);
 	ROSDASH.toolbar.addText("user", ++ count, "Guest");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
 	var ownername = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
 	ROSDASH.toolbar.addText("owner", ++ count, ownername);
 	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
@@ -786,21 +834,21 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addText("saving", ++ count, "unchanged");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
 	ROSDASH.toolbar.addInput("input", ++ count, "", 160);
 	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
-	ROSDASH.toolbar.addButton("addwidget", ++ count, "add widget", "new.gif", "new_dis.gif");
 	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
-	//ROSDASH.toolbar.addButton("listwidget", ++ count, "list widget", "new.gif", "new_dis.gif");
-	ROSDASH.toolbar.addButton("property", ++ count, "property", "paste.gif", "paste_dis.gif");
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
-	ROSDASH.toolbar.addButton("zindex", ++ count, "zindex", "database.gif", "database.gif");
+	//ROSDASH.toolbar.addButton("zindex", ++ count, "zindex", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
+	// if you are not the owner, cannot save
 	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name && "@@sudo@@" != ROSDASH.userConf.name)
 	{
 		ROSDASH.toolbar.disableItem("save");
 	}
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
 	if ("panel" == ROSDASH.ownerConf.view_type)
 	{
 		ROSDASH.toolbar.addButton("editor", ++ count, "editor", "database.gif", "database.gif");
@@ -810,172 +858,6 @@ ROSDASH.resetPanelToolbar = function ()
 	}
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
-}
-// set the property of widget
-ROSDASH.setWidgetProperty = function ()
-{
-	if (undefined === ROSDASH.selectedWidget)
-	{
-		return;
-	}
-	var selected = ROSDASH.widgets[ROSDASH.selectedWidget];
-	var value = ROSDASH.toolbar.getValue("input");
-	// if set proper property
-	switch (ROSDASH.selected_property)
-	{
-	case "id":
-		return;
-		break;
-	case "width":
-	case "height":
-	case "header_height":
-		selected[ROSDASH.selected_property] = value;
-		console.log("set property", selected.widgetId, ROSDASH.selected_property, value);
-		break;
-	}
-}
-
-// init the toolbar for diagram
-ROSDASH.initDiagramToolbar = function ()
-{
-	if ($("#" + ROSDASH.toolbarCanvas).length <= 0)
-	{
-		console.error("toolbar not ready ", ROSDASH.toolbarCanvas);
-		return;
-	}
-	// basic settings for toolbar
-	ROSDASH.toolbar = new dhtmlXToolbarObject(ROSDASH.toolbarCanvas);
-	ROSDASH.toolbar.setIconSize(32);
-	ROSDASH.toolbar.setIconsPath("lib/dhtmlxSuite/dhtmlxToolbar/samples/common/imgs/");
-	// onclick event for items in toolbar
-	ROSDASH.toolbar.attachEvent("onClick", function(id)
-	{
-		// if property of a block
-		if ("property-" == id.substring(0, 9))
-		{
-			if (undefined === ROSDASH.selectedBlock)
-			{
-				return;
-			}
-			var selected = ROSDASH.blocks[ROSDASH.selectedBlock];
-			var property = id.substring(9);
-			ROSDASH.toolbar.setValue("input", selected[property], true);
-			ROSDASH.selected_property = property;
-			return;
-		}
-		switch (id)
-		{
-		case "main":
-			ROSDASH.initDiagramToolbar();
-			break;
-		case "connect":
-			ROSDASH.connectROS(ROSDASH.toolbar.getValue("input"));
-			break;
-		case "addblock":
-			window.cy.center(ROSDASH.addBlockByType(ROSDASH.toolbar.getValue("input")));
-			break;
-		case "reconnect":
-			if (ROSDASH.rosConnected || undefined !== ROSDASH.ros)
-			{
-				ROSDASH.ros.close();
-			}
-			break;
-		case "listblock":
-			ROSDASH.list_depth = ROSDASH.blockList;
-			ROSDASH.listInToolbar();
-			break;
-		case "listconst":
-			ROSDASH.list_depth = ROSDASH.blockList.constant;
-			ROSDASH.listInToolbar();
-			break;
-		case "addros":
-			window.cy.center(ROSDASH.addRosItem(ROSDASH.toolbar.getValue("input")));
-			break;
-		case "listros":
-			ROSDASH.list_depth = ROSDASH.rosNames;
-			ROSDASH.listInToolbar();
-			break;
-		case "remove":
-			ROSDASH.removeBlock(ROSDASH.toolbar.getValue("input"));
-			break;
-		case "save":
-			ROSDASH.saveDiagram();
-			break;
-		case "undo":
-			console.log("undo");
-			break;
-		case "redo":
-			console.log("redo");
-			break;
-		case "property":
-			ROSDASH.listProperty("diagram");
-			break;
-		case "panel":
-			var url = 'panel.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port;
-			if (undefined !== ROSDASH.selectedBlock)
-			{
-				url += '&selected=' + ROSDASH.selectedBlock;
-			}
-			window.open(url);
-			break;
-		case "editor":
-			var url = 'editor.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port;
-			if (undefined !== ROSDASH.selectedBlock)
-			{
-				url += '&selected=' + ROSDASH.selectedBlock;
-			}
-			window.open(url);
-			break;
-		case "jsoneditor":
-			var url = 'jsoneditor.html?owner=' + ROSDASH.ownerConf.name;
-			window.open(url);
-			break;
-		case "fit":
-			window.cy.fit();
-			break;
-		case "find":
-			ROSDASH.findBlock(ROSDASH.toolbar.getValue("input"));
-			break;
-		case "addcomment":
-			var c = ROSDASH.addBlockComment(ROSDASH.toolbar.getValue("input"));
-			if (undefined !== c)
-			{
-				window.cy.center(c);
-			}
-			break;
-		default:
-			// open directory or add a block
-			var block_id = id.substring(5);
-			if (typeof ROSDASH.list_depth != "object" && typeof ROSDASH.list_depth != "array")
-			{
-				console.error("unknown widget in toolbar: ", block_id);
-			} else if (block_id in ROSDASH.list_depth)
-			{
-				if (typeof ROSDASH.list_depth[block_id] == "string")
-				{
-					window.cy.center(ROSDASH.addBlockByType(block_id));
-				} else
-				{
-					ROSDASH.list_depth = ROSDASH.list_depth[block_id];
-					ROSDASH.listInToolbar();
-				}
-			} else if (("_" in ROSDASH.list_depth))
-			{
-				for (var i in ROSDASH.list_depth["_"])
-				{
-					if (ROSDASH.list_depth["_"][i] == block_id)
-					{
-						window.cy.center(ROSDASH.addBlockByType(block_id));
-					}
-				}
-			} else
-			{
-				console.error("unknown widget in toolbar: ", block_id);
-			}
-			break;
-		}
-	});
-	ROSDASH.resetDiagramToolbar();
 }
 // reset the items in the toolbar for diagram
 ROSDASH.resetDiagramToolbar = function ()
@@ -990,6 +872,7 @@ ROSDASH.resetDiagramToolbar = function ()
 	var username = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
 	ROSDASH.toolbar.addText("user", ++ count, username);
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
 	var ownername = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
 	ROSDASH.toolbar.addText("owner", ++ count, ownername);
 	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
@@ -997,13 +880,14 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addText("saving", ++ count, "unchanged");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
 	ROSDASH.toolbar.addInput("input", ++ count, "", 160);
 	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addButton("addcomment", ++ count, "add comment", "new.gif", "new_dis.gif");
 	ROSDASH.toolbar.addButton("remove", ++ count, "remove", "remove-icon.gif", "remove-icon.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
-	ROSDASH.toolbar.addButton("property", ++ count, "property", "paste.gif", "paste_dis.gif");
+
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
 	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
@@ -1013,6 +897,7 @@ ROSDASH.resetDiagramToolbar = function ()
 	}
 	ROSDASH.toolbar.addButton("fit", ++ count, "fit", "stylesheet.gif", "stylesheet.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
 	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
@@ -1832,7 +1717,7 @@ ROSDASH.addRosItem = function (rosname, type)
 		type: type,
 		name: rosname,
 		rosname: rosname,
-		rostype: 'std_msgs/String',
+		rostype: '',
 		number: ROSDASH.rosBlocks.topic.length,
 		x: x,
 		y: y
@@ -2975,7 +2860,7 @@ ROSDASH.startDiagram = function (owner, panel_name, selected)
 	ROSDASH.ownerConf.view_type = "diagram";
 	ROSDASH.setPanel(owner, panel_name);
 	ROSDASH.initSidebar();
-	ROSDASH.initDiagramToolbar();
+	ROSDASH.initToolbar();
 	ROSDASH.initJson();
 	// generate an empty cytoscape diagram
 	$('#cy').cytoscape({
@@ -3369,7 +3254,7 @@ ROSDASH.panelBindEvent = function ()
 ROSDASH.startEditor = function (owner, panel_name, selected)
 {
 	ROSDASH.ownerConf.view_type = "editor";
-	ROSDASH.initPanelToolbar();
+	ROSDASH.initToolbar();
 	ROSDASH.setPanel(owner, panel_name);
 	ROSDASH.initSidebar();
 
@@ -3391,7 +3276,7 @@ ROSDASH.startEditor = function (owner, panel_name, selected)
 // the main function for panel
 ROSDASH.startPanel = function (owner, panel_name, selected)
 {
-	ROSDASH.initPanelToolbar();
+	ROSDASH.initToolbar();
 	ROSDASH.ownerConf.view_type = "panel";
 	ROSDASH.setPanel(owner, panel_name);
 
