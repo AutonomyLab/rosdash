@@ -976,6 +976,7 @@ ROSDASH.Table.prototype.run = function (input)
         "bInfo": false,
         "bAutoWidth": false
 	};
+	//console.debug(aoColumns)
 	//var dataTable = $('<table cellpadding="0" cellspacing="0" border="0" class="display sDashboardTableView table table-bordered"></table>');
 	//$("#myDashboard").sDashboard("setContentById", this.block.id, dataTable);
 	$("#myDashboard").sDashboard("refreshTableById", this.block.id, tableDef);
