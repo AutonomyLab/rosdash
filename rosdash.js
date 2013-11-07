@@ -3303,6 +3303,7 @@ ROSDASH.initDiagramConnection = function (id)
 		ROSDASH.diagramConnection[id].output = undefined;
 	}
 }
+//@here @todo add loadCss, new init as event, run with cache
 // traverse the diagram to obtain the connection relations
 ROSDASH.traverseDiagram = function ()
 {
@@ -3355,23 +3356,28 @@ ROSDASH.traverseDiagram = function ()
 
 ///////////////////////////////////// widget dependency
 
-ROSDASH.requireLoaded = new Object();
+ROSDASH.requireLoadList = new Object();
 // load js file required by widgets
 ROSDASH.loadJs = function (file)
 {
-	if (undefined === ROSDASH.requireLoaded[file])
+	if (undefined === ROSDASH.requireLoadList[file])
 	{
-		ROSDASH.requireLoaded[file] = 0;
+		ROSDASH.requireLoadList[file] = 0;
 	}
 	$.getScript(file, function (data, status, jqxhr) {
-		++ ROSDASH.requireLoaded[file];
-		//console.log("js loaded:", file, status);
+		++ ROSDASH.requireLoadList[file];
 	}).fail(function (jqxhr, settings, exception)
 	{
+		ROSDASH.requireLoadList[file] = -1;
 		console.error("loading js fail:", file, jqxhr, settings, exception);
 	}).always(function() {
-		++ ROSDASH.requireLoaded[file];
+		++ ROSDASH.requireLoadList[file];
 	});
+}
+// load css file required by widgets @todo should check if loading fails
+ROSDASH.loadCss = function (file)
+{
+	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
 }
 
 ///////////////////////////////////// diagram execution
@@ -3492,7 +3498,7 @@ ROSDASH.initWidgets = function ()
 			var flag = false;
 			for (var j in ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].js)
 			{
-				if ( ROSDASH.requireLoaded[ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].js[j]] < 2 )
+				if ( ROSDASH.requireLoadList[ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].js[j]] < 2 )
 				{
 					flag = true;
 					break;
