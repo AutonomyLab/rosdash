@@ -3304,11 +3304,12 @@ ROSDASH.initDiagramConnection = function (id)
 			// the output of this block
 			output : undefined,
 			// if new output is the same as previous
-			duplicate : false
+			duplicate : false,
+			// if allow cache
+			cacheable : false,
 		};
 	}
 }
-//@todo new init as event
 // traverse the diagram to obtain the connection relations
 ROSDASH.traverseDiagram = function ()
 {
@@ -3343,6 +3344,13 @@ ROSDASH.traverseDiagram = function ()
 		{
 			// generate that block with no connection
 			ROSDASH.initDiagramConnection(i);
+		}
+		// record the block property especially config
+		ROSDASH.diagramConnection[i].block = ROSDASH.diagram.block[i];
+		// check if cacheable
+		if (("config" in ROSDASH.diagramConnection[i].block) && ("cacheable" in ROSDASH.diagramConnection[i].block.config) && ROSDASH.diagramConnection[i].block.config.cacheable)
+		{
+			ROSDASH.diagramConnection[i].cacheable = true;
 		}
 		// validate the existence of the block
 		ROSDASH.diagramConnection[i].exist = true;
@@ -3643,15 +3651,21 @@ ROSDASH.runWidgets = function ()
 					var obj = ROSDASH.diagramConnection[i].instance;
 					try
 					{
-						//@todo if duplicate, don't run
-						var output = ROSDASH.runFuncByName("run", obj, input);
-						// check if duplicate output
-						if (_.isEqual(output, ROSDASH.diagramConnection[i].output))
+						// if duplicate and cacheable, don't run
+						if (! duplicate_flag || ! ROSDASH.diagramConnection[i].cacheable)
 						{
-							ROSDASH.diagramConnection[i].duplicate = true;
+							var output = ROSDASH.runFuncByName("run", obj, input);
+							// check if duplicate output
+							if (_.isEqual(output, ROSDASH.diagramConnection[i].output))
+							{
+								ROSDASH.diagramConnection[i].duplicate = true;
+							} else
+							{
+								ROSDASH.diagramConnection[i].output = output;
+							}
 						} else
 						{
-							ROSDASH.diagramConnection[i].output = output;
+							console.log("duplicate and cacheable", i);
 						}
 						ROSDASH.diagramConnection[i].cycle = ROSDASH.cycle;
 						ROSDASH.diagramConnection[i].error = false;

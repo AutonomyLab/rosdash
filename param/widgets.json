@@ -415,7 +415,8 @@
 		"has_panel": "true",
 		"class_name": "ROSDASH.Text",
 		"config": {
-			"once": "false"
+			"once": "false",
+			"cacheable": "true"
 		},
 		"input": [
 			{
@@ -451,6 +452,9 @@
 		],
 		"has_panel": "true",
 		"class_name": "ROSDASH.Table",
+		"config": {
+			"cacheable": "true"
+		},
 		"input": [
 			{
 				"datatype": "String",

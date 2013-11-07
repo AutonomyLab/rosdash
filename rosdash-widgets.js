@@ -746,48 +746,22 @@ ROSDASH.joystickToRosJoy.prototype.run = function (input)
 ROSDASH.Text = function (block)
 {
 	this.block = block;
-	// title and content of last cycle
-	this.title = undefined;
-	this.content = undefined;
-	// count how many times it is invoked
-	this.once = false;
+}
+ROSDASH.Text.prototype.addWidget = function (widget)
+{
+	widget.widgetContent = "aaa";
+	return widget;
 }
 //@input	header and content strings
 //@output	none
 ROSDASH.Text.prototype.run = function (input)
 {
-	// run just once, so users can input 
-	if (undefined !== this.block.config && this.block.config.once && this.once)
+	// if json, transform into string
+	if (typeof input[1] == "object" || typeof input[1] == "array")
 	{
-		return;
+		input[1] = JSON.stringify(input[1]);
 	}
-	// default value for inputs
-	input[0] = (undefined === input[0]) ? this.block.name : input[0];
-	// default value for content
-	if (undefined === input[1])
-	{
-		input[1] = "(empty content)";
-	} else
-	{
-		// if not empty
-		this.once = true;
-		// if json, transform into string
-		if (typeof input[1] == "object" || typeof input[1] == "array")
-		{
-			input[1] = JSON.stringify(input[1]);
-		}
-	}
-	// if not the same
-	if (this.title != input[0])
-	{
-		this.title = input[0];
-		$("#myDashboard").sDashboard("setHeaderById", this.block.id, input[0]);
-	}
-	if (this.content != input[1])
-	{
-		this.content = input[1];
-		$("#myDashboard").sDashboard("setContentById", this.block.id, input[1]);
-	}
+	$("#myDashboard").sDashboard("setContentById", this.block.id, input[1]);
 }
 
 // text widget with speaking widget
