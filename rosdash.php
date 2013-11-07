@@ -1,7 +1,7 @@
 <?php
 function saveFile ()
 {
-	// must test if the directory exists
+	//@todo must test if the directory exists, should I remove .json?
 	$file = $_POST['file_name'].'.json';
 	$json = json_encode($_POST['data']);
 	echo file_put_contents($file, $json);

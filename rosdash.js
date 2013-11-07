@@ -405,7 +405,7 @@ ROSDASH.callJsonForm = function (block)
 		{
 		case "panel":
 		case "editor":
-			json = ROSDASH.getWidgetEditableConf(block.widgetId);
+			json = ROSDASH.getWidgetEditableProperty(block.widgetId);
 			break;
 		case "diagram":
 			json = ROSDASH.getBlockEditableProperty(block.id);
@@ -2250,7 +2250,6 @@ ROSDASH.removeBlock = function (name)
 	{
 		ROSDASH.removeBlock(id + "-o" + i);
 	}
-	//@todo remove popups from block config
 	ROSDASH.removeAllPopup();
 }
 
@@ -2466,8 +2465,7 @@ ROSDASH.getBlockEditableProperty = function (id)
 	return property;
 }
 
-///////////////////////////////////// block selection (cytoscape, etc.)
-
+// block selection
 ROSDASH.selectedBlock;
 // update the sidebar and popups when selected
 ROSDASH.selectBlockCallback = function (evt)
@@ -2478,27 +2476,29 @@ ROSDASH.selectBlockCallback = function (evt)
 		// select pin
 		if (evt.cyTarget.hasClass("pin") || evt.cyTarget.hasClass("input") || evt.cyTarget.hasClass("output"))
 		{
-			ROSDASH.selectPin(evt);
+			ROSDASH.selectedBlock = ROSDASH.getBlockParent(evt.cyTarget.id());
 		}
 		// select body
 		else if (evt.cyTarget.hasClass("body"))
 		{
-			var block = ROSDASH.blocks[evt.cyTarget.id()];
+			ROSDASH.selectedBlock = evt.cyTarget.id();
 			// add a popup to selected block to show description
 			ROSDASH.addBlockPopup(evt.cyTarget.id());
 			// a sidebar for block json information
 			ROSDASH.jsonFormType = "property";
 			ROSDASH.formClickBlock(evt.cyTarget.id());
-			ROSDASH.selectBody(evt);
 		}
 		// select popup
 		else if (evt.cyTarget.hasClass("popup"))
 		{
+			ROSDASH.selectedBlock = ROSDASH.getBlockParent(evt.cyTarget.id());
+			// popup connect
 			if (evt.cyTarget.hasClass("pinput") || evt.cyTarget.hasClass("poutput"))
 			{
+				//@todo popup connect
 				console.log("popup connect")
-				//@todo connect
 			}
+			// change pin
 			if (evt.cyTarget.id().substring(evt.cyTarget.id().length - 2) == "-a")
 			{
 				ROSDASH.changePin(evt.cyTarget.id(), "input", "add");
@@ -2509,93 +2509,7 @@ ROSDASH.selectBlockCallback = function (evt)
 		ROSDASH.selectedBlock = undefined;
 		// add a popup to selected edge to show description
 		ROSDASH.addEdgePopup(evt.cyTarget);
-		ROSDASH.selectEdge(evt);
 	}
-}
-// behavior when selecting a pin (deprecated sidebar)
-ROSDASH.selectPin = function (evt)
-{
-	var id = evt.cyTarget.id();
-	var hyphen = id.lastIndexOf("-");
-	var id2 = id.substring(0, hyphen);
-	var block = ROSDASH.blocks[id2];
-	var widget = ROSDASH.widgetDef[block.type];
-	var html;
-	if (undefined !== block.type)
-	{
-		html += "<p>type: " + block.type + "</p>";
-	}
-	if (undefined !== block.id)
-	{
-		ROSDASH.selectedBlock = block.id;
-		html += '<p>id: ' + block.id + "</p>";
-	}
-	var pin_num = parseFloat(id.substring(hyphen + 2));
-	if (evt.cyTarget.hasClass("input"))
-	{
-		html += "<p>input: " + widget.input[pin_num].name + " (" + widget.input[pin_num].datatype + ")</p>";
-	} else if (evt.cyTarget.hasClass("output"))
-	{
-		html += "<p>output: " + widget.output[pin_num].name + " (" + widget.output[pin_num].datatype + ")</p>";
-	}
-}
-// behavior when selecting a body (deprecated sidebar)
-ROSDASH.selectBody = function (evt)
-{
-	var id = evt.cyTarget.id();
-	var block = ROSDASH.blocks[id];
-	var widget = ROSDASH.widgetDef[block.type];
-	var html;
-	if (undefined !== block.type)
-	{
-		html += "<p>type: " + block.type + "</p>";
-	}
-	if (undefined !== block.id)
-	{
-		ROSDASH.selectedBlock = block.id;
-		html += '<p>id: ' + block.id + "</p>";
-	}
-	if (undefined !== widget.input)
-	{
-		html += "<p>input: " + widget.input.length + "</p>";
-		if (widget.input.length > 0)
-		{
-			html += "<ul>";
-			for (var i in widget.input)
-			{
-				html += "<li>" + widget.input[i].name + " (" + widget.input[i].datatype + ")</li>";
-			}
-			html += "</ul>";
-		}
-	}
-	if (undefined !== widget.output)
-	{
-		html += "<p>output: " + widget.output.length + "</p>";
-		if (widget.output.length > 0)
-		{
-			html += "<ul>";
-			for (var i in widget.output)
-			{
-				html += "<li>" + widget.output[i].name + " (" + widget.output[i].datatype + ")</li>";
-			}
-			html += "</ul>";
-		}
-	}
-	if ("topic" == block.type)
-	{
-		html += "<p>topic: " + block.rosname + "</p>";
-	}
-	if (block.constant)
-	{
-		html += 'value: <input type="text" name="value" value="' + block.value + '" class="text ui-widget-content ui-corner-all" />';
-	}
-}
-// behavior when selecting an edge (deprecated sidebar)
-ROSDASH.selectEdge = function (evt)
-{
-	var html = '<p>type: edge</p>'
-		+ '<p>source: ' + evt.cyTarget.source().id() + '</p>'
-		+ '<p>target: ' + evt.cyTarget.target().id() + '</p>';
 }
 
 ///////////////////////////////////// block popups and comments
@@ -2657,6 +2571,7 @@ ROSDASH.addPinPopup = function (id, pin_type, num)
 		'target-arrow-shape': 'triangle'
 		}
 	});
+	// add to popup list
 	if (id in ROSDASH.blocks && "popup" in ROSDASH.blocks[id])
 	{
 		ROSDASH.blocks[id].popup.push("p" + pin_t + num);
@@ -2665,6 +2580,7 @@ ROSDASH.addPinPopup = function (id, pin_type, num)
 // when a block is clicked, popup descriptions for the block and its inputs and outputs
 ROSDASH.addBlockPopup = function (id)
 {
+	// remove previous popups
 	ROSDASH.removeAllPopup();
 	var target = ROSDASH.blocks[id];
 	if (! ("popup" in ROSDASH.blocks[id]))
@@ -2744,6 +2660,7 @@ ROSDASH.addBlockPopup = function (id)
 		}
 	}
 }
+// when an edge is clicked, popup discriptions for both ends
 ROSDASH.addEdgePopup = function (edge)
 {
 	ROSDASH.removeAllPopup();
@@ -2763,7 +2680,7 @@ ROSDASH.commentCount = 0;
 // add a comment block by the content
 ROSDASH.addBlockComment = function (content)
 {
-	if (undefined === content || "" == content || " " == content)
+	if (undefined === content)
 	{
 		return undefined;
 	}
@@ -2781,7 +2698,7 @@ ROSDASH.addBlockComment = function (content)
 		classes: "comment"
 	});
 	++ ROSDASH.commentCount;
-	return block;
+	return "c-" + (ROSDASH.commentCount - 1);
 }
 
 ///////////////////////////////////// diagram
@@ -2807,7 +2724,8 @@ if ("cytoscape" in window)
 		})
 		.selector(':selected').css({
 			'border-width': 3,
-			'border-color': 'black'
+			'border-color': 'black',
+			'color': 'red'
 		})
 		.selector('edge').css({
 			'width': 'mapData(strength, 70, 100, 2, 6)',
@@ -2844,6 +2762,8 @@ ROSDASH.saveDiagram = function ()
 	// basic json for a diagram
 	var json = {
 		user: ROSDASH.ownerConf.name,
+		ros_host: ROSDASH.ownerConf.ros_host,
+		ros_port: ROSDASH.ownerConf.ros_port,
 		panel_name: ROSDASH.ownerConf.panel_name,
 		version: ROSDASH.version,
 		view_type: "diagram",
@@ -2903,7 +2823,7 @@ ROSDASH.startDiagram = function (owner, panel_name, selected)
 	ROSDASH.initSidebar();
 	ROSDASH.initToolbar();
 	ROSDASH.initJson();
-	// generate an empty cytoscape diagram
+	// create an empty cytoscape diagram
 	$('#cy').cytoscape({
 		showOverlay: false,
 		style: ROSDASH.defaultStyle,
@@ -2912,11 +2832,8 @@ ROSDASH.startDiagram = function (owner, panel_name, selected)
 		{
 			window.cy = this;
 			ROSDASH.selectedBlock = selected;
-			ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
+			ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json");
 			ROSDASH.waitJson();
-			// set callback functions
-			ROSDASH.blockMoveCallback();
-			ROSDASH.connectBlocksCallback();
 		}
 	});
 }
@@ -2924,6 +2841,9 @@ ROSDASH.startDiagram = function (owner, panel_name, selected)
 ROSDASH.runDiagram = function (data)
 {
 	ROSDASH.loadDiagram(data);
+	// set callback functions
+	ROSDASH.blockMoveCallback();
+	ROSDASH.connectBlocksCallback();
 	window.cy.on('select', ROSDASH.selectBlockCallback);
 	window.cy.on('unselect', ROSDASH.removeAllPopup);
 	// fit to selected block from url
@@ -2934,115 +2854,6 @@ ROSDASH.runDiagram = function (data)
 }
 
 ///////////////////////////////////// widget actions (based on sDashboard)
-
-// set the default value of widget content
-ROSDASH.parseWidgetContent = function (widget)
-{
-	// set default value of content into example data from sDashboard
-	switch (widget.widgetType)
-	{
-	case "text":
-		widget.widgetContent = "I am a text widget ^_^";
-		break;
-	case "table":
-		widget.widgetContent = myExampleData.tableWidgetData;
-		break;
-	case "bubbleChart":
-	case "bubble chart":
-		widget.widgetType = "chart";
-		widget.widgetContent = new Object();
-		widget.widgetContent.data = myExampleData.bubbleChartData;
-		widget.widgetContent.options = myExampleData.bubbleChartOptions;
-		break;
-	case "pieChart":
-	case "pie chart":
-		widget.widgetType = "chart";
-		widget.widgetContent = new Object();
-		widget.widgetContent.data = myExampleData.pieChartData;
-		widget.widgetContent.options = myExampleData.pieChartOptions;
-		break;
-	case "barChart":
-	case "bar chart":
-		widget.widgetType = "chart";
-		widget.widgetContent = new Object();
-		widget.widgetContent.data = myExampleData.barChartData;
-		widget.widgetContent.options = myExampleData.barChartOptions;
-		break;
-	case "chart":
-	case "lineChart":
-	case "line chart":
-		widget.widgetType = "chart";
-		widget.widgetContent = new Object();
-		widget.widgetContent.data = myExampleData.lineChartData;
-		widget.widgetContent.options = myExampleData.lineChartOptions;
-		break;
-	default:
-		widget.widgetContent = '';
-		break;
-	}
-	// if widget instantiated
-	if (undefined !== ROSDASH.diagramConnection[widget.widgetId] && undefined !== ROSDASH.diagramConnection[widget.widgetId].instance)
-	{
-		// the intance of widget
-		var obj = ROSDASH.diagramConnection[widget.widgetId].instance;
-		// if cannot pass checking, do not run
-		if ( ROSDASH.checkFuncByName("addWidget", obj) )
-		{
-			// execute addWidget
-			widget = ROSDASH.runFuncByName("addWidget", obj, widget);
-		}
-	}
-	// if editor, addWidget is not executed
-	return widget;
-}
-// parse the string of "example data" into true value of that
-ROSDASH.parseExampleData = function (widget)
-{
-	if (widget.widgetContent == "myExampleData.textData")
-	{
-		widget.widgetContent = "Lorem ipsum dolor sit amet,consectetur adipiscing elit. Aenean lacinia mollis condimentum. Proin vitae ligula quis ipsum elementum tristique. Vestibulum ut sem erat.";
-	} else if (widget.widgetContent == "myExampleData.tableData")
-	{
-		widget.widgetContent = myExampleData.tableWidgetData;
-	}
-	if (typeof widget.widgetContent == "undefined" || typeof widget.widgetContent.data == "undefined")
-	{
-		return widget;
-	}
-	switch (widget.widgetContent.data)
-	{
-	case "myExampleData.bubbleChartData":
-		widget.widgetContent.data = myExampleData.bubbleChartData;
-		break;
-	case "myExampleData.pieChartData":
-		widget.widgetContent.data = myExampleData.pieChartData;
-		break;
-	case "myExampleData.barChartData":
-		widget.widgetContent.data = myExampleData.barChartData;
-		break;
-	case "myExampleData.chartData":
-	case "myExampleData.lineChartData":
-		widget.widgetContent.data = myExampleData.lineChartData;
-		break;
-	}
-	switch (widget.widgetContent.options)
-	{
-	case "myExampleData.bubbleChartOptions":
-		widget.widgetContent.options = myExampleData.bubbleChartOptions;
-		break;
-	case "myExampleData.pieChartOptions":
-		widget.widgetContent.options = myExampleData.pieChartOptions;
-		break;
-	case "myExampleData.barChartOptions":
-		widget.widgetContent.options = myExampleData.barChartOptions;
-		break;
-	case "myExampleData.chartOptions":
-	case "myExampleData.lineChartOptions":
-		widget.widgetContent.options = myExampleData.lineChartOptions;
-		break;
-	}
-	return widget;
-}
 
 // a list of widgets in the panel
 ROSDASH.widgets = new Object();
@@ -3154,10 +2965,64 @@ ROSDASH.addWidget = function (def)
 	// save the definition of this widget
 	ROSDASH.widgets[def.widgetId] = def;
 	var widget = def;
-	//widget = ROSDASH.parseExampleData(widget);
 	widget = ROSDASH.parseWidgetContent(widget);
 	$("#myDashboard").sDashboard("addWidget", widget);
+	ROSDASH.ee.emitEvent('addWidget');
 }
+// set the value of widget content
+ROSDASH.parseWidgetContent = function (widget)
+{
+	//@deprecated set default value of content into example data from sDashboard
+	switch (widget.widgetType)
+	{
+	case "bubbleChart":
+	case "bubble chart":
+		widget.widgetType = "chart";
+		widget.widgetContent = new Object();
+		widget.widgetContent.data = myExampleData.bubbleChartData;
+		widget.widgetContent.options = myExampleData.bubbleChartOptions;
+		break;
+	case "pieChart":
+	case "pie chart":
+		widget.widgetType = "chart";
+		widget.widgetContent = new Object();
+		widget.widgetContent.data = myExampleData.pieChartData;
+		widget.widgetContent.options = myExampleData.pieChartOptions;
+		break;
+	case "barChart":
+	case "bar chart":
+		widget.widgetType = "chart";
+		widget.widgetContent = new Object();
+		widget.widgetContent.data = myExampleData.barChartData;
+		widget.widgetContent.options = myExampleData.barChartOptions;
+		break;
+	case "chart":
+	case "lineChart":
+	case "line chart":
+		widget.widgetType = "chart";
+		widget.widgetContent = new Object();
+		widget.widgetContent.data = myExampleData.lineChartData;
+		widget.widgetContent.options = myExampleData.lineChartOptions;
+		break;
+	default:
+		widget.widgetContent = "";
+		break;
+	}
+	// if widget instantiated. if editor, addWidget is not executed
+	if (undefined !== ROSDASH.diagramConnection[widget.widgetId] && undefined !== ROSDASH.diagramConnection[widget.widgetId].instance)
+	{
+		// the intance of widget
+		var obj = ROSDASH.diagramConnection[widget.widgetId].instance;
+		// if cannot pass checking, do not run
+		if ( ROSDASH.checkFuncByName("addWidget", obj) )
+		{
+			// execute addWidget
+			widget = ROSDASH.runFuncByName("addWidget", obj, widget);
+		}
+	}
+	return widget;
+}
+
 ROSDASH.removeWidget = function (id)
 {
 	var pos = ROSDASH.widgets[id].pos;
@@ -3196,22 +3061,22 @@ ROSDASH.selectWidgetCallback = function (e, data)
 	return w;
 }
 
-// get a editable subset config in widget to edit
-ROSDASH.getWidgetEditableConf = function (id)
+// get a editable subset property in widget to edit
+ROSDASH.getWidgetEditableProperty = function (id)
 {
 	if (! (id in ROSDASH.widgets))
 	{
 		return;
 	}
 	var widget = ROSDASH.widgets[id];
-	var conf = {
+	var property = {
 		widgetTitle: widget.widgetTitle,
 		width: widget.width,
 		height: widget.height,
 		header_height: widget.header_height,
 		content_height: widget.content_height
 	};
-	return conf;
+	return property;
 }
 
 ///////////////////////////////////// panel
