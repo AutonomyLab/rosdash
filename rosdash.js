@@ -2975,6 +2975,9 @@ ROSDASH.parseWidgetContent = function (widget)
 	//@deprecated set default value of content into example data from sDashboard
 	switch (widget.widgetType)
 	{
+	case "table":
+			widget.widgetContent = myExampleData.tableWidgetData;
+			break;
 	case "bubbleChart":
 	case "bubble chart":
 		widget.widgetType = "chart";
@@ -3088,7 +3091,6 @@ ROSDASH.loadPanel = function (json)
 	{
 		return;
 	}
-	//@note panel json style
 	json = json.widgets;
 	var count = 0;
 	for (var i in json)
@@ -3128,6 +3130,8 @@ ROSDASH.savePanel = function ()
 		panel_name: ROSDASH.ownerConf.panel_name,
 		version: ROSDASH.version,
 		view_type: "panel",
+		ros_host: ROSDASH.ownerConf.ros_host,
+		ros_port: ROSDASH.ownerConf.ros_port,
 		disable_selection: ROSDASH.ownerConf.disable_selection,
 		run_msec: ROSDASH.ownerConf.run_msec,
 		widget_width: ROSDASH.ownerConf.widget_width,
@@ -3156,15 +3160,16 @@ ROSDASH.panelBindEvent = function ()
 	$("#myDashboard").bind("sdashboardwidgetset", ROSDASH.widgetSetCallback);
 	$("#myDashboard").bind("sdashboardheaderset", ROSDASH.headerSetCallback);
 }
+
 // the main function for panel editor
 ROSDASH.startEditor = function (owner, panel_name, selected)
 {
 	ROSDASH.ownerConf.view_type = "editor";
-	ROSDASH.initToolbar();
 	ROSDASH.setPanel(owner, panel_name);
+	ROSDASH.initToolbar();
 	ROSDASH.initSidebar();
 
-	// generate empty dashboard
+	// create empty dashboard
 	$("#myDashboard").sDashboard({
 		dashboardData : [],
 		disableSelection : ROSDASH.ownerConf.disable_selection
@@ -3173,18 +3178,18 @@ ROSDASH.startEditor = function (owner, panel_name, selected)
 	ROSDASH.selectedWidget = selected;
 
 	ROSDASH.initJson();
-	// checkDiagram
-	ROSDASH.checkDiagram('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
+	// check diagram for updates
+	ROSDASH.checkDiagram();
 	// load panel from json file
-	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel");
+	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json");
 	ROSDASH.waitJson();
 }
 // the main function for panel
 ROSDASH.startPanel = function (owner, panel_name, selected)
 {
-	ROSDASH.initToolbar();
 	ROSDASH.ownerConf.view_type = "panel";
 	ROSDASH.setPanel(owner, panel_name);
+	ROSDASH.initToolbar();
 
 	// generate empty dashboard
 	$("#myDashboard").sDashboard({
@@ -3196,9 +3201,9 @@ ROSDASH.startPanel = function (owner, panel_name, selected)
 
 	ROSDASH.initJson();
 	// load diagram for analysis
-	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
+	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json");
 	// load panel from json file
-	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel");
+	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json");
 	ROSDASH.waitJson();
 }
 // start to execute widgets
@@ -3212,7 +3217,6 @@ ROSDASH.exePanel = function ()
 
 ROSDASH.widgetMaxCallback = function (e, data)
 {}
-// init the HTML for each widget when it is added
 ROSDASH.widgetAddCallback = function (e, data)
 {}
 ROSDASH.widgetSetCallback = function (e, data)
@@ -3224,18 +3228,20 @@ ROSDASH.headerSetCallback = function (e, data)
 
 // diagram for analysis
 ROSDASH.diagram = undefined;
-
-ROSDASH.checkDiagram = function (file)
+// check diagram for updates
+ROSDASH.checkDiagram = function ()
 {
-	$.getJSON(file + ".json", function (data, status, xhr)
+	var file = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json";
+	$.getJSON(file, function (data, status, xhr)
 	{
+		// if different
 		if (JSON.stringify(ROSDASH.diagram) != JSON.stringify(data))
 		{
 			for (var i in data.block)
 			{
+				// if a widget updates
 				if (! (i in ROSDASH.widgets) && ("type" in data.block[i]) && (data.block[i].type in ROSDASH.widgetDef) && ROSDASH.widgetDef[data.block[i].type].has_panel)
 				{
-					console.debug("add", i, data.block[i])
 					var widget = {
 						widgetTitle : data.block[i].name,
 						widgetId : data.block[i].id,
@@ -3250,16 +3256,15 @@ ROSDASH.checkDiagram = function (file)
 						config : data.block[i].config
 					};
 					ROSDASH.addWidget(widget);
+					console.log("update from diagram", i, data.block[i]);
 					ROSDASH.ee.emitEvent('change');
 				}
 			}
 			ROSDASH.diagram = data;
 		}
-		setTimeout(function ()
-		{
-			ROSDASH.checkDiagram('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram");
-		}, 2000);
-	})
+		// wait for next check
+		setTimeout(ROSDASH.checkDiagram, 2000);
+	});
 }
 
 // read diagram json for panel execution
