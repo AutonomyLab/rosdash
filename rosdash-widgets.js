@@ -2096,12 +2096,12 @@ ROSDASH.RosInteractiveMarker.prototype.run = function (input)
 	return {o0: marker};
 }
 
+// better view in Chrome
 ROSDASH.RosMjpeg = function (block)
 {
 	this.block = block;
-	this.canvas = this.block.id + "_RosMjpeg";
+	this.canvas = this.block.id + "-RosMjpeg";
 	this.viewer;
-	this.init_success = false;
 }
 ROSDASH.RosMjpeg.prototype.addWidget = function (widget)
 {
@@ -2110,10 +2110,6 @@ ROSDASH.RosMjpeg.prototype.addWidget = function (widget)
 }
 ROSDASH.RosMjpeg.prototype.init = function ()
 {
-	if (! ROSDASH.rosConnected)
-	{
-		return;
-	}
 	if ($("#" + this.canvas).length <= 0)
 	{
 		return false;
@@ -2122,8 +2118,8 @@ ROSDASH.RosMjpeg.prototype.init = function ()
 	this.viewer = new MJPEGCANVAS.Viewer({
 		divID : this.canvas,
 		host : ROSDASH.ownerConf.ros_host,
-		width : ROSDASH.ownerConf.widget_width, //640,
-		height : ROSDASH.ownerConf.content_height, //480,
+		width : ROSDASH.ownerConf.widget_width,
+		height : ROSDASH.ownerConf.content_height,
 		// get from block config
 		topic : that.block.config.topic
 	});
@@ -2138,7 +2134,6 @@ ROSDASH.RosMjpeg.prototype.init = function ()
       labels : [ 'Robot View', 'Left Arm View', 'Right Arm View' ]
     });
 */
-	this.init_success = true;
 	return true;
 }
 ROSDASH.RosMjpeg.prototype.run = function (input)
