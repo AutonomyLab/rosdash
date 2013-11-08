@@ -424,6 +424,13 @@ ROSDASH.callJsonForm = function (block)
 			json = block.config;
 			break;
 		}
+		if (undefined === json)
+		{
+			config = {
+				title: "",
+				cacheable: false
+			};
+		}
 		break;
 	// for all property of block
 	case "allproperty":
@@ -1015,6 +1022,7 @@ ROSDASH.setUser = function (user)
 		ROSDASH.userConf.name = user;
 	}
 	ROSDASH.setCookie("username", ROSDASH.userConf.name);
+	ROSDASH.ee.emitEvent("userLogin");
 }
 // save to cookie
 ROSDASH.setCookie = function (c_name, value)
@@ -1063,6 +1071,7 @@ ROSDASH.checkCookie = function ()
 ROSDASH.logOut = function ()
 {
 	ROSDASH.setCookie("username", "");
+	ROSDASH.ee.emitEvent("userLogOut");
 	return "";
 }
 
@@ -1361,11 +1370,11 @@ ROSDASH.waitJson = function ()
 		setTimeout(ROSDASH.waitJson, 200);
 	} else
 	{
+		ROSDASH.ee.emitEvent("jsonReady");
 		ROSDASH.jsonReadyFunc();
 		console.log("loaded json files");
 		ROSDASH.jsonReady = true;
 		// emit a event for json ready
-		ROSDASH.ee.emitEvent("jsonReady");
 	}
 }
 // functions called after jsons are ready
@@ -1391,6 +1400,7 @@ ROSDASH.jsonReadyFunc = function ()
 		ROSDASH.loadWidgetDef();
 		// show panel editor
 		ROSDASH.loadPanel(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json"].data);
+		ROSDASH.ee.emitEvent("editorReady");
 		break;
 	case "diagram":
 		// parse msgs after loading json
@@ -1405,11 +1415,13 @@ ROSDASH.jsonReadyFunc = function ()
 		src_success = true;
 		// run jsoneditor
 		startJsonEditor();
+		ROSDASH.ee.emitEvent("jsonEditorReady");
 		break;
 	default:
 		break;
 	}
 }
+
 // save data to json file in server. @note PHP will ignore empty json part
 ROSDASH.saveJson = function (data, filename)
 {
@@ -1849,7 +1861,10 @@ ROSDASH.initBlockConf = function (block)
 			block.config = ROSDASH.transformRawJson(ROSDASH.widgetDef[block.type].config);
 		} else
 		{
-			block.config = {};
+			block.config = {
+				title: "",
+				cacheable: false
+			};
 		}
 	} else
 	{
@@ -2851,6 +2866,7 @@ ROSDASH.runDiagram = function (data)
 	{
 		ROSDASH.findBlock(ROSDASH.selectedBlock);
 	}
+	ROSDASH.ee.emitEvent("diagramReady");
 }
 
 ///////////////////////////////////// widget actions (based on sDashboard)
@@ -2965,19 +2981,36 @@ ROSDASH.addWidget = function (def)
 	// save the definition of this widget
 	ROSDASH.widgets[def.widgetId] = def;
 	var widget = def;
-	widget = ROSDASH.parseWidgetContent(widget);
+	widget = ROSDASH.setWidgetContent(widget);
+	if (undefined === widget)
+	{
+		return;
+	}
 	$("#myDashboard").sDashboard("addWidget", widget);
 	ROSDASH.ee.emitEvent('addWidget');
 }
 // set the value of widget content
-ROSDASH.parseWidgetContent = function (widget)
+ROSDASH.setWidgetContent = function (widget)
 {
 	//@deprecated set default value of content into example data from sDashboard
 	switch (widget.widgetType)
 	{
 	case "table":
-			widget.widgetContent = myExampleData.tableWidgetData;
-			break;
+		widget.widgetContent = {
+			"aaData" : [["", "", ""]],
+			"aoColumns" : [{
+				"sTitle" : ""
+			}, {
+				"sTitle" : ""
+			}, {
+				"sTitle" : ""
+			}],
+			"iDisplayLength": 25,
+			"aLengthMenu": [[1, 25, 50, -1], [1, 25, 50, "All"]],
+			"bPaginate": true,
+			"bAutoWidth": false
+		};
+		break;
 	case "bubbleChart":
 	case "bubble chart":
 		widget.widgetType = "chart";
@@ -3011,16 +3044,29 @@ ROSDASH.parseWidgetContent = function (widget)
 		widget.widgetContent = "";
 		break;
 	}
+	// set default title
+	widget.widgetTitle = widget.widgetType + " " + widget.number;
 	// if widget instantiated. if editor, addWidget is not executed
 	if (undefined !== ROSDASH.diagramConnection[widget.widgetId] && undefined !== ROSDASH.diagramConnection[widget.widgetId].instance)
 	{
+		// set default title from config
+		if (undefined !== ROSDASH.diagramConnection[widget.widgetId].block && undefined !== ROSDASH.diagramConnection[widget.widgetId].block.config && undefined !== ROSDASH.diagramConnection[widget.widgetId].block.config.title && "" != ROSDASH.diagramConnection[widget.widgetId].block.config.title)
+		{
+			widget.widgetTitle = ROSDASH.diagramConnection[widget.widgetId].block.config.title;
+		}
 		// the intance of widget
 		var obj = ROSDASH.diagramConnection[widget.widgetId].instance;
-		// if cannot pass checking, do not run
-		if ( ROSDASH.checkFuncByName("addWidget", obj) )
+		try {
+			// if cannot pass checking, do not run
+			if ( ROSDASH.checkFuncByName("addWidget", obj) )
+			{
+				// execute addWidget
+				widget = ROSDASH.runFuncByName("addWidget", obj, widget);
+			}
+		} catch (err)
 		{
-			// execute addWidget
-			widget = ROSDASH.runFuncByName("addWidget", obj, widget);
+			console.error("add widget error", err.message, err.stack);
+			return undefined;
 		}
 	}
 	return widget;
@@ -3209,7 +3255,10 @@ ROSDASH.startPanel = function (owner, panel_name, selected)
 // start to execute widgets
 ROSDASH.exePanel = function ()
 {
+	ROSDASH.ee.emitEvent("panelReady");
+	ROSDASH.ee.emitEvent("initBegin");
 	ROSDASH.initWidgets();
+	ROSDASH.ee.emitEvent("executionBegin");
 	ROSDASH.runWidgets();
 }
 
@@ -3589,6 +3638,7 @@ ROSDASH.runWidgets = function ()
 {
 	// count how many cycles executed
 	++ ROSDASH.cycle;
+	ROSDASH.ee.emitEvent("cycleBegin");
 	ROSDASH.doneCount = 0;
 	var last_count = -1;
 	// if ROSDASH.doneCount does not change, the diagram execution ends
@@ -3665,7 +3715,7 @@ ROSDASH.runWidgets = function ()
 							}
 						} else
 						{
-							console.log("duplicate and cacheable", i);
+							//console.log("duplicate and cacheable", i);
 						}
 						ROSDASH.diagramConnection[i].cycle = ROSDASH.cycle;
 						ROSDASH.diagramConnection[i].error = false;
@@ -3684,6 +3734,7 @@ ROSDASH.runWidgets = function ()
 			}
 		}
 	}
+	ROSDASH.ee.emitEvent("cycleEnd");
 	// sleep for a while and start next cycle
 	setTimeout(ROSDASH.runWidgets, ROSDASH.ownerConf.run_msec);
 }

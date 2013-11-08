@@ -749,23 +749,22 @@ ROSDASH.Text = function (block)
 }
 ROSDASH.Text.prototype.addWidget = function (widget)
 {
-	widget.widgetContent = "aaa";
+	widget.widgetContent = "";
 	return widget;
 }
-//@input	header and content strings
+//@input	content
 //@output	none
 ROSDASH.Text.prototype.run = function (input)
 {
 	// if json, transform into string
-	if (typeof input[1] == "object" || typeof input[1] == "array")
+	if (typeof input[0] == "object" || typeof input[0] == "array")
 	{
-		input[1] = JSON.stringify(input[1]);
+		input[0] = JSON.stringify(input[0]);
 	}
-	$("#myDashboard").sDashboard("setContentById", this.block.id, input[1]);
+	$("#myDashboard").sDashboard("setContentById", this.block.id, input[0]);
 }
 
-// text widget with speaking widget
-ROSDASH.speakContent = "";
+// text widget with speaking library
 ROSDASH.Speech = function (block)
 {
 	this.block = block;
@@ -775,13 +774,13 @@ ROSDASH.Speech = function (block)
 ROSDASH.Speech.prototype.addWidget = function (widget)
 {
 	// add a button for speak
-	widget.widgetTitle = this.block.id + ' <input type="button" id="' + this.canvas_id + '" value="speak" /><span id="audio"></span>';
+	widget.widgetTitle += ' <input type="button" id="' + this.canvas_id + '" value="speak" /><span id="audio"></span>';
 	widget.widgetContent = this.content;
 	return widget;
 }
-// add callback function to speak button
 ROSDASH.Speech.prototype.init = function ()
 {
+	var that = this;
 	if ($("#" + this.canvas_id).length <= 0)
 	{
 		return false;
@@ -790,7 +789,7 @@ ROSDASH.Speech.prototype.init = function ()
 	$("#" + this.canvas_id).click(function ()
 	{
 		// speak by speak.js
-		speak(ROSDASH.speakContent);
+		speak(that.content);
 	});
 	return true;
 }
@@ -798,28 +797,22 @@ ROSDASH.Speech.prototype.init = function ()
 //@output	none
 ROSDASH.Speech.prototype.run = function (input)
 {
-	input[0] = (undefined !== input[0]) ? input[0] : "";
-	if (this.content != input[0])
+	if (typeof input[0] == "object" || typeof input[0] == "array")
 	{
-		this.content = input[0];
-		// class variable does not work
-		if (typeof input[0] == "object" || typeof input[0] == "array")
+		if ("data" in input[0])
 		{
-			if ("data" in input[0])
-			{
-				ROSDASH.speakContent = JSON.stringify(input[0]);
-			} else
-			{
-				ROSDASH.speakContent = JSON.stringify(input[0]);
-			}
+			this.content = JSON.stringify(input[0].data);
 		} else
 		{
-			ROSDASH.speakContent = input[0];
+			this.content = JSON.stringify(input[0]);
 		}
-		// if new message comes, speak
-		//speak(ROSDASH.speakContent);
-		$("#myDashboard").sDashboard("setContentById", this.block.id, ROSDASH.speakContent);
+	} else
+	{
+		this.content = input[0];
 	}
+	// if new message comes, speak
+	//speak(this.content);
+	$("#myDashboard").sDashboard("setContentById", this.block.id, this.content);
 }
 
 // table
@@ -828,85 +821,88 @@ ROSDASH.Table = function (block)
 	this.block = block;
 	this.last = "";
 }
-//@note addWidget for built-in widgets, avoid parseExampleData
 ROSDASH.Table.prototype.addWidget = function (widget)
 {
-	widget.widgetContent = myExampleData.tableWidgetData;
-	widget.widgetContent.aoColumns = [{
-		"sTitle" : "rosdash"
-	}, {
-		"sTitle" : "rosdash"
-	}, {
-		"sTitle" : "rosdash"
-	}];
+	widget.widgetContent = {
+		"aaData" : [[]],
+		"aoColumns" : [],
+		"iDisplayLength": 25,
+		"aLengthMenu": [[1, 25, 50, -1], [1, 25, 50, "All"]],
+		"bPaginate": true,
+		"bAutoWidth": false
+	};
+	if (undefined !== this.block.config && undefined !== this.block.config.table_titles)
+	{
+		for (var i in this.block.config.table_titles)
+		{
+			widget.widgetContent.aoColumns.push({sTitle : ""});
+			widget.widgetContent.aaData[0].push("");
+		}
+	} else
+	{
+		widget.widgetContent.aoColumns.push({sTitle : ""});
+		widget.widgetContent.aaData[0].push("");
+	}
 	return widget;
 }
 //@input	header, titles, and contents for table
 //@output	none
 ROSDASH.Table.prototype.run = function (input)
 {
-	var str = JSON.stringify(input);
-	if (this.last == str)
-	{
-		return;
-	}
-	this.last = str;
-	// default value for header
-	input[0] = (undefined === input[0]) ? this.block.name : input[0];
-	$("#myDashboard").sDashboard("setHeaderById", this.block.id, input[0]);
 	// for titles
 	// if not an array, transform into array
-	if (typeof input[1] != "array" && typeof input[1] != "object")
+	if (typeof input[0] != "array" && typeof input[0] != "object")
 	{
-		var tmp = input[1];
-		input[1] = new Array();
-		input[1].push(tmp);
+		var tmp = input[0];
+		input[0] = new Array();
+		input[0].push(tmp);
 	}
 	var aoColumns = new Array();
 	// handle special cases
-	for (var i in input[1])
+	for (var i in input[0])
 	{
 		// transform into string
-		if (typeof input[1][i] == "number")
+		if (typeof input[0][i] == "number")
 		{
-			aoColumns.push({sTitle: "" + input[1][i]});
+			aoColumns.push({sTitle: "" + input[0][i]});
 		}
-		else if (undefined === input[1][i])
+		else if (undefined === input[0][i])
 		{
 			aoColumns.push({sTitle: " "});
 		} else
 		{
-			aoColumns.push({sTitle: input[1][i]});
+			aoColumns.push({sTitle: input[0][i]});
 		}
 	}
 	// if not a matrix, transform into matrix
-	if (typeof input[2] != "array" && typeof input[2] != "object")
+	if (typeof input[1] != "array" && typeof input[1] != "object")
 	{
-		var tmp = input[2];
-		input[2] = new Array();
-		input[2].push(new Array());
-		input[2][0].push(tmp);
+		var tmp = input[1];
+		input[1] = new Array();
+		input[1].push(new Array());
+		input[1][0].push(tmp);
 	}
 	// for content
 	var aaData = new Array();
-	for (var i in input[2])
+	for (var i in input[1])
 	{
 		var tmp = new Array();
-		for (var j in input[2][i])
+		for (var j in input[1][i])
 		{
 			// handle special cases
-			if (typeof input[2][i][j] == "number")
+			if (typeof input[1][i][j] == "number")
 			{
-				tmp.push("" + input[2][i][j]);
-			} else if (undefined === input[2][i][j])
+				tmp.push("" + input[1][i][j]);
+			} else if (undefined === input[1][i][j])
 			{
-				tmp.push(" ");
+				tmp.push("");
 			} else
 			{
-				tmp.push(input[2][i][j]);
+				tmp.push(input[1][i][j]);
 			}
 		}
-		while (tmp.length < input[1].length)
+		// make content long enough
+		while (tmp.length < input[0].length)
 		{
 			tmp.push("");
 		}
@@ -916,25 +912,26 @@ ROSDASH.Table.prototype.run = function (input)
 	if (aaData.length == 0)
 	{
 		var tmp = new Array();
-		for (var j = 0; j < input[1].length; ++ j)
+		for (var j = 0; j < input[0].length; ++ j)
 		{
-			tmp.push(" ");
+			tmp.push("");
 		}
 		aaData.push(tmp);
 	}
+	// make content long enough
 	if (aaData[0].length < aoColumns.length)
 	{
 		for (var j = aaData[0].length; j < aoColumns.length; ++ j)
 		{
-			aaData[0].push(" ");
+			aaData[0].push("");
 		}
 	}
 	// if titles too short
-	if (input[1].length < aaData[0].length)
+	if (input[0].length < aaData[0].length)
 	{
-		for (var i = input[1].length; i < aaData[0].length; ++ i)
+		for (var i = input[0].length; i < aaData[0].length; ++ i)
 		{
-			aoColumns.push({sTitle: " "});
+			aoColumns.push({sTitle: ""});
 		}
 	}
 	// for contents
@@ -950,9 +947,6 @@ ROSDASH.Table.prototype.run = function (input)
         "bInfo": false,
         "bAutoWidth": false
 	};
-	//console.debug(aoColumns)
-	//var dataTable = $('<table cellpadding="0" cellspacing="0" border="0" class="display sDashboardTableView table table-bordered"></table>');
-	//$("#myDashboard").sDashboard("setContentById", this.block.id, dataTable);
 	$("#myDashboard").sDashboard("refreshTableById", this.block.id, tableDef);
 }
 
