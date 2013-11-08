@@ -488,14 +488,8 @@ ROSDASH.Topic = function (block)
 	this.topic;
 }
 // subscribe a ROS topic for once
-ROSDASH.Topic.prototype.init = function ()
+ROSDASH.Topic.prototype.initRos = function ()
 {
-	if (! ROSDASH.rosConnected)
-	{
-		return false;
-	}
-	this.block.rostype = (undefined !== this.block.rostype && "" !== this.block.rostype) ? this.block.rostype : 'std_msgs/String';
-	this.ros_msg = {error: "cannot connect to this topic"};
 	this.topic = new ROSLIB.Topic({
 		ros : ROSDASH.ros,
 		name : this.block.rosname,
@@ -503,7 +497,7 @@ ROSDASH.Topic.prototype.init = function ()
 	});
 	var self = this;
 	// subscribe a ROS topic
-	this.topic.subscribe(function(message)
+	this.topic.subscribe(function (message)
 	{
 		self.ros_msg = message;
 		//listener.unsubscribe();
@@ -514,11 +508,7 @@ ROSDASH.Topic.prototype.init = function ()
 //@output	ROS topic message
 ROSDASH.Topic.prototype.run = function (input)
 {
-	var output;
-	if (undefined !== this.block.rosname)
-	{
-		output = this.ros_msg;
-	}
+	// if should publish, publish
 	if (undefined !== input[0])
 	{
 		var msg;
@@ -531,20 +521,17 @@ ROSDASH.Topic.prototype.run = function (input)
 		}
 		this.topic.publish(msg);
 	}
-	return {o0: output};
+	return {o0:  this.ros_msg};
 }
 
 ROSDASH.Service = function (block)
 {
 	this.block = block;
 	this.service;
+	this.result = "cannot connect to this service";
 }
-ROSDASH.Service.prototype.init = function ()
+ROSDASH.Service.prototype.initRos = function ()
 {
-	if (! ROSDASH.rosConnected)
-	{
-		return false;
-	}
 	// First, we create a Service client with details of the service's name and service type.
 	this.service = new ROSLIB.Service({
 		ros : ROSDASH.ros,
@@ -557,28 +544,21 @@ ROSDASH.Service.prototype.run = function (input)
 {
 	var msg = (undefined !== input[0]) ? input[0] : {A : 1, B : 2};
 	var request = new ROSLIB.ServiceRequest(msg);
-	var output = new Object();
-	this.service.callService(request, function(result) {
-		for (var i in result)
-		{
-			output[i] = result[i];
-		}
+	var that = this;
+	this.service.callService(request, function (result) {
+		that.result = jQuery.extend(true, {}, result);
 	});
-	return {o0: output};
+	return {o0: this.result};
 }
 
 ROSDASH.Param = function (block)
 {
 	this.block = block;
 	this.param;
-	this.output;
+	this.output = "cannot connect to this param";
 }
-ROSDASH.Param.prototype.init = function ()
+ROSDASH.Param.prototype.initRos = function ()
 {
-	if (! ROSDASH.rosConnected)
-	{
-		return false;
-	}
 	// First, we create a Service client with details of the service's name and service type.
 	this.param = new ROSLIB.Param({
 		ros : ROSDASH.ros,
@@ -589,14 +569,14 @@ ROSDASH.Param.prototype.init = function ()
 ROSDASH.Param.prototype.run = function (input)
 {
 	var that = this;
-	this.param.get(function(value) {
+	this.param.get(function (value) {
 		that.output = value;
 	});
 	if (undefined !== input[0])
 	{
 		this.param.set(input[0]);
 	}
-	return {o0: that.output + ""};
+	return {o0: that.output};
 }
 
 //////////////////////////////////// input
@@ -662,9 +642,23 @@ ROSDASH.ToggleButton.prototype.run = function (input)
 ROSDASH.VirtualJoystick = function (block)
 {
 	this.block = block;
-	this.canvas_id = "VirtualJoystick_" + this.block.id;
-	this.joystick;
+	this.canvas_id = "VirtualJoystick-" + this.block.id;
+	this.joy_obj;
 	this.unlock = false;
+	this.joy = {
+		header : 
+		{
+			seq : 0,
+			stamp : 
+			{
+				sec : parseInt(new Date().getTime() / 1000),
+				nsec : parseInt(new Date().getTime() % 1000 * 1000000)
+			},
+			frame_id : ""
+		},
+		axes : [0, 0, 0, 0, 0, 0],
+		buttons : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	};
 }
 ROSDASH.VirtualJoystick.prototype.addWidget = function (widget)
 {
@@ -675,6 +669,7 @@ ROSDASH.VirtualJoystick.prototype.addWidget = function (widget)
 ROSDASH.VirtualJoystick.prototype.init = function ()
 {
 	var that = this;
+	// click to change lock or unlock
 	$("#" + that.canvas_id + "-lock").click(function ()
 	{
 		if ("lock" == $("#" + that.canvas_id + "-lock").val())
@@ -688,46 +683,20 @@ ROSDASH.VirtualJoystick.prototype.init = function ()
 		}
 	});
 	//console.log("touchscreen for VirtualJoystick is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
-	this.joystick = new VirtualJoystick({
-		container	: document.getElementById(this.canvas_id),
+	this.joy_obj = new VirtualJoystick({
+		container		: document.getElementById(this.canvas_id),
 		mouseSupport	: true
 	});
 	return true;
 }
 //@input	none
-//@output	joystick message
+//@output	joy msg, VirtualJoystick object
 ROSDASH.VirtualJoystick.prototype.run = function (input)
 {
-	var that = this;
-	return {o0: {
-		dx: this.joystick.deltaX(),
-		dy: this.joystick.deltaY(),
-		right: this.joystick.right(),
-		up: this.joystick.up(),
-		left: this.joystick.left(),
-		down: this.joystick.down(),
-		lock: that.unlock
-	}};
-}
-
-//@todo uniform joystick message
-ROSDASH.joystickToRosJoy = function (block)
-{
-	this.block = block;
-	this.seq = 0;
-	this.joy_input = undefined;
-}
-ROSDASH.joystickToRosJoy.prototype.run = function (input)
-{
-	if (undefined !== this.joy_input && input[0].left == this.joy_input.left && input[0].right == this.joy_input.right && input[0].up == this.joy_input.up && input[0].down == this.joy_input.down && input[0].lock == this.joy_input.lock)
-	{
-		return;
-	}
-	this.joy_input = jQuery.extend(true, {}, input[0]);
-	var joy = {
+	this.joy = {
 		header : 
 		{
-			seq : this.seq ++,
+			seq : this.joy.header.seq + 1,
 			stamp : 
 			{
 				sec : parseInt(new Date().getTime() / 1000),
@@ -735,10 +704,13 @@ ROSDASH.joystickToRosJoy.prototype.run = function (input)
 			},
 			frame_id : ""
 		},
-		axes : [Number(input[0].left - input[0].right), Number(input[0].up - input[0].down), 0, 0, 0, 0],
-		buttons : [Number(input[0].lock), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		axes : [Number(this.joy_obj.left() - this.joy_obj.right()), Number(this.joy_obj.up() - this.joy_obj.down()), 0, 0, 0, 0],
+		buttons : [Number(this.unlock), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	};
-	return {o0 : joy};
+	return {
+		o0: this.joy,
+		o1: this.joy_obj
+	};
 }
 
 //////////////////////////////////// basic output
@@ -820,7 +792,7 @@ ROSDASH.Speech.prototype.run = function (input)
 ROSDASH.Table = function (block)
 {
 	this.block = block;
-	this.last = "";
+	this.titles = (undefined !== this.block.config.table_titles) ? this.block.config.table_titles : [""];
 }
 ROSDASH.Table.prototype.addWidget = function (widget)
 {
@@ -832,78 +804,46 @@ ROSDASH.Table.prototype.addWidget = function (widget)
 		"bPaginate": true,
 		"bAutoWidth": false
 	};
-	if (undefined !== this.block.config && undefined !== this.block.config.table_titles)
+	for (var i in this.titles)
 	{
-		for (var i in this.block.config.table_titles)
-		{
-			widget.widgetContent.aoColumns.push({sTitle : this.block.config.table_titles[i]});
-			widget.widgetContent.aaData[0].push("");
-		}
-	} else
-	{
-		widget.widgetContent.aoColumns.push({sTitle : ""});
+		widget.widgetContent.aoColumns.push({sTitle : this.titles[i]});
 		widget.widgetContent.aaData[0].push("");
 	}
 	return widget;
 }
-//@input	header, titles, and contents for table
+//@input	contents
 //@output	none
 ROSDASH.Table.prototype.run = function (input)
 {
-	// for titles
-	// if not an array, transform into array
+	// if not a matrix, transform into matrix
 	if (typeof input[0] != "array" && typeof input[0] != "object")
 	{
 		var tmp = input[0];
 		input[0] = new Array();
-		input[0].push(tmp);
-	}
-	var aoColumns = new Array();
-	// handle special cases
-	for (var i in input[0])
-	{
-		// transform into string
-		if (typeof input[0][i] == "number")
-		{
-			aoColumns.push({sTitle: "" + input[0][i]});
-		}
-		else if (undefined === input[0][i])
-		{
-			aoColumns.push({sTitle: " "});
-		} else
-		{
-			aoColumns.push({sTitle: input[0][i]});
-		}
-	}
-	// if not a matrix, transform into matrix
-	if (typeof input[1] != "array" && typeof input[1] != "object")
-	{
-		var tmp = input[1];
-		input[1] = new Array();
-		input[1].push(new Array());
-		input[1][0].push(tmp);
+		input[0].push(new Array());
+		input[0][0].push(tmp);
 	}
 	// for content
 	var aaData = new Array();
-	for (var i in input[1])
+	for (var i in input[0])
 	{
 		var tmp = new Array();
-		for (var j in input[1][i])
+		for (var j in input[0][i])
 		{
 			// handle special cases
-			if (typeof input[1][i][j] == "number")
+			if (typeof input[0][i][j] == "number")
 			{
-				tmp.push("" + input[1][i][j]);
-			} else if (undefined === input[1][i][j])
+				tmp.push("" + input[0][i][j]);
+			} else if (undefined === input[0][i][j])
 			{
 				tmp.push("");
 			} else
 			{
-				tmp.push(input[1][i][j]);
+				tmp.push(input[0][i][j]);
 			}
 		}
 		// make content long enough
-		while (tmp.length < input[0].length)
+		while (tmp.length < this.titles.length)
 		{
 			tmp.push("");
 		}
@@ -913,42 +853,21 @@ ROSDASH.Table.prototype.run = function (input)
 	if (aaData.length == 0)
 	{
 		var tmp = new Array();
-		for (var j = 0; j < input[0].length; ++ j)
+		for (var j = 0; j < this.titles.length; ++ j)
 		{
 			tmp.push("");
 		}
 		aaData.push(tmp);
 	}
 	// make content long enough
-	if (aaData[0].length < aoColumns.length)
+	if (aaData[0].length < this.titles.length)
 	{
-		for (var j = aaData[0].length; j < aoColumns.length; ++ j)
+		for (var j = aaData[0].length; j < this.titles.length; ++ j)
 		{
 			aaData[0].push("");
 		}
 	}
-	// if titles too short
-	if (input[0].length < aaData[0].length)
-	{
-		for (var i = input[0].length; i < aaData[0].length; ++ i)
-		{
-			aoColumns.push({sTitle: ""});
-		}
-	}
-	// for contents
-	var tableDef = {
-		"aaData" : aaData,
-		"aoColumns" : aoColumns,
-		"iDisplayLength": 25,
-		"aLengthMenu": [[1, 25, 50, -1], [1, 25, 50, "All"]],
-        "bPaginate": true,
-        "bLengthChange": false,
-        "bFilter": true,
-        "bSort": false,
-        "bInfo": false,
-        "bAutoWidth": false
-	};
-	$("#myDashboard").sDashboard("refreshTableById", this.block.id, tableDef);
+	$("#myDashboard").sDashboard("refreshTableById", this.block.id, aaData);
 }
 
 //////////////////////////////////// networks
@@ -1907,25 +1826,25 @@ ROSDASH.HandTracker.prototype.createImage = function (imagesrc, imagedst)
 ROSDASH.Turtlesim = function (block)
 {
 	this.block = block;
-	this.canvas_id = "turtlesim_" + this.block.id;
+	this.canvas_id = "turtlesim-" + this.block.id;
 }
 ROSDASH.Turtlesim.prototype.addWidget = function (widget)
 {
-	widget.widgetContent = '<canvas id="' + this.canvas_id + '" width="' + ROSDASH.ownerConf.widget_width + 'px" height="' + ROSDASH.ownerConf.content_height + 'px" style="border: 1px solid black"></canvas>';
+	widget.widgetContent = '<canvas id="' + this.canvas_id + '" width="' + ROSDASH.ownerConf.widget_width + 'px" height="' + ROSDASH.ownerConf.content_height + 'px"></canvas>';
 	return widget;
 }
-ROSDASH.Turtlesim.prototype.init = function ()
+ROSDASH.Turtlesim.prototype.initRos = function ()
 {
-	//@note a traditional ROS connection
+	//@note a deprecated ROS connection
 	var ros = new ROS('ws://localhost:9090');
 	var self = this;
 	ros.on('connection', function()
 	{
-		console.log("traditional ROS connected");
+		console.log("deprecated rosjs connected");
 		var context = document.getElementById(self.canvas_id).getContext('2d');
 		var turtleSim = new TurtleSim({
-			  ros     : ros
-			, context : context
+			ros     : ros,
+			context : context
 		});
 		turtleSim.spawnTurtle('turtle1');
 		turtleSim.draw();
@@ -2306,11 +2225,12 @@ ROSDASH.GmapTraj = function (block)
 		last_loc: new Array()
 	};
 }
-//@input	google maps object, robot position
+//@input	google maps object, Pos2D
 //@output	google maps object
 ROSDASH.GmapTraj.prototype.run = function (input)
 {
-	if (this.robot.last_loc[0] == input[1].x && this.robot.last_loc[1] == input[1].y)
+	var new_x = input[1].y, new_y = -input[1].x;
+	if (this.robot.last_loc[0] == new_x && this.robot.last_loc[1] == new_y)
 	{
 		return {o0: input[0]};
 	}
@@ -2320,7 +2240,7 @@ ROSDASH.GmapTraj.prototype.run = function (input)
 		this.robot.marker.setMap(null);
 	}
 	this.robot.marker = new google.maps.Marker({
-		position: new google.maps.LatLng(input[1].x, input[1].y),
+		position: new google.maps.LatLng(new_x, new_y),
 		map: input[0],	// google maps object
 		title: "robot",
 		icon: "resource/cabs.png",
@@ -2337,20 +2257,20 @@ ROSDASH.GmapTraj.prototype.run = function (input)
 	var icon = new Array();
 	if (undefined === this.robot.last_loc)
 	{
-		this.robot.last_loc[0] = input[1].x;
-		this.robot.last_loc[1] = input[1].y;
+		this.robot.last_loc[0] = new_x;
+		this.robot.last_loc[1] = new_y;
 	}
 	// add path
 	this.robot.path.push(new google.maps.Polyline({
 		map: input[0],
-		path: [new google.maps.LatLng(this.robot.last_loc[0], this.robot.last_loc[1]), new google.maps.LatLng(input[1].x, input[1].y)],
+		path: [new google.maps.LatLng(this.robot.last_loc[0], this.robot.last_loc[1]), new google.maps.LatLng(new_x, new_y)],
 		strokeColor: color,
 		strokeOpacity: 1,
 		strokeWeight: weight,
 		icons: icon
 	}));
-	this.robot.last_loc[0] = input[1].x;
-	this.robot.last_loc[1] = input[1].y;
+	this.robot.last_loc[0] = new_x;
+	this.robot.last_loc[1] = new_y;
 	return {o0: input[0]};
 }
 
@@ -2369,13 +2289,13 @@ ROSDASH.GmapEnergyGrid = function (block)
 	this.grid_value = new Object();
 	this.update_grid = new Object();
 }
-//@input	google maps object, robot position
+//@input	google maps object, Pos2D
 //@output	google maps object
 ROSDASH.GmapEnergyGrid.prototype.run = function (input)
 {
 	this.gmap = input[0];
-	this.robot.x -= input[1].dy / 200.0 * 0.001;
-	this.robot.y += input[1].dx / 200.0 * 0.001;
+	this.robot.x = input[1].y;
+	this.robot.y = -input[1].x;
 	this.showGrids(this.calcGrids(this.robot.x, this.robot.y));
 	return {o0: input[0]};
 }
@@ -2771,22 +2691,30 @@ ROSDASH.Vumeter.prototype.run = function (input)
 
 //////////////////////////////////// robot simulation
 
-//@todo find relevant information for ROS
+// 2d position controlled by joystick
 ROSDASH.Pos2d = function (block)
 {
 	this.block = block;
+	var LAB = [49.276802, -122.914913];
+	this.pose2d = {
+		x : (undefined !== this.block.config.init_x) ? parseFloat(this.block.config.init_x) : LAB[0],
+		y : (undefined !== this.block.config.init_y) ? parseFloat(this.block.config.init_y) : LAB[1],
+		theta : (undefined !== this.block.config.init_theta) ? parseFloat(this.block.config.init_theta) : 0,
+	};
+	this.acceleration = {
+		x : (undefined !== this.block.config.acc_x) ? parseFloat(this.block.config.acc_x) : 1,
+		y : (undefined !== this.block.config.acc_y) ? parseFloat(this.block.config.acc_y) : 1,
+		theta : (undefined !== this.block.config.acc_theta) ? parseFloat(this.block.config.acc_theta) : 1,
+	};
 }
+//@input		joystick control
+//@output		Pos2D msg
 ROSDASH.Pos2d.prototype.run = function (input)
 {
-	input[0] = (undefined !== input[0]) ? input[0] : 0;
-	input[1] = (undefined !== input[1]) ? input[1] : 0;
-	input[2] = (undefined !== input[2]) ? input[2] : 0;
-	var output = {
-		x : input[0],
-		y : input[1],
-		yaw : input[2]
-	};
-	return {o0: output};
+	this.pose2d.x += input[0].axes[0] * this.acceleration.x;
+	this.pose2d.y += input[0].axes[1] * this.acceleration.y;
+	this.pose2d.theta += input[0].axes[3] * this.acceleration.theta;
+	return {o0: this.pose2d};
 }
 
 // a simulated mobile robot
@@ -2822,28 +2750,6 @@ ROSDASH.SimRobot.prototype.run = function (input)
 		o4: Math.random() * 100 // current
 	};
 	return output;
-}
-
-ROSDASH.GmapSimRobotByJoystick = function (block)
-{
-	var LAB = [49.276802, -122.914913];
-	this.block = block;
-	this.last_loc = LAB;
-	this.loc_step = 0.001;
-}
-ROSDASH.GmapSimRobotByJoystick.prototype.run = function (input)
-{
-	var loc = new Array();
-	loc[0] = this.last_loc[0] - input[0].dy / 200.0 * this.loc_step;
-	loc[1] = this.last_loc[1] + input[0].dx / 200.0 * this.loc_step;
-	var output = {
-		x: loc[0],
-		y: loc[1],
-		yaw: 0,
-	};
-	this.last_loc[0] = loc[0];
-	this.last_loc[1] = loc[1];
-	return {o0: output};
 }
 
 //////////////////////////////////// user interfaces
@@ -2955,6 +2861,27 @@ ROSDASH.userWelcome = function (block)
 {
 	this.block = block;
 }
+ROSDASH.userWelcome.prototype.userLogin = function ()
+{
+    if (typeof window.janrain !== 'object') window.janrain = {};
+    if (typeof window.janrain.settings !== 'object') window.janrain.settings = {};
+    janrain.settings.tokenUrl = 'http://localhost/rosdash-devel/panel.html?status=login'; //'http://localhost/rosdash-devel/token-url.php'; //'__REPLACE_WITH_YOUR_TOKEN_URL__';
+    function isReady()
+    {
+		janrain.ready = true;
+	};
+    var e = document.createElement('script');
+    e.type = 'text/javascript';
+    e.id = 'janrainAuthWidget';
+    if (document.location.protocol === 'https:') {
+      e.src = 'https://rpxnow.com/js/lib/rosdash/engage.js';
+    } else {
+      e.src = 'http://widget-cdn.rpxnow.com/js/lib/rosdash/engage.js';
+    }
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(e, s);
+    isReady();
+}
 // callback function for createPersonal button
 ROSDASH.userWelcome.prototype.createPersonal = function (name)
 {
@@ -3004,27 +2931,28 @@ ROSDASH.userWelcome.prototype.newPanel = function (name)
 }
 ROSDASH.userWelcome.prototype.addWidget = function (widget)
 {
-	widget.widgetTitle = 'Welcome ^_^';
+	widget.widgetTitle = 'Welcome to ROSDASH';
 	// if index page
 	if ("index" == ROSDASH.ownerConf.name)
 	{
 		widget.widgetContent = '<h1 style="color:blue;">Welcome to ROSDASH !</h1>'
 			+ '<p style="color:Navy;">A web-based platform of dashboards for roboticists and ROS users.</p>'
-			+ '<p>Please select a Dashboard from the list</p>';
+			+ '<div id="janrainEngageEmbed"></div>';
+		// for a user
 		if ("Guest" != ROSDASH.userConf.name)
 		{
 			// add createPersonal
 			widget.widgetContent += '<p>or'
 				+ '<input type="button" value="Goto your personal Dashboard" id="submit_' + this.block.id + '">'
 			+ '</p>';
-		} else
+		} else // for a guest
 		{
 			widget.widgetContent += '<p>or'
 				+ '<input type="text" name="name" id="sudo_' + this.block.id + '">'
 				+ '<input type="button" value="Sudo user" id="submit_' + this.block.id + '">'
 			+ '</p>';
 		}
-	} else
+	} else // if a user's personal page
 	{
 		// add welcome
 		widget.widgetContent = '<h1 style="color:blue;">Welcome to ROSDASH, ' + ROSDASH.ownerConf.name + ' !</h1>';
@@ -3056,6 +2984,7 @@ ROSDASH.userWelcome.prototype.init = function (input)
 	// if index page
 	if ("index" == ROSDASH.ownerConf.name)
 	{
+		this.userLogin();
 		if ("Guest" != ROSDASH.userConf.name)
 		{
 			// append createPersonal callback function to that button

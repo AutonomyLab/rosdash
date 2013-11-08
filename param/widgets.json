@@ -278,7 +278,7 @@
 			}
 		]
 	}, {
-		"type": "ros list",
+		"type": "rosList",
 		"category": [
 			"ROS"
 		],

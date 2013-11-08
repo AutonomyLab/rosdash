@@ -677,6 +677,8 @@ ROSDASH.initToolbar = function ()
 			switch (ROSDASH.ownerConf.view_type)
 			{
 			case "panel":
+				ROSDASH.resetPanelToolbar();
+				break;
 			case "editor":
 				ROSDASH.resetEditorToolbar();
 				break;
@@ -811,6 +813,8 @@ ROSDASH.initToolbar = function ()
 	switch (ROSDASH.ownerConf.view_type)
 	{
 	case "panel":
+		ROSDASH.resetPanelToolbar();
+		break;
 	case "editor":
 		ROSDASH.resetEditorToolbar();
 		break;
@@ -818,6 +822,44 @@ ROSDASH.initToolbar = function ()
 		ROSDASH.resetDiagramToolbar();
 		break;
 	}
+}
+// reset the toolbar for panel
+ROSDASH.resetPanelToolbar = function ()
+{
+	// remove previous items
+	ROSDASH.toolbar.forEachItem(function(itemId)
+	{
+		ROSDASH.toolbar.removeItem(itemId);
+	});
+	var count = 0;
+	var logo_text = '<a href="index.html" target="_blank">ROSDASH</a>';
+	ROSDASH.toolbar.addText("logo", count, logo_text);
+	ROSDASH.toolbar.addText("user", ++ count, "Guest");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	var ownername = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
+	ROSDASH.toolbar.addText("owner", ++ count, ownername);
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
+	var ros_host = (undefined !== ROSDASH.ownerConf.ros_host && "" != ROSDASH.ownerConf.ros_host) ? ROSDASH.ownerConf.ros_host : "disconnected";
+	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
+	ROSDASH.toolbar.addText("saving", ++ count, "unchanged");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addInput("input", ++ count, "", 160);
+	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
+	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
+	//ROSDASH.toolbar.addButton("zindex", ++ count, "zindex", "database.gif", "database.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	if ("panel" == ROSDASH.ownerConf.view_type)
+	{
+		ROSDASH.toolbar.addButton("editor", ++ count, "editor", "database.gif", "database.gif");
+	} else
+	{
+		ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
+	}
+	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "database.gif", "database.gif");
+	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
 }
 // reset the toolbar for editor
 ROSDASH.resetEditorToolbar = function ()
@@ -1206,8 +1248,12 @@ ROSDASH.connectROS = function (host, port)
 		console.log('ROS connection made: ', host + ":" + port);
 		ROSDASH.setRosValue(host, port);
 		ROSDASH.getROSNames(ROSDASH.ros);
-		// emit event for ros connected
-		ROSDASH.ee.emitEvent('rosConnected');
+		// wait until all widgets are ready
+		if (ROSDASH.cycle >= 0)
+		{
+			// emit event for ros connected
+			ROSDASH.ee.emitEvent('rosConnected');
+		}
 	});
 	ROSDASH.ros.on('close', function() {
 		ROSDASH.rosConnected = false;
@@ -3441,6 +3487,10 @@ ROSDASH.traverseDiagram = function ()
 				ROSDASH.diagramConnection[i].error = true;
 				console.error("instantiate widget error:", i, ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].class_name, err.message, err.stack);
 			}
+			if (undefined === ROSDASH.diagramConnection[i].instance)
+			{
+				ROSDASH.diagramConnection[i].error = true;
+			}
 		}
 	}
 }
@@ -3617,6 +3667,22 @@ ROSDASH.initWidgets = function ()
 		{
 			// run function by instance of widget class
 			ROSDASH.callWidgetInit(i);
+			// if ros connected
+			if (ROSDASH.rosConnected && ROSDASH.cycle < 0)
+			{
+				try	{
+					// run initRos
+					var initialized = ROSDASH.runFuncByName("initRos", ROSDASH.diagramConnection[i].instance);
+					ROSDASH.diagramConnection[i].initialized = ROSDASH.diagramConnection[i].initialized || initialized;
+				} catch (err)
+				{
+					console.error("widget initRos error:", i, err.message, err.stack);
+				}
+			}
+			if (undefined === ROSDASH.diagramConnection[i].initialized)
+			{
+				ROSDASH.diagramConnection[i].initialized = true;
+			}
 		}
 	}
 }
@@ -3625,7 +3691,7 @@ ROSDASH.callWidgetInit = function (id)
 {
 	try
 	{
-		ROSDASH.diagramConnection[id].initialized = ROSDASH.runFuncByName("init", ROSDASH.diagramConnection[id].instance, ROSDASH.diagram.block[id]);
+		ROSDASH.diagramConnection[id].initialized = ROSDASH.runFuncByName("init", ROSDASH.diagramConnection[id].instance);
 	} catch (err)
 	{
 		console.error("widget init error:", id, err.message, err.stack);

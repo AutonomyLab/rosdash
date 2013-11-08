@@ -3,9 +3,11 @@ main:
 roscore
 roslaunch rosbridge_server rosbridge_websocket.launch
 
-basic topics:
+basic ROS items:
 
 rostopic pub /listener std_msgs/String "Hello, World"
+rosrun rospy_tutorials add_two_ints_server
+rosparam set /foo "['1', 1, 1.0]"
 
 ros 2d 3d:
 
