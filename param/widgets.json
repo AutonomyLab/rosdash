@@ -456,7 +456,8 @@
 		"has_panel": "true",
 		"class_name": "ROSDASH.Table",
 		"config": {
-			"cacheable": "true"
+			"cacheable": "true",
+			"table_titles": []
 		},
 		"input": [
 			{
@@ -878,6 +879,16 @@
 		],
 		"has_panel": "true",
 		"class_name": "ROSDASH.Gmap",
+		"config": {
+			"gmap_conf": {
+				"center" : ["49.276802", "-122.914913"],
+				"zoom" : "14",
+				"markers" : [{
+					"position" : ["49.276802", "-122.914913"],
+					"title" : "Autonomy Lab at Simon Fraser University"
+				}]
+			}
+		},
 		"input": [
 			{
 				"datatype": "String",
@@ -894,7 +905,7 @@
 			}
 		]
 	}, {
-		"type": "gmap traj",
+		"type": "gmapTraj",
 		"category": [
 			"map"
 		],

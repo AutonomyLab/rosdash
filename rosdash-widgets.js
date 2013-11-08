@@ -2228,13 +2228,15 @@ ROSDASH.RosMjpeg.prototype.run = function (input)
 
 //////////////////////////////////// map
 
+ROSDASH.gmap;
 // google maps
 ROSDASH.Gmap = function (block)
 {
 	this.block = block;
-	this.canvas_id = "gmap_" + this.block.id;
+	this.canvas_id = "gmap-" + this.block.id;
 	var LAB = [49.276802, -122.914913];
-	this.config = ("config" in this.block) ? this.block.config : {
+	// google maps config from block config
+	this.options = (("config" in this.block) && (undefined !== this.block.config.options)) ? this.block.config.options : {
 		center : LAB,
 		zoom : 14,
 		markers : [{
@@ -2242,42 +2244,17 @@ ROSDASH.Gmap = function (block)
 			title : 'Autonomy Lab at Simon Fraser University'
 		}]
 	};
+	// add script of gmap and invalid callback
 	var script = document.createElement('script');
 	script.type = 'text/javascript';
-	script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&' + 'callback=ROSDASH.gmapInit';
+	script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&' + 'callback=googleMaps';
 	document.body.appendChild(script);
 	this.gmap = undefined;
 }
 ROSDASH.Gmap.prototype.addWidget = function (widget)
 {
-	widget.widgetTitle += ' <input type="button" id="' + this.canvas_id + '-grid" value="grids" />';
 	widget.widgetContent = '<div id="' + this.canvas_id + '" style="height:100%; width:100%;" />';
 	return widget;
-}
-ROSDASH.gmapInit = function ()
-{
-	if ($("#" + this.canvas_id).length <= 0)
-	{
-		return false;
-	}
-	var mapOptions = {
-	  center: new google.maps.LatLng(this.config.center[0], this.config.center[1]),
-	  zoom: this.config.zoom,
-	  mapTypeId: google.maps.MapTypeId.ROADMAP
-	};
-	this.gmap = new google.maps.Map(document.getElementById(this.canvas_id), mapOptions);
-	if ("markers" in this.config)
-	{
-		for (var i in this.config.markers)
-		{
-			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(this.config.markers[i].position[0], this.config.markers[i].position[1]),
-				map: this.gmap,
-				title: this.config.markers[i].title
-			});
-		}
-	}
-	return true;
 }
 ROSDASH.Gmap.prototype.init = function ()
 {
@@ -2285,25 +2262,22 @@ ROSDASH.Gmap.prototype.init = function ()
 	{
 		return false;
 	}
-	var that = this;
-	$("#" + that.canvas_id + "-grid").click(function ()
-	{
-		that.showGrids();
-	});
+	// google maps options
 	var mapOptions = {
-	  center: new google.maps.LatLng(this.config.center[0], this.config.center[1]),
-	  zoom: this.config.zoom,
+	  center: new google.maps.LatLng(parseFloat(this.options.center[0]), parseFloat(this.options.center[1])),
+	  zoom: parseFloat(this.options.zoom),
 	  mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 	this.gmap = new google.maps.Map(document.getElementById(this.canvas_id), mapOptions);
-	if ("markers" in this.config)
+	// add markers
+	if ("markers" in this.options)
 	{
-		for (var i in this.config.markers)
+		for (var i in this.options.markers)
 		{
 			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(this.config.markers[i].position[0], this.config.markers[i].position[1]),
+				position: new google.maps.LatLng(parseFloat(this.options.markers[i].position[0]), parseFloat(this.options.markers[i].position[1])),
 				map: this.gmap,
-				title: this.config.markers[i].title
+				title: this.options.markers[i].title
 			});
 		}
 	}
@@ -2313,6 +2287,7 @@ ROSDASH.Gmap.prototype.init = function ()
 //@output	gmap object
 ROSDASH.Gmap.prototype.run = function (input)
 {
+	ROSDASH.gmap = this.gmap;
 	return {o0: this.gmap};
 }
 ROSDASH.Gmap.prototype.resizeGmap = function ()
@@ -2320,101 +2295,83 @@ ROSDASH.Gmap.prototype.resizeGmap = function ()
 	google.maps.event.trigger(this.gmap, "resize");
 }
 
-// google maps robot trajectory overlay (temporarily it is just position)
+// google maps robot trajectory overlay
 ROSDASH.GmapTraj = function (block)
 {
 	this.block = block;
-	this.robot = new Object();
+	this.robot = {
+		marker: undefined,
+		path: new Array(),
+		last_loc: new Array()
+	};
 }
-//@input	google maps object, array of robot positions
+//@input	google maps object, robot position
 //@output	google maps object
 ROSDASH.GmapTraj.prototype.run = function (input)
 {
-	if (input.length < 2 || undefined === input[0])
+	if (this.robot.last_loc[0] == input[1].x && this.robot.last_loc[1] == input[1].y)
 	{
-		return;
+		return {o0: input[0]};
 	}
-	for (var i in input[1])
+	// clear the old position
+	if (undefined !== this.robot.marker)
 	{
-		// for a new robot
-		if (! (i in this.robot))
-		{
-			this.robot[i] = new Object();
-			this.robot[i].path = new Array();
-			this.robot[i].last_loc = new Array();
-		} else if (this.robot[i].robot.position.jb == input[1][i].x && this.robot[i].robot.position.kb == input[1][i].y)
-		{
-			continue;
-		}
-		// clear the old position
-		if (undefined !== this.robot[i].robot)
-		{
-			this.robot[i].robot.setMap(null);
-		}
-		this.robot[i].robot = new google.maps.Marker({
-			position: new google.maps.LatLng(input[1][i].x, input[1][i].y),
-			map: input[0],	// google maps object
-			title: "robot " + i,
-			icon: "resource/cabs.png",
-			//shadow: {url: 'resource/cabs.shadow.png',}
-		});
-		// keep the length of path no longer than a threshold
-		while (this.robot[i].path.length >= 20)
-		{
-			this.robot[i].path[0].setMap(null);
-			this.robot[i].path.splice(0, 1);
-		}
-		var color = "black";
-		var weight = 1;
-		var icon = new Array();
-		if (undefined === this.robot[i].last_loc[0])
-		{
-			this.robot[i].last_loc[0] = input[1][i].x;
-			this.robot[i].last_loc[1] = input[1][i].y;
-		}
-		this.robot[i].path.push(new google.maps.Polyline({
-			map: input[0],
-			path: [new google.maps.LatLng(this.robot[i].last_loc[0], this.robot[i].last_loc[1]), new google.maps.LatLng(input[1][i].x, input[1][i].y)],
-			strokeColor: color,
-			strokeOpacity: 1,
-			strokeWeight: weight,
-			icons: icon
-		}));
-		this.robot[i].last_loc[0] = input[1][i].x;
-		this.robot[i].last_loc[1] = input[1][i].y;
+		this.robot.marker.setMap(null);
 	}
+	this.robot.marker = new google.maps.Marker({
+		position: new google.maps.LatLng(input[1].x, input[1].y),
+		map: input[0],	// google maps object
+		title: "robot",
+		icon: "resource/cabs.png",
+		//shadow: {url: 'resource/cabs.shadow.png',}
+	});
+	// keep the length of path no longer than a threshold
+	while (this.robot.path.length >= 20)
+	{
+		this.robot.path[0].setMap(null);
+		this.robot.path.splice(0, 1);
+	}
+	var color = "black";
+	var weight = 1;
+	var icon = new Array();
+	if (undefined === this.robot.last_loc)
+	{
+		this.robot.last_loc[0] = input[1].x;
+		this.robot.last_loc[1] = input[1].y;
+	}
+	// add path
+	this.robot.path.push(new google.maps.Polyline({
+		map: input[0],
+		path: [new google.maps.LatLng(this.robot.last_loc[0], this.robot.last_loc[1]), new google.maps.LatLng(input[1].x, input[1].y)],
+		strokeColor: color,
+		strokeOpacity: 1,
+		strokeWeight: weight,
+		icons: icon
+	}));
+	this.robot.last_loc[0] = input[1].x;
+	this.robot.last_loc[1] = input[1].y;
 	return {o0: input[0]};
 }
 
+// grids on Google maps representing energy
 ROSDASH.GmapEnergyGrid = function (block)
 {
 	this.block = block;
-	var LAB = [49.276802, -122.914913];
-	this.config = ("config" in this.block) ? this.block.config : {
-		center : LAB,
-		zoom : 14,
-		markers : [{
-			position : LAB,
-			title : 'Autonomy Lab at Simon Fraser University'
-		}]
-	};
+	this.center = (undefined !== this.block.config && undefined !== this.block.config.center) ? this.block.config.center : [49.276802, -122.914913];
 	this.gmap = undefined;
-	this.robot = new Object();
-	this.robot.x = LAB[0];
-	this.robot.y = LAB[1];
+	this.robot = {
+		x : this.center[0],
+		y : this.center[1]
+	};
 	this.remove_grids = false;
 	this.grids = new Object();
 	this.grid_value = new Object();
 	this.update_grid = new Object();
 }
-//@input	google maps object, array of robot positions
+//@input	google maps object, robot position
 //@output	google maps object
 ROSDASH.GmapEnergyGrid.prototype.run = function (input)
 {
-	if (input.length < 2 || undefined === input[0])
-	{
-		return;
-	}
 	this.gmap = input[0];
 	this.robot.x -= input[1].dy / 200.0 * 0.001;
 	this.robot.y += input[1].dx / 200.0 * 0.001;
@@ -2429,7 +2386,7 @@ ROSDASH.GmapEnergyGrid.prototype.calcGrids = function (x, y)
 ROSDASH.GmapEnergyGrid.prototype.coordToGrid = function (x, y)
 {
 	var GRID_SIZE = .001;
-	return [Math.round((x - this.config.center[0] - GRID_SIZE/2) / GRID_SIZE), Math.round((y - this.config.center[1] - GRID_SIZE/2) / GRID_SIZE)];
+	return [Math.round((x - this.center[0] - GRID_SIZE/2) / GRID_SIZE), Math.round((y - this.center[1] - GRID_SIZE/2) / GRID_SIZE)];
 }
 ROSDASH.GmapEnergyGrid.prototype.clearGrids = function ()
 {
@@ -2487,8 +2444,8 @@ ROSDASH.GmapEnergyGrid.prototype.showGrids = function (grid)
 			map: that.gmap,
 			title: "value: " + grid[i+3],
 			bounds: new google.maps.LatLngBounds(
-				new google.maps.LatLng(this.config.center[0] + x * grid_size, this.config.center[1] + y * grid_size),
-				new google.maps.LatLng(this.config.center[0] + x * grid_size + grid_size, this.config.center[1] + y * grid_size + grid_size))
+				new google.maps.LatLng(this.center[0] + x * grid_size, this.center[1] + y * grid_size),
+				new google.maps.LatLng(this.center[0] + x * grid_size + grid_size, this.center[1] + y * grid_size + grid_size))
 		});
 		// old grid need to be deleted, and tmp_grid is used to avoid flashing
 		if (typeof tmp_grid != "undefined")

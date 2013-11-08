@@ -1822,7 +1822,7 @@ ROSDASH.initBlockConf = function (block)
 		}
 	}
 	// for constant
-	else if (ROSDASH.checkMsgTypeValid(def.type))
+	else if (ROSDASH.checkMsgTypeValid(block.type))
 	{
 		// should be in front of def.type
 		block.list_name = block.type;
@@ -3688,7 +3688,8 @@ ROSDASH.runWidgets = function ()
 					// get the corresponding order of this input
 					var count = parseInt(j.substring(1));
 					// save this input by deep copy
-					input[count] = _.clone(ROSDASH.diagramConnection[ROSDASH.diagramConnection[i].parent[j]].output[ROSDASH.diagramConnection[i].type[j]]);
+					//@bug should not _.clone();
+					input[count] = ROSDASH.diagramConnection[ROSDASH.diagramConnection[i].parent[j]].output[ROSDASH.diagramConnection[i].type[j]];
 				}
 			}
 			// if the block is ready to be execute with all the inputs are ready
