@@ -33,6 +33,7 @@ ROSDASH.multiArray = function (block)
 //@output	an array of all the values
 ROSDASH.multiArray.prototype.run = function (input)
 {
+	this.array = new Array();
 	for (var i in input)
 	{
 		this.array.push(input[i]);
@@ -835,7 +836,7 @@ ROSDASH.Table.prototype.addWidget = function (widget)
 	{
 		for (var i in this.block.config.table_titles)
 		{
-			widget.widgetContent.aoColumns.push({sTitle : ""});
+			widget.widgetContent.aoColumns.push({sTitle : this.block.config.table_titles[i]});
 			widget.widgetContent.aaData[0].push("");
 		}
 	} else
@@ -2510,8 +2511,8 @@ ROSDASH.Flot = function (block)
 {
 	this.block = block;
 	this.plot;
-	this.canvas = "flot_" + this.block.id;
-	this.option = ("config" in this.block) ? this.block.config : {
+	this.canvas = "flot-" + this.block.id;
+	this.options = (undefined !== this.block.config.options) ? this.block.config.options : {
 		// drawing is faster without shadows
 		series: {
 			shadowSize: 0,
@@ -2538,7 +2539,7 @@ ROSDASH.Flot = function (block)
 }
 ROSDASH.Flot.prototype.addWidget = function (widget)
 {
-	widget.widgetContent = '<div id="' + this.canvas + '" style="height:100%;width:100%;" />';
+	widget.widgetContent = '<div id="' + this.canvas + '" style="height:100%; width:100%;" />';
 	return widget;
 }
 ROSDASH.Flot.prototype.getDefaultData = function ()
@@ -2566,12 +2567,6 @@ ROSDASH.Flot.prototype.init = function ()
 //@output	plot object
 ROSDASH.Flot.prototype.run = function (input)
 {
-	// if plot or data do not exist
-	if (undefined === this.plot || undefined === input[0])
-	{
-		return;
-	}
-	//i1 data
 	// change data format into [[x, data], ...]
 	var data = new Array();
 	for (var i in input[0])
@@ -2610,7 +2605,6 @@ ROSDASH.Flot.prototype.run = function (input)
 	}
 	// update dynamically
 	this.plot.setData( data );
-	//@todo ignoring options and saferange
 	this.plot.draw();
 	return {o0 : this.plot};
 }
@@ -3363,12 +3357,23 @@ ROSDASH.jsonVis.prototype.run = function (input)
 ROSDASH.slide = function (block)
 {
 	this.block = block;
-	this.config = ("config" in this.block) ? this.block.config : {
-		src : "http://www.slideshare.net/slideshow/embed_code/16073451",
-		width : "100%",
-		height : "100%",
-		style : "border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px",
-	};
+	this.config = ("config" in this.block) ? this.block.config : new Object();
+	if (undefined === this.config.src)
+	{
+		this.config.src = "http://www.slideshare.net/slideshow/embed_code/16073451";
+	}
+	if (undefined === this.config.width)
+	{
+		this.config.width = "100%";
+	}
+	if (undefined === this.config.height)
+	{
+		this.config.height = "100%";
+	}
+	if (undefined === this.config.style)
+	{
+		this.config.style = "border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px;";
+	}
 }
 ROSDASH.slide.prototype.addWidget = function (widget)
 {
@@ -3411,11 +3416,19 @@ ROSDASH.FathomSlide.prototype.init = function ()
 ROSDASH.youtube = function (block)
 {
 	this.block = block;
-	this.config = ("config" in this.block) ? this.block.config : {
-		src : "//www.youtube.com/embed/SxeVZdJFB4s",
-		width : "100%",
-		height : "100%"
-	};
+	this.config = ("config" in this.block) ? this.block.config : new Object();
+	if (undefined === this.config.src)
+	{
+		this.config.src = "//www.youtube.com/embed/SxeVZdJFB4s";
+	}
+	if (undefined === this.config.width)
+	{
+		this.config.width = "100%";
+	}
+	if (undefined === this.config.height)
+	{
+		this.config.height = "100%";
+	}
 	
 }
 ROSDASH.youtube.prototype.addWidget = function (widget)

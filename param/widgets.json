@@ -995,26 +995,28 @@
 		"has_panel": "true",
 		"class_name": "ROSDASH.Flot",
 		"config": {
-			"series": {
-				"shadowSize": 0,
-				"lines": {"show": true},
-				"points": {"show": true}
-			},
-			"xaxis": {
-				"zoomRange": ["0.1", "10"]
-			},
-			"yaxis": {
-				"zoomRange": ["0.1", "10"]
-			},
-			"crosshair": {"mode": "x"},
-			"zoom": {"interactive": "true"},
-			"pan": {"interactive": "true"},
-			"grid": {"show": "true"},
-			"legend": { "position": "nw" },
-			"grid": {
-				"show": "true",
-				"hoverable": "true",
-				"autoHighlight": "false"
+			"options": {
+				"series": {
+					"shadowSize": 0,
+					"lines": {"show": true},
+					"points": {"show": true}
+				},
+				"xaxis": {
+					"zoomRange": ["0.1", "10"]
+				},
+				"yaxis": {
+					"zoomRange": ["0.1", "10"]
+				},
+				"crosshair": {"mode": "x"},
+				"zoom": {"interactive": "true"},
+				"pan": {"interactive": "true"},
+				"grid": {"show": "true"},
+				"legend": { "position": "nw" },
+				"grid": {
+					"show": "true",
+					"hoverable": "true",
+					"autoHighlight": "false"
+				}
 			}
 		},
 		"input": [
