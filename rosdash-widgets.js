@@ -1451,8 +1451,7 @@ ROSDASH.Painter.prototype.run = function (input)
 ROSDASH.UserCamera = function (block)
 {
 	this.block = block;
-	this.canvas_id = "UserCamera_" + this.block.id;
-	this.init_success = false;
+	this.canvas_id = "UserCamera-" + this.block.id;
 	this.video;
 	this.canvas;
 	this.context;
@@ -1464,18 +1463,17 @@ ROSDASH.UserCamera = function (block)
 ROSDASH.UserCamera.prototype.addWidget = function (widget)
 {
 	widget.widgetContent = '<video id="video' + this.canvas_id + '" autoplay="true" style="display:none;"></video>' + 
-		'<canvas id="canvas' + this.canvas_id + '" style="width:640px; height:480px;"></canvas>';
+		'<canvas id="canvas' + this.canvas_id + '" style="width:100%; height:100%;"></canvas>';
 	return widget;
 }
 ROSDASH.UserCamera.prototype.init = function ()
 {
-	if ($("#video" + this.canvas_id).length > 0)
+	if ($("#video" + this.canvas_id).length <= 0)
 	{
-		this.onLoad();
-		this.init_success = true;
-		return true;
+		return false;
 	}
-	return false;
+	this.onLoad();
+	return true;
 }
 ROSDASH.UserCamera.prototype.onLoad = function ()
 {
@@ -1577,18 +1575,15 @@ ROSDASH.UserCamera.prototype.run = function (input)
 ROSDASH.HeadTracker = function (block)
 {
 	this.block = block;
-	this.canvas = "HeadTracker" + this.block.id;
-	var LAB = [49.276802, -122.914913];
+	this.canvas = "HeadTracker-" + this.block.id;
 	this.pos = new Object();
-	this.last = LAB;
 }
 ROSDASH.HeadTracker.prototype.addWidget = function (widget)
 {
-	widget.widgetTitle += "";
-	widget.widgetContent = '<canvas id="compare' + this.canvas + '" width="320" height="240" style="display:none"></canvas>' +
-		'<video id="vid' + this.canvas + '" autoplay loop width="320" height="240"></video>' +
-		'<canvas id="overlay' + this.canvas + '" width="320" height="240"></canvas>' +
-		'<canvas id="debug' + this.canvas + '" width="320" height="240"></canvas>' +
+	widget.widgetContent = '<canvas id="compare' + this.canvas + '" width="100%" height="100%" style="display:none"></canvas>' +
+		'<video id="vid' + this.canvas + '" autoplay loop width="100%" height="100%"></video>' +
+		'<canvas id="overlay' + this.canvas + '" width="100%" height="100%"></canvas>' +
+		'<canvas id="debug' + this.canvas + '" width="100%" height="100%"></canvas>' +
 		'<p id="gUMMessage"></p>' +
 		'<p>Status : <span id="headtrackerMessage"></span></p>' +
 		'<p><input type="button" onclick="htracker.stop();htracker.start();" value="reinitiate facedetection"></input>' +
@@ -1674,50 +1669,38 @@ ROSDASH.HeadTracker.prototype.init = function ()
 }
 ROSDASH.HeadTracker.prototype.run = function (input)
 {
-	var output = {x : this.last[0], y : this.last[1]};
-	if (undefined !== this.pos)
-	{
-		this.pos.dx = (undefined !== this.pos.lastX) ? this.pos.x - this.pos.lastX : 0;
-		this.pos.dy = (undefined !== this.pos.lastY) ? this.pos.y - this.pos.lastY : 0;
-		this.pos.lastX = this.pos.x;
-		this.pos.lastY = this.pos.y;
-		output.x = this.last[0] - this.pos.dy * 0.0001;
-		output.y = this.last[1] + this.pos.dx * 0.0001;
-		this.last[0] = output.x;
-		this.last[1] = output.y;
-	}
-	return {o0 : output};
+	return {o0 : {x : this.pos.x, y : this.pos.y}};
 }
 
 ROSDASH.HandTracker = function (block)
 {
 	this.block = block;
-	this.canvas = "HandTracker_" + this.block.id;
+	this.canvas = "HandTracker-" + this.block.id;
 }
 ROSDASH.HandTracker.prototype.addWidget = function (widget)
 {
-	widget.widgetContent =	'<video id="video" autoplay="true" style="display:none;"></video>' +
-		'<canvas id="canvas" style="width:640px; height:480px;border:1px solid black;"></canvas>' +
+	widget.widgetContent =	'<video id="video' + this.canvas + '" autoplay="true" style="display:none;"></video>' +
+		'<canvas id="canvas' + this.canvas + '" style="width:100%; height:100%; border:1px solid black;"></canvas>' +
 		'<div style="margin: 15px;">' +
-		  '<input id="cbxHull" type="checkbox" checked="checked">Convex Hull</input>' +
-		  '<input id="cbxDefects" type="checkbox">Convexity Defects</input>' +
-		  '<input id="cbxSkin" type="checkbox" checked="checked">Skin Detection</input>' +
+		  '<input id="cbxHull' + this.canvas + '" type="checkbox" checked="checked">Convex Hull</input>' +
+		  '<input id="cbxDefects' + this.canvas + '" type="checkbox">Convexity Defects</input>' +
+		  '<input id="cbxSkin' + this.canvas + '" type="checkbox" checked="checked">Skin Detection</input>' +
 		'</div>';
 	return widget;
 }
 ROSDASH.HandTracker.prototype.init = function ()
 {
-	if ($("#cbxHull").length <= 0)
+	if ($("#cbxHull" + this.canvas).length <= 0)
 	{
 		return false;
 	}
 	var that = this;
 	this.tracker = new HT.Tracker( {fast: true} );
-	this.cbxHull = document.getElementById("cbxHull");
-	this.cbxDefects = document.getElementById("cbxDefects");
-	this.cbxSkin = document.getElementById("cbxSkin");
-	this.video = document.getElementById("video");
-	this.canvas = document.getElementById("canvas");
+	this.cbxHull = document.getElementById("cbxHull" + this.canvas);
+	this.cbxDefects = document.getElementById("cbxDefects" + this.canvas);
+	this.cbxSkin = document.getElementById("cbxSkin" + this.canvas);
+	this.video = document.getElementById("video" + this.canvas);
+	this.canvas = document.getElementById("canvas" + this.canvas);
 	this.context = this.canvas.getContext("2d");
 	this.canvas.width = parseInt(this.canvas.style.width) / 2;
 	this.canvas.height = parseInt(this.canvas.style.height) / 2;
