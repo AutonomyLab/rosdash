@@ -1446,6 +1446,7 @@ ROSDASH.jsonReadyFunc = function ()
 		ROSDASH.loadWidgetDef();
 		// show panel editor
 		ROSDASH.loadPanel(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json"].data);
+		ROSDASH.compareDiagram();
 		ROSDASH.ee.emitEvent("editorReady");
 		break;
 	case "diagram":
@@ -3359,6 +3360,36 @@ ROSDASH.checkDiagram = function ()
 		}
 		// wait for next check
 		setTimeout(ROSDASH.checkDiagram, 2000);
+	});
+}
+ROSDASH.compareDiagram = function ()
+{
+	var file = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json";
+	$.getJSON(file, function (data, status, xhr)
+	{
+		for (var i in data.block)
+		{
+			var type = data.block[i].type;
+			if (! (i in ROSDASH.widgets) && (type in ROSDASH.widgetDef) && (true == ROSDASH.widgetDef[type].has_panel || "true" == ROSDASH.widgetDef[type].has_panel))
+			{
+				var widget = {
+					widgetTitle : data.block[i].name,
+					widgetId : data.block[i].id,
+					widgetType : data.block[i].type,
+					number : data.block[i].number,
+					widgetContent : undefined,
+					pos : 0,
+					width: ("width" in ROSDASH.widgetDef[data.block[i].type]) ? ROSDASH.widgetDef[data.block[i].type].width : ROSDASH.ownerConf.widget_width,
+					height: ("height" in ROSDASH.widgetDef[data.block[i].type]) ? ROSDASH.widgetDef[data.block[i].type].height : ROSDASH.ownerConf.widget_height,
+					header_height: ROSDASH.ownerConf.header_height,
+					content_height: ROSDASH.ownerConf.content_height,
+					config : data.block[i].config
+				};
+				ROSDASH.addWidget(widget);
+				console.log("update from diagram", i, data.block[i]);
+				ROSDASH.ee.emitEvent('change');
+			}
+		}
 	});
 }
 
