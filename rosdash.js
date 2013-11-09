@@ -2,7 +2,7 @@ var ROSDASH = new Object();
 
 ///////////////////////////////////// constant parameters
 
-ROSDASH.devel = false;
+ROSDASH.devel = true;
 
 ///////////////////////////////////// events
 
@@ -31,6 +31,16 @@ ROSDASH.formDiagramMain = [{
 		type: "button",
 		value: "ROS items",
 		name: "addROSitem",
+		width: 180
+	}, {
+		type: "label",
+		label: "Config",
+		name: "configlabel",
+		width: 180
+	}, {
+		type: "button",
+		value: "Dashboard Config",
+		name: "dashboard",
 		width: 180
 	}
 	/*, {
@@ -177,6 +187,10 @@ ROSDASH.initForm = function ()
 		case "msgs":
 			ROSDASH.jsonFormType = id;
 			ROSDASH.jsonForm(ROSDASH.msgTypes);
+			break;
+		case "dashboard":
+			ROSDASH.jsonFormType = "";
+			ROSDASH.jsonForm(ROSDASH.dash);
 			break;
 		default:
 			console.error("sidebar click error", id);
@@ -1209,6 +1223,9 @@ ROSDASH.setRosValue = function (host, port)
 	ROSDASH.ownerConf.ros_port = port;
 	ROSDASH.addToolbarRosValue();
 }
+
+ROSDASH.dash = {
+};
 
 ///////////////////////////////////// ROS
 
