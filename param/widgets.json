@@ -386,28 +386,6 @@
 			"lib/virtualjoystick.js/virtualjoystick.js"
 		]
 	}, {
-		"type": "joystickToRosJoy",
-		"category": [
-			"input"
-		],
-		"class_name": "ROSDASH.joystickToRosJoy",
-		"has_panel": "false",
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "joystickinput"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "joystickOutput"
-			}
-		],
-		"js": [
-			"lib/virtualjoystick.js/virtualjoystick.js"
-		]
-	}, {
 		"type": "text",
 		"category": [
 			"output"
@@ -420,9 +398,6 @@
 		},
 		"input": [
 			{
-				"datatype": "String",
-				"name": "title"
-			}, {
 				"datatype": "String",
 				"name": "content"
 			}
@@ -461,12 +436,6 @@
 		},
 		"input": [
 			{
-				"datatype": "String",
-				"name": "header"
-			}, {
-				"datatype": "String[]",
-				"name": "title"
-			}, {
 				"datatype": "String[]",
 				"name": "data"
 			}
@@ -890,13 +859,6 @@
 			}
 		},
 		"input": [
-			{
-				"datatype": "String",
-				"name": "title"
-			}, {
-				"datatype": "GmapOption",
-				"name": "option"
-			}
 		],
 		"output": [
 			{
@@ -1086,32 +1048,8 @@
 		"class_name": "ROSDASH.Pos2d",
 		"input": [
 			{
-				"datatype": "Float32",
-				"name": "x"
-			}, {
-				"datatype": "Float32",
-				"name": "y"
-			}, {
-				"datatype": "Float32",
-				"name": "yaw"
-			}
-		],
-		"output": [
-			{
-				"datatype": "pos",
-				"name": "Pos2d"
-			}
-		]
-	}, {
-		"type": "GmapSimRobotByJoystick",
-		"category": [
-			"robot"
-		],
-		"class_name": "ROSDASH.GmapSimRobotByJoystick",
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "joystick"
+				"datatype": "joy",
+				"name": "joy"
 			}
 		],
 		"output": [
