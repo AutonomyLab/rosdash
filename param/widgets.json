@@ -499,7 +499,7 @@
 			}
 		],
 		"js": [
-			"http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"
+			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
 		]
 	}, {
 		"type": "cyNetworkLoadOnce",
@@ -524,7 +524,7 @@
 			}
 		],
 		"js": [
-			"http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"
+			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
 		]
 	}, {
 		"type": "cyDiagram",
@@ -536,7 +536,7 @@
 		"input": [],
 		"output": [],
 		"js": [
-			"http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"
+			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
 		]
 	}, {
 		"type": "arborNetwork",
@@ -570,6 +570,7 @@
 			}
 		],
 		"js": [
+			"lib/dracula/js/raphael-min.js",
 			"lib/dracula/js/dracula_graffle.js",
 			"lib/dracula/js/dracula_graph.js"
 		]
@@ -585,6 +586,9 @@
 				"datatype": "Object",
 				"name": "database"
 			}
+		],
+		"js": [
+			"lib/taffydb/taffy.js"
 		]
 	}, {
 		"type": "JsDbInsert",
@@ -994,6 +998,7 @@
 			}
 		],
 		"js": [
+			"lib/flot/jquery.flot.js",
 			"lib/flot/jquery.flot.time.js",
 			"lib/flot/jquery.flot.selection.js",
 			"lib/flot/jquery.flot.crosshair.js",

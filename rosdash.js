@@ -1364,12 +1364,12 @@ ROSDASH.loadJson = function (file)
 	$.getJSON(file, function (data, status, xhr)
 	{
 		ROSDASH.jsonLoadList[file].data = data;
-		// if successful, status = 2
-		++ ROSDASH.jsonLoadList[file].status;
+		// if successful, status = 1 + 1
+		ROSDASH.jsonLoadList[file].status = 1;
 	})
 	.fail(function (jqXHR, textStatus) {
 		console.error("load json file", file, "failed", jqXHR, textStatus);
-		ROSDASH.jsonLoadList[file].status = -1;
+		ROSDASH.jsonLoadList[file].status = -10;
 	})
 	.always(function () {
 		// if not successful, status = 1
@@ -1457,6 +1457,7 @@ ROSDASH.jsonReadyFunc = function ()
 		ROSDASH.loadWidgetDef();
 		// run diagram after loading json
 		ROSDASH.runDiagram(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json"].data);
+		ROSDASH.comparePanel();
 		break;
 	case "jsoneditor":
 		json = ROSDASH.jsonLoadList[src].data;
@@ -2914,6 +2915,7 @@ ROSDASH.runDiagram = function (data)
 	{
 		ROSDASH.findBlock(ROSDASH.selectedBlock);
 	}
+	ROSDASH.checkPanel();
 	ROSDASH.ee.emitEvent("diagramReady");
 }
 
@@ -3394,6 +3396,63 @@ ROSDASH.compareDiagram = function ()
 	});
 }
 
+ROSDASH.panel = undefined;
+// check panel for updates
+ROSDASH.checkPanel = function ()
+{
+	var file = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json";
+	$.getJSON(file, function (data, status, xhr)
+	{
+		// if different
+		if (JSON.stringify(ROSDASH.panel) != JSON.stringify(data))
+		{
+			for (var i in data.widgets)
+			{
+				// if a widget updates
+				if (! (i in ROSDASH.blocks) && (data.widgets[i].widgetType in ROSDASH.widgetDef))
+				{
+				var block = {
+					type: data.widgets[i].widgetType,
+					number: data.widgets[i].number,
+					id: data.widgets[i].widgetId,
+					name: data.widgets[i].widgetTitle
+				};
+				ROSDASH.addBlock(block);
+				console.log("update from panel", i, data.widgets[i]);
+				ROSDASH.ee.emitEvent('change');
+				}
+			}
+			ROSDASH.panel = data;
+		}
+		// wait for next check
+		setTimeout(ROSDASH.checkPanel, 2000);
+	});
+}
+ROSDASH.comparePanel = function ()
+{
+	var file = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json";
+	$.getJSON(file, function (data, status, xhr)
+	{
+		for (var i in data.widgets)
+		{
+			var type = data.widgets[i].widgetType;
+			if (! (i in ROSDASH.blocks) && (type in ROSDASH.widgetDef))
+			{
+				var block = {
+					type: data.widgets[i].widgetType,
+					number: data.widgets[i].number,
+					id: data.widgets[i].widgetId,
+					name: data.widgets[i].widgetTitle
+				};
+				ROSDASH.addBlock(block);
+				console.log("update from panel", i, data.widgets[i]);
+				ROSDASH.ee.emitEvent('change');
+			}
+		}
+	});
+}
+
+
 // read diagram json for panel execution
 ROSDASH.readDiagram = function (data)
 {
@@ -3466,6 +3525,11 @@ ROSDASH.traverseDiagram = function ()
 	// for each block
 	for (var i in ROSDASH.diagram.block)
 	{
+		if (undefined === ROSDASH.widgetDef[ROSDASH.diagram.block[i].type])
+		{
+			console.warn("invalid block", i);
+			continue;
+		}
 		// if it is not in the connection
 		if (undefined === ROSDASH.diagramConnection[i])
 		{
@@ -3482,7 +3546,7 @@ ROSDASH.traverseDiagram = function ()
 		// validate the existence of the block
 		ROSDASH.diagramConnection[i].exist = true;
 		// load required js
-		if (undefined !== ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].js)
+		if (undefined !== ROSDASH.widgetDef[ROSDASH.diagram.block[i].type] && undefined !== ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].js)
 		{
 			for (var j in ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].js)
 			{
@@ -3496,7 +3560,7 @@ ROSDASH.traverseDiagram = function ()
 			}
 		}
 		// load required css
-		if (undefined !== ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].css)
+		if (ROSDASH.widgetDef[ROSDASH.diagram.block[i].type] && undefined !== ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].css)
 		{
 			for (var j in ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].css)
 			{
@@ -3533,16 +3597,30 @@ ROSDASH.requireLoadList = new Object();
 // load js file required by widgets
 ROSDASH.loadJs = function (file)
 {
+	if (undefined === file || "" == file)
+	{
+		return;
+	}
 	if (undefined === ROSDASH.requireLoadList[file])
 	{
 		ROSDASH.requireLoadList[file] = 0;
 	}
+	// do not load again
+	if (ROSDASH.requireLoadList[file] >= 2)
+	{
+		return;
+	}
 	$.getScript(file, function (data, status, jqxhr) {
-		++ ROSDASH.requireLoadList[file];
+		console.log("load js", file);
+		ROSDASH.requireLoadList[file] = 1;
 	}).fail(function (jqxhr, settings, exception)
 	{
-		ROSDASH.requireLoadList[file] = -1;
-		console.error("loading js fail:", file, jqxhr, settings, exception);
+		ROSDASH.requireLoadList[file] = -10;
+		console.warn("fail to load js", file, jqxhr, settings, exception);
+		setTimeout(function ()
+		{
+			ROSDASH.loadJs(file);
+		}, 300);
 	}).always(function() {
 		++ ROSDASH.requireLoadList[file];
 	});
@@ -3551,6 +3629,7 @@ ROSDASH.loadJs = function (file)
 ROSDASH.loadCss = function (file)
 {
 	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
+		console.debug("css load", file);
 }
 
 ///////////////////////////////////// diagram execution
@@ -3683,6 +3762,10 @@ ROSDASH.initWidgets = function ()
 			var flag = false;
 			for (var j in ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].js)
 			{
+				if ( ROSDASH.requireLoadList[ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].js[j]] < 0 )
+				{
+					//ROSDASH.diagramConnection[i].error = true;
+				}
 				if ( ROSDASH.requireLoadList[ROSDASH.widgetDef[ROSDASH.diagram.block[i].type].js[j]] < 2 )
 				{
 					flag = true;
@@ -3718,7 +3801,6 @@ ROSDASH.initWidgets = function ()
 		}
 	}
 }
-//@todo change to event, consider return value
 ROSDASH.callWidgetInit = function (id)
 {
 	try
@@ -3756,13 +3838,14 @@ ROSDASH.runWidgets = function ()
 			{
 				continue;
 			}
-			// check if widget initialization succeeded @todo
+			// check if widget initialization succeeded
 			if (false == ROSDASH.diagramConnection[i].initialized)
 			{
 				if (ROSDASH.cycle < 30)
 				{
 					console.log("widget init again", i);
-					ROSDASH.callWidgetInit(i);
+					//ROSDASH.widgetInit(i);
+					ROSDASH.initWidgets();
 				}
 				continue;
 			}
