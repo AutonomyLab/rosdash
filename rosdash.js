@@ -2,6 +2,7 @@ var ROSDASH = new Object();
 
 ///////////////////////////////////// constant parameters
 
+ROSDASH.devel = false;
 
 ///////////////////////////////////// events
 

@@ -2925,10 +2925,13 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 			+ '</p>';
 		} else // for a guest
 		{
-			widget.widgetContent += '<p>or'
-				+ '<input type="text" name="name" id="sudo_' + this.block.id + '">'
-				+ '<input type="button" value="Sudo user" id="submit_' + this.block.id + '">'
-			+ '</p>';
+			if (ROSDASH.devel)
+			{
+				widget.widgetContent += '<p>or'
+					+ '<input type="text" name="name" id="sudo_' + this.block.id + '">'
+					+ '<input type="button" value="Sudo user" id="submit_' + this.block.id + '">'
+				+ '</p>';
+			}
 		}
 	} else // if a user's personal page
 	{
@@ -2954,10 +2957,6 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 }
 ROSDASH.userWelcome.prototype.init = function (input)
 {
-	if ($("#submit_" + this.block.id).length <= 0)
-	{
-		return;
-	}
 	var that = this;
 	// if index page
 	if ("index" == ROSDASH.ownerConf.name)
@@ -2973,14 +2972,17 @@ ROSDASH.userWelcome.prototype.init = function (input)
 			});
 		} else
 		{
-			$("#submit_" + that.block.id).click(function ()
+			if (ROSDASH.devel)
 			{
-				// send user input to function
-				if ("autolab" == $("#sudo_" + that.block.id).val())
+				$("#submit_" + that.block.id).click(function ()
 				{
-					location.replace("panel.html?status=sudo");
-				}
-			});
+					// send user input to function
+					if ("autolab" == $("#sudo_" + that.block.id).val())
+					{
+						location.replace("panel.html?status=sudo");
+					}
+				});
+			}
 		}
 	} else
 	{
