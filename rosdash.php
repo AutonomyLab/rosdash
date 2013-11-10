@@ -249,6 +249,68 @@ function redisGet ()
 	}
 	echo $client->get($_POST["key"]);
 }
+function redisBackup ()
+{
+	global $HOST, $PORT;
+	$client = redisConnect($HOST, $PORT);
+	if (is_null($client))
+	{
+		return;
+	}
+	$key = $_POST["key"];
+	$value = $_POST["value"];
+	$time = round(microtime(true) * 1000);
+	$client->zadd($key, $time, $data);
+}
+function redisGetBackup ()
+{
+	global $HOST, $PORT;
+	$client = redisConnect($HOST, $PORT);
+	if (is_null($client))
+	{
+		return;
+	}
+	$key = $_POST["key"];
+	$value = $_POST["value"];
+	$from = strtotime($_POST["from"]) * 1000;
+	// if duration is not valid, use "to"
+	if ($_POST["duration"] == "" || $_POST["duration"] == " " || $_POST["duration"] == "0")
+	{
+		$to = strtotime($_POST["to"]) * 1000;
+	} else
+	{
+		$to = $from + intval($_POST["duration"]) * 1000;
+	}
+	// get data ranging from "from" to "to"
+	echo json_encode($client->zrangebyscore($key, $from, $to));
+}
+// set old data to the place where current data exist
+function redisTimeTravel()
+{
+	global $HOST, $PORT;
+	$client = redisConnect($HOST, $PORT);
+	if (is_null($client))
+	{
+		return;
+	}
+	if ($_POST["timestamp"] == "" || $_POST["timestamp"] == " " || $_POST["timestamp"] == "undefined")
+	{
+		return;
+	}
+	$timestamp = strtotime($_POST["timestamp"]) * 1000;
+	$interval = floatval($_POST["interval"]) * 1000;
+	$key = $_POST["key"];
+	/*$tmp = $client->zrangebyscore($key, $nexttime, $nexttime);
+	$tmp = $tmp[0];
+	$index = $client->zrank($key, $tmp);
+	$tmp = $client->zrange($key, $index + 1, $index + 1);
+	$tmp = $client->zscore($key, $tmp[0]);
+	if ($tmp >= $timestamp && $tmp < $next)
+	{
+		$next = $tmp;
+	}
+	echo ($next / 1000.0)." ".($next - $nexttime);*/
+}
 // call corresponding method according to $method
 function callMethod ($func)
 {

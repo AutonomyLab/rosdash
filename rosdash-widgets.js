@@ -1489,6 +1489,16 @@ ROSDASH.RedisDb.prototype.run = function (input)
 	return {o0 : this.database};
 }
 
+ROSDASH.RedisBackup = function (block)
+{
+	this.block = block;
+}
+ROSDASH.RedisBackup.prototype.run = function (input)
+{
+	
+	return {o0 : input[0]};
+}
+
 //////////////////////////////////// drawings
 
 //@todo config the target canvas
