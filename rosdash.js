@@ -186,11 +186,11 @@ ROSDASH.initForm = function ()
 			break;
 		case "msgs":
 			ROSDASH.jsonFormType = id;
-			ROSDASH.jsonForm(ROSDASH.msgTypes);
+			ROSDASH.callJsonForm(ROSDASH.msgTypes);
 			break;
 		case "dashboard":
-			ROSDASH.jsonFormType = "";
-			ROSDASH.jsonForm(ROSDASH.dash);
+			ROSDASH.jsonFormType = "ownerConf";
+			ROSDASH.callJsonForm(ROSDASH.ownerConf);
 			break;
 		default:
 			console.error("sidebar click error", id);
@@ -514,6 +514,10 @@ ROSDASH.updateJsonForm = function (data)
 			ROSDASH.blocks[ROSDASH.selectedBlock].config = data;
 			break;
 		}
+		break;
+	case "ownerConf":
+		ROSDASH.ownerConf = data;
+		ROSDASH.saveJson(ROSDASH.ownerConf, "file/" + ROSDASH.ownerConf.name + "/conf");
 		break;
 	default:
 		console.error("You cannot make change to that", ROSDASH.jsonFormType, data);
@@ -1203,8 +1207,11 @@ ROSDASH.setownerConf = function (conf)
 			}
 			if ("panel_name" == i && ROSDASH.ownerConf.panel_name != conf.panel_name)
 			{
-				console.error("configure panel name conflicts", conf.panel_name);
-				return;
+				continue;
+			}
+			if ("view_type" == i && ROSDASH.ownerConf.view_type != conf.view_type)
+			{
+				continue;
 			}
 			ROSDASH.ownerConf[i] = conf[i];
 		}

@@ -1325,43 +1325,43 @@ ROSDASH.draculaNetwork.prototype.draculaInit = function (canvas)
 ROSDASH.JsDatabase = function (block)
 {
 	this.block = block;
-	this.database;
+	this.db;
 }
 ROSDASH.JsDatabase.prototype.init = function ()
 {
-	this.database = TAFFY([{name:"New York",state:"WA"},{name:"Las Vegas",state:"NV"},{name:"Boston",state:"MA"}]);
+	this.db = TAFFY([
+		{"key":1, "value":"John", "status":"active"},
+		{"key":2, "value":"Kelly", "status":"active"},
+		{"key":3, "value":"Jeff", "status":"inactive"},
+		{"key":4, "value":"Jennifer", "status":"inactive"}	
+	]);
 	return true;
 }
 ROSDASH.JsDatabase.prototype.run = function (input)
 {
-	return {o0 : this.database};
+	return {o0 : this.db};
 }
 
-ROSDASH.JsDbInsert = function (block)
+ROSDASH.DbInsert = function (block)
 {
 	this.block = block;
 }
-ROSDASH.JsDbInsert.prototype.run = function (input)
+ROSDASH.DbInsert.prototype.run = function (input)
 {
-	if (undefined !== input[0])
-	{
-		input[0].insert({key: input[1], value: input[2]});
-	}
+	input[0]({status:"active"}).each(function (r) {
+	   console.debug(r);
+	});
+	input[0].insert(input[1]);
 	return {o0 : input[0]};
 }
 
-ROSDASH.JsDbQuery = function (block)
+ROSDASH.DbQuery = function (block)
 {
 	this.block = block;
 }
-ROSDASH.JsDbQuery.prototype.run = function (input)
+ROSDASH.DbQuery.prototype.run = function (input)
 {
-	var output;
-	if (undefined !== input[0])
-	{
-		output = input[0]({key: input[1]}).value;
-	}
-	return {o0 : input[0], o1 : output};
+	return {o0 : input[0], o1 : input[0]({key: input[1]}).value};
 }
 
 ROSDASH.RedisDb = function (block)
@@ -2038,7 +2038,6 @@ ROSDASH.JoystickToRos3dMarker.prototype.run = function (input)
 	return {o0: marker};
 }
 
-//@bug
 ROSDASH.RosInteractiveMarker = function (block)
 {
 	this.block = block;

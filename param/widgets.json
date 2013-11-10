@@ -394,7 +394,7 @@
 		"class_name": "ROSDASH.Text",
 		"config": {
 			"once": "false",
-			"cacheable": "true"
+			"cacheable": "false"
 		},
 		"input": [
 			{
@@ -411,7 +411,7 @@
 		"has_panel": "true",
 		"class_name": "ROSDASH.Speech",
 		"config": {
-			"cacheable": "true"
+			"cacheable": "false"
 		},
 		"input": [
 			{
@@ -431,7 +431,7 @@
 		"has_panel": "true",
 		"class_name": "ROSDASH.Table",
 		"config": {
-			"cacheable": "true",
+			"cacheable": "false",
 			"table_titles": []
 		},
 		"input": [
@@ -587,12 +587,20 @@
 			}
 		]
 	}, {
-		"type": "JsDbInsert",
+		"type": "DbInsert",
 		"category": [
 			"database"
 		],
-		"class_name": "ROSDASH.JsDbInsert",
-		"input": [],
+		"class_name": "ROSDASH.DbInsert",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "database"
+			}, {
+				"datatype": "universal",
+				"name": "value"
+			}
+		],
 		"output": [
 			{
 				"datatype": "Object",
@@ -600,19 +608,27 @@
 			}
 		]
 	}, {
-		"type": "JsDbQuery",
+		"type": "DbQuery",
 		"category": [
 			"database"
 		],
-		"class_name": "ROSDASH.JsDbQuery",
-		"input": [],
+		"class_name": "ROSDASH.DbQuery",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "database"
+			}, {
+				"datatype": "universal",
+				"name": "key"
+			}
+		],
 		"output": [
 			{
 				"datatype": "Object",
-				"name": "value"
-			}, {
-				"datatype": "Object",
 				"name": "database"
+			}, {
+				"datatype": "universal",
+				"name": "value"
 			}
 		]
 	}, {
