@@ -72,6 +72,73 @@
 			}
 		]
 	}, {
+		"type": "Json",
+		"descrip": "",
+		"category": [
+			"datatypes"
+		],
+		"class_name": "ROSDASH.Json",
+		"input": [
+			{
+				"datatype": "universal",
+				"name": "input",
+				"attribute": "compulsory"
+			}
+		],
+		"output": [
+			{
+				"datatype": "universal",
+				"name": "output",
+				"attribute": "compulsory"
+			}
+		]
+	}, {
+		"type": "AddTo",
+		"descrip": "",
+		"category": [
+			"datatypes"
+		],
+		"class_name": "ROSDASH.AddTo",
+		"input": [
+			{
+				"datatype": "universal",
+				"name": "input",
+				"attribute": "compulsory"
+			}
+		],
+		"output": [
+			{
+				"datatype": "universal",
+				"name": "output",
+				"attribute": "compulsory"
+			}
+		]
+	}, {
+		"type": "ValueAt",
+		"descrip": "",
+		"category": [
+			"datatypes"
+		],
+		"class_name": "ROSDASH.ValueAt",
+		"input": [
+			{
+				"datatype": "json",
+				"name": "json",
+				"attribute": "compulsory"
+			}, {
+				"datatype": "String",
+				"name": "key",
+				"attribute": "compulsory"
+			}
+		],
+		"output": [
+			{
+				"datatype": "universal",
+				"name": "value",
+				"attribute": "compulsory"
+			}
+		]
+	}, {
 		"type": "addition",
 		"descrip": "Add inputs up",
 		"category": [
@@ -610,7 +677,10 @@
 				"datatype": "Object",
 				"name": "database"
 			}
-		]
+		],
+		"config": {
+			"cacheable": "true"
+		}
 	}, {
 		"type": "DbQuery",
 		"category": [
@@ -633,6 +703,41 @@
 			}, {
 				"datatype": "universal",
 				"name": "value"
+			}
+		]
+	}, {
+		"type": "DbStatus",
+		"category": [
+			"database"
+		],
+		"class_name": "ROSDASH.DbStatus",
+		"input": [
+			{
+				"datatype": "Object",
+				"name": "database"
+			}
+		],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "database"
+			}, {
+				"datatype": "object",
+				"name": "status"
+			}
+		]
+	}, {
+		"type": "RedisDb",
+		"category": [
+			"database"
+		],
+		"class_name": "ROSDASH.RedisDb",
+		"input": [
+		],
+		"output": [
+			{
+				"datatype": "Object",
+				"name": "database"
 			}
 		]
 	}, {

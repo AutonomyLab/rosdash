@@ -1,4 +1,8 @@
 <?php
+require __DIR__.'/lib/predis/autoload.php';
+$HOST = "localhost";
+$PORT = "6379";
+
 function saveFile ()
 {
 	//@todo must test if the directory exists, should I remove .json?
@@ -193,6 +197,57 @@ function newPanel ()
 		return false;
 	}
 	return true;
+}
+function redisConnect ($host, $port)
+{
+	$server = array(
+		'host'	=>	is_null($_GET["host"]) ? $host : $_GET["host"],
+		'port'	=>	is_null($_GET["port"]) ? $port : $_GET["port"]
+	);
+	$client = new Predis\Client($server);
+	try {
+		$client->connect();
+	} catch (Exception $e) {
+		exit($server . " error: " . $e);
+	}
+	if (is_null($client) || is_null($client->ping()))
+	{
+		echo "cannot reach server" . $host . ":" . $port;
+		return;
+	}
+	return $client;
+}
+function redisStatus ()
+{
+	global $HOST, $PORT;
+	$client = redisConnect($HOST, $PORT);
+	if (is_null($client))
+	{
+		return;
+	}
+	//echo "dbsize ".$client->dbsize().", lastsave ".$client->lastsave().", ";
+	$info = $client->info();
+	echo json_encode($info);
+}
+function redisSet ()
+{
+	global $HOST, $PORT;
+	$client = redisConnect($HOST, $PORT);
+	if (is_null($client))
+	{
+		return;
+	}
+	$client->set($_POST["key"], $_POST["value"]);
+}
+function redisGet ()
+{
+	global $HOST, $PORT;
+	$client = redisConnect($HOST, $PORT);
+	if (is_null($client))
+	{
+		return;
+	}
+	echo $client->get($_POST["key"]);
 }
 // call corresponding method according to $method
 function callMethod ($func)

@@ -1332,9 +1332,9 @@ ROSDASH.JsDatabase.prototype.init = function ()
 	this.db = TAFFY([
 		{"key":1, "value":"John", "status":"active"},
 		{"key":2, "value":"Kelly", "status":"active"},
-		{"key":3, "value":"Jeff", "status":"inactive"},
-		{"key":4, "value":"Jennifer", "status":"inactive"}	
+		{"key":3, "value":"Jeff", "status":"inactive"}
 	]);
+	this.db.type = "js";
 	return true;
 }
 ROSDASH.JsDatabase.prototype.run = function (input)
@@ -1348,26 +1348,141 @@ ROSDASH.DbInsert = function (block)
 }
 ROSDASH.DbInsert.prototype.run = function (input)
 {
-	input[0]({status:"active"}).each(function (r) {
-	   console.debug(r);
-	});
-	input[0].insert(input[1]);
+	var that = this;
+	switch (input[0].type)
+	{
+	case "js":
+		input[0].insert(input[1]);
+		break;
+	case "redis":
+		$.ajax({
+			type: "POST",
+			url: "rosdash.php",
+			data: {
+				func: "redisSet",
+				key: input[1].key,
+				value: JSON.stringify(input[1])
+			},
+			success: function( data, textStatus, jqXHR )
+			{
+			},
+			error: function(jqXHR, textStatus, errorThrown)
+			{
+				console.error("DbInsert error: ", jqXHR, textStatus, errorThrown);
+			}
+		}).always(function() {});
+		break;
+	case "mysql":
+		break;
+	default:
+		break;
+	}
 	return {o0 : input[0]};
 }
 
 ROSDASH.DbQuery = function (block)
 {
 	this.block = block;
+	this.output;
 }
 ROSDASH.DbQuery.prototype.run = function (input)
 {
-	return {o0 : input[0], o1 : input[0]({key: input[1]}).value};
+	var that = this;
+	switch (input[0].type)
+	{
+	case "js":
+		input[0](input[1]).each(function (r) {
+			that.output = new Array();
+			that.output.push(r);
+		});
+		break;
+	case "redis":
+		var key = input[1];
+		if (typeof input[1] == "object" && undefined !== input[1].key)
+		{
+			key = input[1].key;
+		}
+		$.ajax({
+			type: "POST",
+			url: "rosdash.php",
+			data: {
+				func: "redisGet",
+				key: key
+			},
+			success: function( data, textStatus, jqXHR )
+			{
+				that.output = JSON.parse(data);
+			},
+			error: function(jqXHR, textStatus, errorThrown)
+			{
+				console.error("DbQuery error: ", jqXHR, textStatus, errorThrown);
+			}
+		}).always(function() {});
+		break;
+	case "mysql":
+		break;
+	default:
+		break;
+	}
+	return {o0 : input[0], o1 : that.output};
+}
+
+ROSDASH.DbStatus = function (block)
+{
+	this.block = block;
+	this.interval = 1000;
+	this.previous = undefined;
+	this.status = "cannot connect to server"
+}
+ROSDASH.DbStatus.prototype.run = function (input)
+{
+	if (undefined != this.previous && new Date() - this.previous < this.interval)
+	{
+		return {
+			o0 : input[0],
+			o1 : this.status
+		};
+	}
+	this.previous = new Date();
+	var that = this;
+	switch (input[0].type)
+	{
+	case "js":
+		this.status = "js database works fine";
+		break;
+	case "redis":
+		$.ajax({
+			type: "POST",
+			url: "rosdash.php",
+			data: {
+				func: "redisStatus"
+			},
+			success: function( data, textStatus, jqXHR )
+			{
+				that.status = data;
+			},
+			error: function(jqXHR, textStatus, errorThrown)
+			{
+				console.error("DbStatus error: ", jqXHR, textStatus, errorThrown);
+			}
+		}).always(function() {});
+		break;
+	case "mysql":
+		break;
+	default:
+		this.status = "invalid database";
+		break;
+	}
+	return {
+		o0 : input[0],
+		o1 : this.status
+	};
 }
 
 ROSDASH.RedisDb = function (block)
 {
 	this.block = block;
-	this.database = {host : "", port : "6379"};
+	this.database = {type : "redis", host : "localhost", port : "6379"};
 }
 ROSDASH.RedisDb.prototype.run = function (input)
 {
