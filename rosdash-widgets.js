@@ -2250,6 +2250,7 @@ ROSDASH.RosMjpeg.prototype.run = function (input)
 
 //////////////////////////////////// map
 
+//@deprecated
 ROSDASH.gmap;
 // google maps
 ROSDASH.Gmap = function (block)
@@ -3039,7 +3040,7 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 	{
 		widget.widgetContent = '<h1 style="color:blue;">Welcome to ROSDASH !</h1>'
 			+ '<p style="color:Navy;">A web-based platform of dashboards for roboticists and ROS users.</p>'
-			+ '<div id="janrainEngageEmbed"></div>';
+			+ '<div id="janrainEngageEmbed" align="center"></div>';
 		// for a user
 		if ("Guest" != ROSDASH.userConf.name)
 		{
@@ -3047,15 +3048,6 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 			widget.widgetContent += '<p>or'
 				+ '<input type="button" value="Goto your personal Dashboard" id="submit_' + this.block.id + '">'
 			+ '</p>';
-		} else // for a guest
-		{
-			if (ROSDASH.devel)
-			{
-				widget.widgetContent += '<p>or'
-					+ '<input type="text" name="name" id="sudo_' + this.block.id + '">'
-					+ '<input type="button" value="Sudo user" id="submit_' + this.block.id + '">'
-				+ '</p>';
-			}
 		}
 	} else // if a user's personal page
 	{
@@ -3096,17 +3088,6 @@ ROSDASH.userWelcome.prototype.init = function (input)
 			});
 		} else
 		{
-			if (ROSDASH.devel)
-			{
-				$("#submit_" + that.block.id).click(function ()
-				{
-					// send user input to function
-					if ("autolab" == $("#sudo_" + that.block.id).val())
-					{
-						location.replace("panel.html?status=sudo");
-					}
-				});
-			}
 		}
 	} else
 	{
@@ -3223,7 +3204,7 @@ ROSDASH.panelList.prototype.run = function (input)
 ROSDASH.jsonEditor = function (block)
 {
 	this.block = block;
-	this.canvas = "jsonEditor_" + this.block.id;
+	this.canvas = "jsonEditor-" + this.block.id;
 	this.success = false;
 	this.json = {
 		"string": "example",
@@ -3241,10 +3222,17 @@ ROSDASH.jsonEditor = function (block)
 ROSDASH.jsonEditor.prototype.updateJson = function (data)
 {
 	this.json = data;
-	console.log("json update", this.json, ROSDASH.ownerConf)
+	console.log("json update", this, this.json)
 }
 ROSDASH.jsonEditor.prototype.addWidget = function (widget)
 {
+	var title = this.block.config.jsonname;
+	if (this.block.config.readonly)
+	{
+		title += " (readonly)";
+	}
+	title += '<input type="button" id="' + this.canvas + '-save" value="save" />';
+	widget.widgetTitle = title;
 	widget.widgetContent = 
 		'<div id="' + this.canvas + 'legend">' +
 			'<span id="' + this.canvas + 'expander" style="cursor: pointer; background-color: black; padding: 2px 4px; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: white; font-weight: bold; text-shadow: 1px 1px 1px black;">Expand all</span>' +
@@ -3266,17 +3254,14 @@ ROSDASH.jsonEditor.prototype.init = function ()
         editor.toggleClass('expanded');
         $(this).text(editor.hasClass('expanded') ? 'Collapse' : 'Expand all');
     });
+    $('#' + this.canvas + '-save').click(function() {
+		ROSDASH.saveJson(that.json, that.block.config.filename);
+    });
     if (undefined !== this.block.config && (typeof ROSDASH[this.block.config.jsonname] == "object" || typeof ROSDASH[this.block.config.jsonname] == "array"))
     {
-		var header = this.block.config.jsonname;
-		if (this.block.config.readonly)
-		{
-			header += " (readonly)";
-		}
-		$("#myDashboard").sDashboard("setHeaderById", this.block.id, header);
 		this.json = ROSDASH[this.block.config.jsonname];
 	}
-    $('#' + that.canvas).jsonEditor(this.json);
+    $('#' + that.canvas).jsonEditor(that.json, { change: that.updateJson, propertyclick: null });
     return true;
 }
 ROSDASH.jsonEditor.prototype.run = function (input)

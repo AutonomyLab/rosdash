@@ -1281,7 +1281,9 @@
 		"has_panel": "true",
 		"config": {
 			"readonly": "true",
-			"jsonname": ""
+			"cacheable": "false",
+			"jsonname": "",
+			"filename": ""
 		},
 		"input": [
 			{
