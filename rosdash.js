@@ -3846,7 +3846,11 @@ ROSDASH.initWidgets = function ()
 				try	{
 					// run initRos
 					var initialized = ROSDASH.runFuncByName("initRos", ROSDASH.diagramConnection[i].instance);
-					ROSDASH.diagramConnection[i].initialized = ROSDASH.diagramConnection[i].initialized || initialized;
+					// works in chrome 31
+					if (false != ROSDASH.diagramConnection[i].initialized)
+					{
+						ROSDASH.diagramConnection[i].initialized = initialized;
+					 }
 				} catch (err)
 				{
 					console.error("widget initRos error:", i, err.message, err.stack);
