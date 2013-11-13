@@ -3666,8 +3666,9 @@ ROSDASH.waitLoadJs = function ()
 	var flag = true;
 	for (var i in ROSDASH.requireLoadList)
 	{
-		if (ROSDASH.requireLoadList[i] >= 0 && ROSDASH.requireLoadList[i] < 2)
+		if (ROSDASH.requireLoadList[i] < 2)
 		{
+			ROSDASH.loadJs(i);
 			flag = false;
 		}
 	}
