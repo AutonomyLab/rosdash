@@ -1,1 +1,1 @@
-{"user":"Fei Zhan","discrip":"","version":"0.1","panel_names":[],"ros_host":"","ros_port":"","js":[],"css":[],"json":[],"disable_selection":"true","run_msec":"200","widget_width":"400","widget_height":"230","header_height":"16","content_height":"180"}
+{"version":"0.1","name":"index","discrip":"","panel_name":"index","view_type":"","ros_host":"localhost","ros_port":"9090","disable_selection":"true","run_msec":"200","widget_width":"400","widget_height":"230","header_height":"16","content_height":"180","json":[""],"user":"Fei Zhan"}

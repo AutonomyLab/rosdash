@@ -1199,12 +1199,12 @@ ROSDASH.setOwnerConf = function (conf)
 			if ("version" == i && ROSDASH.ownerConf.version != conf.version)
 			{
 				console.error("configure version conflicts", conf.version, ROSDASH.ownerConf.version);
-				return;
+				continue;
 			}
 			if ("name" == i && ROSDASH.ownerConf.name != conf.name)
 			{
 				console.error("configure user name conflicts", conf.name);
-				return;
+				continue;
 			}
 			if ("panel_name" == i && ROSDASH.ownerConf.panel_name != conf.panel_name)
 			{
@@ -1221,6 +1221,10 @@ ROSDASH.setOwnerConf = function (conf)
 	// load json specified by user config
 	for (var i in ROSDASH.ownerConf.json)
 	{
+		if (undefined === ROSDASH.ownerConf.json[i] || "" == ROSDASH.ownerConf.json[i] || " " == ROSDASH.ownerConf.json[i])
+		{
+			continue;
+		}
 		ROSDASH.loadJson(ROSDASH.ownerConf.json[i]);
 	}
 	ROSDASH.loadOwnerJson = true;
@@ -1750,6 +1754,10 @@ ROSDASH.loadWidgetDef = function ()
 	// for each json file by user
 	for (var i in ROSDASH.ownerConf.json)
 	{
+		if (undefined === ROSDASH.ownerConf.json[i] || "" == ROSDASH.ownerConf.json[i] || " " == ROSDASH.ownerConf.json[i])
+		{
+			continue;
+		}
 		var data = ROSDASH.jsonLoadList[ROSDASH.ownerConf.json[i]].data.widgets;
 		ROSDASH.loadWidgetDefSub(data);
 	}
