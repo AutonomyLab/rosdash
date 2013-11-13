@@ -1206,7 +1206,6 @@ ROSDASH.draculaNetwork.prototype.run = function (input)
 // latest version on github does not work
 ROSDASH.draculaNetwork.prototype.draculaInit = function (canvas)
 {
-    //var canvas = "canvas";
 	if (! $("#" + canvas).length)
 	{
 		console.error("no canvas for dracula");
@@ -1214,14 +1213,14 @@ ROSDASH.draculaNetwork.prototype.draculaInit = function (canvas)
 	}
     var width = $("#" + canvas).width();
     var height = $("#" + canvas).height();
-    
+
     if (undefined != renderer)
     {
 		renderer.r.remove();
 	}
     var layouter = undefined;
     var renderer = undefined;
-    
+
     var g = new Graph();
 
     /* add a simple node */

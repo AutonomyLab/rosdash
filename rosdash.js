@@ -3606,7 +3606,7 @@ ROSDASH.traverseDiagram = function ()
 			}
 		}
 	}
-	ROSDASH.waitLoadJs();
+	setTimeout(ROSDASH.waitLoadJs, 300);
 }
 ROSDASH.instantiateWidgets = function ()
 {
