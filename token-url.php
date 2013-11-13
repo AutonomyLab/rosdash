@@ -14,7 +14,7 @@ ob_start();
 // PATH_TO_API_KEY_FILE should contain a path to a plain text file containing only
 // your API key. This file should exist in a path that can be read by your web server,
 // but not publicly accessible to the Internet.
-$rpx_api_key = trim( file_get_contents( "http://localhost/rosdash-devel/param/apikey.txt"/*"PATH_TO_API_KEY_FILE"*/ ) );
+$rpx_api_key = trim( file_get_contents( "http://192.168.1.116/rosdash-devel/param/apikey.txt"/*"PATH_TO_API_KEY_FILE"*/ ) );
 
 /*
  Set this to true if your application is Pro or Enterprise.

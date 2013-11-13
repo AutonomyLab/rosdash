@@ -2869,7 +2869,7 @@ ROSDASH.UserLogin.prototype.init = function ()
 {
     if (typeof window.janrain !== 'object') window.janrain = {};
     if (typeof window.janrain.settings !== 'object') window.janrain.settings = {};
-    janrain.settings.tokenUrl = 'http://localhost/rosdash-devel/panel.html?status=login'; //'http://localhost/rosdash-devel/token-url.php'; //'__REPLACE_WITH_YOUR_TOKEN_URL__';
+    janrain.settings.tokenUrl = 'http://192.168.1.116/rosdash-devel/panel.html?status=login'; //'http://localhost/rosdash-devel/token-url.php'; //'__REPLACE_WITH_YOUR_TOKEN_URL__';
     function isReady()
     {
 		janrain.ready = true;
@@ -2967,7 +2967,7 @@ ROSDASH.userWelcome.prototype.userLogin = function ()
 {
     if (typeof window.janrain !== 'object') window.janrain = {};
     if (typeof window.janrain.settings !== 'object') window.janrain.settings = {};
-    janrain.settings.tokenUrl = 'http://localhost/rosdash-devel/panel.html?status=login'; //'http://localhost/rosdash-devel/token-url.php'; //'__REPLACE_WITH_YOUR_TOKEN_URL__';
+    janrain.settings.tokenUrl = 'http://192.168.1.116/rosdash-devel/panel.html?status=login'; //'http://localhost/rosdash-devel/token-url.php'; //'__REPLACE_WITH_YOUR_TOKEN_URL__';
     function isReady()
     {
 		janrain.ready = true;
