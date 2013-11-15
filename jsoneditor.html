@@ -119,74 +119,9 @@
 		}
     </style>
 	<script type="text/javascript">
-var src = "<?php echo $_GET["src"]; ?>";
-var src_success = false;
-var json = {
-	"string": "test",
-	"number": 5,
-	"array": [1, 2, 3],
-	"object": {
-		"property": "test1",
-		"subobj": {
-			"arr": ["test2", "test3"],
-			"numero": 1
-		}
-	}
-};
-ROSDASH.ownerConf.view_type = "jsoneditor";
-if (undefined !== src && "" != src)
-{
-	// wait and read json file
-	ROSDASH.loadJson(src);
-	ROSDASH.waitJson();
-} else
-{
-	// start jsoneditor with default setting
-	$(document).ready(function() {
-		startJsonEditor();
-	});
-}
-// show in textbox
-function printJSON() {
-    $('#json').val(JSON.stringify(json));
-
-}
-function updateJSON(data) {
-    json = data;
-    printJSON();
-}
-function startJsonEditor() {
-    $('#json').change(function() {
-        var val = $('#json').val();
-        if (val) {
-            try { json = JSON.parse(val); }
-            catch (e) { alert('Error in parsing json. ' + e); }
-        } else {
-            json = {};
-        }
-        $('#editor').jsonEditor(json, { change: updateJSON, propertyclick: null });
-    });
-    $('#expander').click(function() {
-        var editor = $('#editor');
-        editor.toggleClass('expanded');
-        $(this).text(editor.hasClass('expanded') ? 'Collapse' : 'Expand all');
-    });
-    $('#reload').click(function() {
-		if (src_success)
-		{
-			ROSDASH.loadJson(src);
-			ROSDASH.waitJson();
-		}
-    });
-    $('#save').click(function() {
-		if (src_success)
-		{
-			ROSDASH.saveJson(json, src);
-		}
-    });
-    printJSON();
-    $('#editor').jsonEditor(json, { change: updateJSON, propertyclick: null });
-}
+$(document).ready(function() {
+	ROSDASH.startJsonEditor("<?php echo $_GET["src"]; ?>");
+});
 	</script>
 </head>
 <body>

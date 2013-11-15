@@ -706,6 +706,19 @@ ROSDASH.initToolbar = function ()
 				break;
 			}
 			break;
+		case "logo":
+			window.open('index.html', "_blank");
+			break;
+		case "user":
+			var user_text = ROSDASH.userConf.name;
+			if ("Guest" != ROSDASH.userConf.name)
+			{
+				window.open('panel.html?owner=' + ROSDASH.userConf.name, "_blank");
+			}
+			break;
+		case "owner":
+			window.open('panel.html?owner=' + ROSDASH.ownerConf.name, "_blank");
+			break;
 		// connect with ROS
 		case "connect":
 			ROSDASH.connectROS(ROSDASH.toolbar.getValue("input"));
@@ -851,13 +864,16 @@ ROSDASH.resetPanelToolbar = function ()
 		ROSDASH.toolbar.removeItem(itemId);
 	});
 	var count = 0;
-	var logo_text = '<a href="index.html" target="_blank">ROSDASH</a>';
-	ROSDASH.toolbar.addText("logo", count, logo_text);
-	ROSDASH.toolbar.addText("user", ++ count, "Guest");
+	//var logo_text = '<a href="index.html" target="_blank">ROSDASH</a>';
+	//ROSDASH.toolbar.addText("logo", count, logo_text);
+	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "cut.gif", "cut_dis.gif");
+	//ROSDASH.toolbar.addText("user", ++ count, "Guest");
+	ROSDASH.toolbar.addButton("user", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	var ownername = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
-	ROSDASH.toolbar.addText("owner", ++ count, ownername);
+	//var ownername = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
+	//ROSDASH.toolbar.addText("owner", ++ count, ownername);
+	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
 	var ros_host = (undefined !== ROSDASH.ownerConf.ros_host && "" != ROSDASH.ownerConf.ros_host) ? ROSDASH.ownerConf.ros_host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
@@ -889,13 +905,16 @@ ROSDASH.resetEditorToolbar = function ()
 		ROSDASH.toolbar.removeItem(itemId);
 	});
 	var count = 0;
-	var logo_text = '<a href="index.html" target="_blank">ROSDASH</a>';
-	ROSDASH.toolbar.addText("logo", count, logo_text);
-	ROSDASH.toolbar.addText("user", ++ count, "Guest");
+	//var logo_text = '<a href="index.html" target="_blank">ROSDASH</a>';
+	//ROSDASH.toolbar.addText("logo", count, logo_text);
+	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "cut.gif", "cut_dis.gif");
+	//ROSDASH.toolbar.addText("user", ++ count, "Guest");
+	ROSDASH.toolbar.addButton("user", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	var ownername = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
-	ROSDASH.toolbar.addText("owner", ++ count, ownername);
+	//var ownername = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
+	//ROSDASH.toolbar.addText("owner", ++ count, ownername);
+	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
 	var ros_host = (undefined !== ROSDASH.ownerConf.ros_host && "" != ROSDASH.ownerConf.ros_host) ? ROSDASH.ownerConf.ros_host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
@@ -934,14 +953,17 @@ ROSDASH.resetDiagramToolbar = function ()
 		ROSDASH.toolbar.removeItem(itemId);
 	});
 	var count = 0;
-	var logo_text = '<a href="index.html" target="_blank">ROSDASH</a>';
-	ROSDASH.toolbar.addText("logo", count, logo_text);
-	var username = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
-	ROSDASH.toolbar.addText("user", ++ count, username);
+	//var logo_text = '<a href="index.html" target="_blank">ROSDASH</a>';
+	//ROSDASH.toolbar.addText("logo", count, logo_text);
+	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "cut.gif", "cut_dis.gif");
+	//var username = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
+	//ROSDASH.toolbar.addText("user", ++ count, username);
+	ROSDASH.toolbar.addButton("user", ++ count, "Guest", "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	var ownername = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
-	ROSDASH.toolbar.addText("owner", ++ count, ownername);
+	//var ownername = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
+	//ROSDASH.toolbar.addText("owner", ++ count, ownername);
+	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
 	var ros_host = (undefined !== ROSDASH.ownerConf.ros_host && "" != ROSDASH.ownerConf.ros_host) ? ROSDASH.ownerConf.ros_host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
@@ -978,7 +1000,7 @@ ROSDASH.addToolbarUserName = function ()
 		var user_text = ROSDASH.userConf.name;
 		if ("Guest" != ROSDASH.userConf.name)
 		{
-			user_text = '<a href="panel.html?owner=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>(<a href="panel.html?status=logout">logout</a>)';
+			//user_text = '<a href="panel.html?owner=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>(<a href="panel.html?status=logout">logout</a>)';
 		}
 		// add to toolbar
 		ROSDASH.toolbar.setItemText("user", user_text);
@@ -992,9 +1014,9 @@ ROSDASH.addToolbarPanelName = function ()
 	$('title').text($('title').text() + " - " + ROSDASH.ownerConf.name + " - " + ROSDASH.ownerConf.panel_name);
 	if ($("#toolbarObj").length > 0)
 	{
-		var owner_text = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
+		//var owner_text = '<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '" target="_blank">' + ROSDASH.ownerConf.name + '</a>';
 		// add to toolbar
-		ROSDASH.toolbar.setItemText("owner", owner_text);
+		ROSDASH.toolbar.setItemText("owner", ROSDASH.ownerConf.name);
 		ROSDASH.toolbar.setItemText("panelname", ROSDASH.ownerConf.panel_name);
 	}
 }
@@ -1487,10 +1509,9 @@ ROSDASH.jsonReadyFunc = function ()
 		ROSDASH.comparePanel();
 		break;
 	case "jsoneditor":
-		json = ROSDASH.jsonLoadList[src].data;
-		src_success = true;
+		ROSDASH.jsonEditorLoadSuccess = true;
 		// run jsoneditor
-		startJsonEditor();
+		ROSDASH.runJsonEditor(ROSDASH.jsonLoadList[ROSDASH.jsonEditorSrc].data);
 		ROSDASH.ee.emitEvent("jsonEditorReady");
 		break;
 	default:
@@ -3351,6 +3372,76 @@ ROSDASH.exePanel = function ()
 	ROSDASH.initWidgets();
 	ROSDASH.ee.emitEvent("executionBegin");
 	ROSDASH.runWidgets();
+}
+
+ROSDASH.jsonEditorLoadSuccess = false;
+ROSDASH.jsonEditorSrc = undefined;
+ROSDASH.jsonEditorJson = {
+	"string": "test",
+	"number": 5,
+	"array": [1, 2, 3],
+	"object": {
+		"property": "test1",
+		"subobj": {
+			"arr": ["test2", "test3"],
+			"numero": 1
+		}
+	}
+};
+ROSDASH.startJsonEditor = function (src)
+{
+	ROSDASH.ownerConf.view_type = "jsoneditor";
+	ROSDASH.jsonEditorSrc = src;
+	//ROSDASH.initToolbar();
+    $('#json').change(function() {
+        var val = $('#json').val();
+        if (val) {
+            try { ROSDASH.jsonEditorJson = JSON.parse(val); }
+            catch (e) { alert('Error in parsing json. ' + e); }
+        } else {
+            ROSDASH.jsonEditorJson = {};
+        }
+        $('#editor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
+				ROSDASH.jsonEditorJson = data;
+				$('#json').val(JSON.stringify(json));
+			}, propertyclick: null });
+    });
+    $('#expander').click(function() {
+        var editor = $('#editor');
+        editor.toggleClass('expanded');
+        $(this).text(editor.hasClass('expanded') ? 'Collapse' : 'Expand all');
+    });
+    $('#reload').click(function() {
+		if (jsonEditorLoadSuccess)
+		{
+			ROSDASH.loadJson(src);
+			ROSDASH.waitJson();
+		}
+    });
+    $('#save').click(function() {
+		if (jsonEditorLoadSuccess)
+		{
+			ROSDASH.saveJson(ROSDASH.jsonEditorJson, src);
+		}
+    });
+	if (undefined !== src && "" != src)
+	{
+		// wait and read json file
+		ROSDASH.loadJson(src);
+		ROSDASH.waitJson();
+	} else
+	{
+		ROSDASH.runJsonEditor(ROSDASH.jsonEditorJson);
+	}
+}
+ROSDASH.runJsonEditor = function (json)
+{
+	ROSDASH.jsonEditorJson = json;
+	$('#json').val(JSON.stringify(ROSDASH.jsonEditorJson));
+    $('#editor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
+			ROSDASH.jsonEditorJson  = data;
+			$('#json').val(JSON.stringify(json));
+		}, propertyclick: null });
 }
 
 ///////////////////////////////////// panel callback
