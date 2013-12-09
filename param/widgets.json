@@ -1034,6 +1034,55 @@
 			}
 		]
 	}, {
+		"type": "OpenLayersMap",
+		"category": [
+			"map"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.OpenLayersMap",
+		"js": [""],
+		"config": {
+			"map_conf": {
+				"center" : ["49.276802", "-122.914913"],
+				"zoom" : "14",
+				"markers" : [{
+					"position" : ["49.276802", "-122.914913"],
+					"title" : "Autonomy Lab at Simon Fraser University"
+				}]
+			}
+		},
+		"input": [
+		],
+		"output": [
+			{
+				"datatype": "json",
+				"name": "map"
+			}
+		]
+	}, {
+		"type": "OpenLayersTraj",
+		"category": [
+			"map"
+		],
+		"class_name": "ROSDASH.OpenLayersTraj",
+		"config": {
+		},
+		"input": [
+			{
+				"datatype": "json",
+				"name": "map"
+			}, {
+				"datatype": "robot",
+				"name": "robot"
+			}
+		],
+		"output": [
+			{
+				"datatype": "json",
+				"name": "map"
+			}
+		]
+	}, {
 		"type": "saferange",
 		"category": [
 			"plot"

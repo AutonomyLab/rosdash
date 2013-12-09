@@ -2249,8 +2249,6 @@ ROSDASH.RosMjpeg.prototype.run = function (input)
 
 //////////////////////////////////// map
 
-//@deprecated
-ROSDASH.gmap;
 // google maps
 ROSDASH.Gmap = function (block)
 {
@@ -2309,7 +2307,6 @@ ROSDASH.Gmap.prototype.init = function ()
 //@output	gmap object
 ROSDASH.Gmap.prototype.run = function (input)
 {
-	ROSDASH.gmap = this.gmap;
 	return {o0: this.gmap};
 }
 ROSDASH.Gmap.prototype.resizeGmap = function ()
@@ -2506,6 +2503,107 @@ ROSDASH.GmapEnergyGrid.prototype.showGrids = function (grid)
 			that.grids[i].setMap(null);
 		}
 	}
+}
+
+ROSDASH.OpenLayersMap = function (block)
+{
+	this.block = block;
+	this.canvas_id = "OpenLayersMap-" + this.block.id;
+	this.LAB = [49.276802, -122.914913];
+	this.map;
+}
+ROSDASH.OpenLayersMap.prototype.addWidget = function (widget)
+{
+	widget.widgetContent = '<div id="' + this.canvas_id + '" style="height:100%; width:100%;" />';
+	return widget;
+}
+ROSDASH.OpenLayersMap.prototype.init = function ()
+{
+	this.map = new OpenLayers.Map(this.canvas_id);
+	var mapnik         = new OpenLayers.Layer.OSM();
+	var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+	var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+	var position       = new OpenLayers.LonLat(this.LAB[1], this.LAB[0]).transform( fromProjection, toProjection);
+	var zoom           = 14; 
+	this.map.addLayer(mapnik);
+	this.map.setCenter(position, zoom );
+	// allow testing of specific renderers via "?renderer=Canvas", etc
+	var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
+	renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
+	var vectors = new OpenLayers.Layer.Vector("Vector Layer", {
+		renderers: renderer
+	});
+	this.map.addLayers([mapnik, vectors]);
+	this.map.addControl(new OpenLayers.Control.LayerSwitcher());
+	this.map.addControl(new OpenLayers.Control.MousePosition());
+}
+ROSDASH.OpenLayersMap.prototype.run = function (input)
+{
+	return {o0: this.map};
+}
+
+// google maps robot trajectory overlay
+ROSDASH.OpenLayersTraj = function (block)
+{
+	this.block = block;
+	this.robot = {
+		marker: undefined,
+		path: new Array(),
+		last_loc: new Array()
+	};
+}
+//@input	map object, Pos2D
+//@output	map object
+ROSDASH.OpenLayersTraj.prototype.run = function (input)
+{
+	var new_x = input[1].y, new_y = -input[1].x;
+	if (this.robot.last_loc[0] == new_x && this.robot.last_loc[1] == new_y)
+	{
+		return {o0: input[0]};
+	}
+	// clear the old position
+	if (undefined !== this.robot.marker)
+	{
+		this.robot.marker.destroy();
+	}
+	this.robot.marker = new OpenLayers.Layer.Markers( "Markers" );
+	input[0].addLayer(this.robot.marker);
+	var icon = new OpenLayers.Icon('resource/cabs.png');
+	var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+	var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+	var position       = new OpenLayers.LonLat(new_y, new_x).transform( fromProjection, toProjection);
+	this.robot.marker.addMarker(new OpenLayers.Marker(position, icon));
+
+	// keep the length of path no longer than a threshold
+	while (this.robot.path.length >= 20)
+	{
+		this.robot.path[0].destroy();
+		this.robot.path.splice(0, 1);
+	}
+	var color = "black";
+	var weight = 1;
+	var icon = new Array();
+	if (undefined === this.robot.last_loc)
+	{
+		this.robot.last_loc[0] = new_x;
+		this.robot.last_loc[1] = new_y;
+	}
+	// add path
+	var start_point = new OpenLayers.Geometry.Point(this.robot.last_loc[1], this.robot.last_loc[0]);
+	var end_point = new OpenLayers.Geometry.Point(new_y, new_x);
+	var style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+	style.strokeWidth = 2; 
+	style.strokeColor = "black";
+	var vector = new OpenLayers.Layer.Vector("Line nr 1", {
+		style : style
+	});
+	vector.addFeatures([new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LineString([start_point, end_point]).transform(new OpenLayers.Projection("EPSG:4326"), new OpenLayers.Projection("EPSG:900913")))]);
+	this.robot.path.push(vector);
+	input[0].addLayer(vector);
+
+	this.robot.last_loc[0] = new_x;
+	this.robot.last_loc[1] = new_y;
+	return {o0: input[0]};
 }
 
 //////////////////////////////////// plot
