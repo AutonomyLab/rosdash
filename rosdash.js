@@ -2466,13 +2466,15 @@ ROSDASH.connectBlocks = function (source, target)
 {
 	// if source or target does not exist
 	var body = ROSDASH.getBlockParent(source);
-	if (! (body in ROSDASH.blocks))
+	var pin_num = ROSDASH.getPinNum(source);
+	if (! (body in ROSDASH.blocks) || pin_num >= ROSDASH.blocks[body].output.length)
 	{
 		console.error("cannot connect: ", source, body);
 		return;
 	}
 	body = ROSDASH.getBlockParent(target);
-	if (! (body in ROSDASH.blocks))
+	var pin_num = ROSDASH.getPinNum(target);
+	if (! (body in ROSDASH.blocks) || pin_num >= ROSDASH.blocks[body].input.length)
 	{
 		console.error("cannot connect: ", target, body);
 		return;

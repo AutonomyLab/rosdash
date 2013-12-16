@@ -722,6 +722,10 @@ ROSDASH.Text = function (block)
 }
 ROSDASH.Text.prototype.addWidget = function (widget)
 {
+	if (undefined !== this.block.config && undefined !== this.block.config.title)
+	{
+		widget.widgetTitle = this.block.config.title;
+	}
 	widget.widgetContent = "";
 	return widget;
 }
@@ -2749,7 +2753,7 @@ ROSDASH.Vumeter = function (block)
 {
 	this.block = block;
 	this.canvas_id = "vumeter_" + this.block.id;
-	this.config = ("config" in this.block) ? this.block.config : {
+	this.config = (("config" in this.block) && ("vumeter" in this.block.config)) ? this.block.config.vumeter : {
 	    chart: {
 	        type: 'gauge',
 	        plotBorderWidth: 1,
@@ -2856,7 +2860,7 @@ ROSDASH.Vumeter.prototype.init = function ()
 	var that = this;
 	this.meter = $('#' + this.canvas_id).highcharts(this.config,
 	// Let the music play
-	function(chart)
+	function (chart)
 	{
 	    setInterval(function()
 	    {
