@@ -659,6 +659,7 @@ ROSDASH.VirtualJoystick = function (block)
 		axes : [0, 0, 0, 0, 0, 0],
 		buttons : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	};
+	this.prev_joy;
 }
 ROSDASH.VirtualJoystick.prototype.addWidget = function (widget)
 {
@@ -707,6 +708,34 @@ ROSDASH.VirtualJoystick.prototype.run = function (input)
 		axes : [Number(this.joy_obj.left() - this.joy_obj.right()), Number(this.joy_obj.up() - this.joy_obj.down()), 0, 0, 0, 0],
 		buttons : [Number(this.unlock), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	};
+	if (undefined !== this.prev_joy)
+	{
+		var flag = false;
+		for (var i in this.joy.axes)
+		{
+			if (this.joy.axes[i] != this.prev_joy.axes[i])
+			{
+				flag = true;
+				break;
+			}
+		}
+		for (var i in this.joy.buttons)
+		{
+			if (this.joy.buttons[i] != this.prev_joy.buttons[i])
+			{
+				flag = true;
+				break;
+			}
+		}
+		if (! flag)
+		{
+			return {
+				o0: undefined,
+				o1: this.joy_obj
+			};
+		}
+	}
+	this.prev_joy = $.extend(true, [], this.joy);
 	return {
 		o0: this.joy,
 		o1: this.joy_obj
@@ -2636,23 +2665,25 @@ ROSDASH.Flot = function (block)
 	this.block = block;
 	this.plot;
 	this.canvas = "flot-" + this.block.id;
-	this.options = (undefined !== this.block.config.options) ? this.block.config.options : {
+	this.options = (undefined !== this.block.config && undefined !== this.block.config.options) ? this.block.config.options : {
 		// drawing is faster without shadows
 		series: {
 			shadowSize: 0,
 			lines: {show: true},
-			points: {show: true}
+			//points: {show: true}
 		},
 		crosshair: {mode: "x"},
 		zoom: {interactive: true},
 		pan: {interactive: true},
 		// it can adjust automatically
 		yaxis: {
+			zoomRange: false,
 			tickFormatter: function (v, axis)
 			{
 				return v.toFixed(2);
 			}
 		},
+		xaxis: { min: -10, max: 600},
 		legend: { position: "nw" },
 		grid: {
 			show: true,
@@ -2684,7 +2715,7 @@ ROSDASH.Flot.prototype.init = function ()
 		return false;
 	}
 	// create the plot with default data
-	this.plot = $.plot("#" + this.canvas, this.getDefaultData(), this.option);
+	this.plot = $.plot("#" + this.canvas, this.getDefaultData(), this.options);
 	return true;
 }
 //@input	data
@@ -2733,18 +2764,6 @@ ROSDASH.Flot.prototype.run = function (input)
 	return {o0 : this.plot};
 }
 
-ROSDASH.raserScanToFlot = function (block)
-{
-	this.block = block;
-}
-ROSDASH.raserScanToFlot.prototype.run = function (input)
-{
-	var output = new Array();
-	output.push(input[0].ranges);
-	//output.push(input[0].intensities);
-	return {o0 : output};
-}
-
 //////////////////////////////////// other outputs
 
 // V U meter
@@ -2785,8 +2804,8 @@ ROSDASH.Vumeter = function (block)
 	        size: 300
 	    }],
 	    yAxis: [{
-	        min: -20,
-	        max: 6,
+	        min: 0,
+	        max: 1,
 	        minorTickPosition: 'outside',
 	        tickPosition: 'outside',
 	        labels: {
@@ -2806,8 +2825,8 @@ ROSDASH.Vumeter = function (block)
 	        	y: -40
 	        }
 	    }, {
-	        min: -20,
-	        max: 6,
+	        min: 0,
+	        max: 1000,
 	        minorTickPosition: 'outside',
 	        tickPosition: 'outside',
 	        labels: {
@@ -2852,7 +2871,7 @@ ROSDASH.Vumeter = function (block)
 }
 ROSDASH.Vumeter.prototype.addWidget = function (widget)
 {
-	widget.widgetContent = '<div id="' + this.canvas_id + '" style="width:100%; height:100%; margin: 0 auto;"></div>';
+	widget.widgetContent = '<div id="' + this.canvas_id + '" style="width:80%; height:80%; margin: 0 auto;"></div>';
 	return widget;
 }
 ROSDASH.Vumeter.prototype.init = function ()
