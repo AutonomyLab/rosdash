@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/12/trunk/samples/webcam
+END
+flashcam.swf
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/4/trunk/samples/webcam/flashcam.swf
+END
+webcam.html
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/12/trunk/samples/webcam/webcam.html
+END
+cv.js
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/12/trunk/samples/webcam/cv.js
+END
+aruco.js
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/12/trunk/samples/webcam/aruco.js
+END

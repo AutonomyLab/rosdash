@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/14/trunk/samples/debug-posit
+END
+cv.js
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/12/trunk/samples/debug-posit/cv.js
+END
+aruco.js
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/12/trunk/samples/debug-posit/aruco.js
+END
+debug-posit.html
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/14/trunk/samples/debug-posit/debug-posit.html
+END
+svd.js
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/12/trunk/samples/debug-posit/svd.js
+END
+posit1.js
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/12/trunk/samples/debug-posit/posit1.js
+END
+posit2.js
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/12/trunk/samples/debug-posit/posit2.js
+END
