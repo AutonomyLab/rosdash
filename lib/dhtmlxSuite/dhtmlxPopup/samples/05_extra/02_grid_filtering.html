@@ -1,0 +1,359 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>Grid Filtering</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="title" content="Samples" />
+		<meta name="keywords" content="" />
+		<meta name="description" content="" />
+		<link rel="icon" href="../common/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="../common/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../common/css/style.css" type="text/css" media="screen" />
+
+	</head>
+	<body onload="doOnLoad()">
+        <div class="header">
+            <a class="logo" href="http://www.dhtmlx.com" title="DHTMLX homepage"></a>
+            <div class="tittle-dhtmlx">DHTMLX Docs & Samples Explorer</div>
+            <div class="search-field">
+                <form action="http://docs.dhtmlx.com/doku.php" accept-charset="utf-8" id="dw__search"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" id="qsearch__in" accesskey="f" name="id" title="Search" /><input class="button" type="submit" value=""><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>
+            </div>
+            <div class="buttons">
+                <a class="doc_inact" href="../../../docsExplorer/index.html" title="DHTMLX Documentation homepage"></a>
+                <a class="sample"></a>
+            </div>
+        </div>
+        <div class="content">
+            <div class="navigation-div">
+                <a href="../../../docsExplorer/samples.html" class="navigation"><img src="../common/icons/file.gif" alt="" >All components</a>
+                <div class="arrow"></div>
+                <a href="../index.html" class="navigation"><img height="22" src="../common/icons/popup.gif" alt="" >dhtmlxPopup</a>
+                <div class="arrow"></div>
+                <a href="./index.html" class="navigation"><img src="../common/icons/none.gif" alt="" >Extra</a>
+            </div>
+            <div style="display:block;">
+                <h3>Grid Filtering</h3>
+            </div>
+            <div class="navigation-div">
+                <a href="#code" class="navigation view-source"><img src="../common/icons/source.gif" alt="" >View page source</a>
+            </div>
+            <meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="../../codebase/skins/dhtmlxpopup_dhx_skyblue.css"/>
+	<link rel="stylesheet" type="text/css" href="../../../dhtmlxForm/codebase/skins/dhtmlxform_dhx_skyblue.css"/>
+	<link rel="stylesheet" type="text/css" href="../../../dhtmlxGrid/codebase/dhtmlxgrid.css">
+	<link rel="stylesheet" type="text/css" href="../../../dhtmlxGrid/codebase/skins/dhtmlxgrid_dhx_skyblue.css">
+	
+	<script src="../../codebase/dhtmlxcommon.js"></script>
+	<script src="../../codebase/dhtmlxpopup.js"></script>
+	<script src="../../../dhtmlxForm/codebase/dhtmlxform.js"></script>
+	<script src="../../../dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
+	<script src="../../../dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
+	<script src="../../../dhtmlxGrid/codebase/ext/dhtmlxgrid_filter.js"></script>
+	
+	<style>
+		table.obj.row20px tr td img {
+			float: left;
+			margin-left: 7px;
+		}
+	</style>
+	<script>
+		
+		var myForm;
+		var myPop;
+		var myGrid;
+		var eId;
+		
+		function doOnLoad() {
+			
+			myForm = new dhtmlXForm("myForm", [
+				{type: "settings", position: "label-left", labelWidth: 110, inputWidth: 170},
+				{type: "input", name: "name", label: "Full Name", value: "Joe Black"},
+				{type: "input", name: "email", label: "Email", value: "joe@mail.com"},
+				{type: "input", name: "country", label: "Country", value: "", note: {text: "Start typing"}}
+			]);
+			myForm.setSkin("dhx_skyblue");
+			
+			myPop = new dhtmlXPopup({ form: myForm, id: ["country"] });
+			
+			myForm.attachEvent("onFocus", function(id){
+				//myPop.show(id);
+			});
+			
+			//myForm.getInput("title").setAttribute("autocomplete","off");
+			
+			myForm.attachEvent("onKeyUp", function(input, e){
+				
+				if (!myGrid) return
+				if (myPop.isVisible()) {
+					if (e.keyCode == 38) { // up
+						var id = myGrid.getSelectedRowId();
+						if (id != null) {
+							var ind = myGrid.getRowIndex(id);
+							myGrid.selectRow(ind-1);
+						} else {
+							myGrid.selectRow(0);
+						}
+					}
+					if (e.keyCode == 40) { // down
+						var id = myGrid.getSelectedRowId();
+						if (id != null) {
+							var ind = myGrid.getRowIndex(id);
+							myGrid.selectRow(ind+1);
+						} else {
+							myGrid.selectRow(0);
+						}
+					}
+					if (e.keyCode == 13) { // enter
+						var id = myGrid.getSelectedRowId();
+						if (id != null && myGrid.getRowIndex(id) >= 0) {
+							myGrid.callEvent("onRowDblClicked",[id]);
+						}
+					}
+				} else {
+					if (e.keyCode == 113) { // f2
+						myPop.show();
+					}
+				}
+			});
+			
+			myForm.attachEvent("onInputChange", function(id,value){
+				if (!myGrid) {
+					if (!myPop.isVisible()) myPop.show("country");
+					return;
+				}
+				//myGrid.filterBy(1,"");
+				if (!myPop.isVisible()) myPop.show("country");
+				if (myGrid._loaded) {
+					myGrid.filterBy(1,value);
+					selectRowIfNotSelected();
+				}
+			});
+			
+			eId = myPop.attachEvent("onShow",function(){
+				
+				myGrid = myPop.attachGrid(300,200);
+				myGrid.setImagePath("../../../dhtmlxGrid/codebase/imgs/")
+				myGrid.loadXML("../common/grid2.xml?etc="+new Date().getTime(), function(){
+					myGrid.filterBy(1, myForm.getItemValue("country"));
+					myGrid.selectRow(0);
+					myGrid._loaded = true;
+				});
+				
+				myGrid.attachEvent("onRowDblClicked", function(id){
+					myForm.setItemValue("country", myGrid.cells(id,1).getValue());
+					myPop.hide();
+					myGrid.clearSelection();
+				});
+				
+				myPop.detachEvent(eId);
+				
+			});
+			
+			myPop.attachEvent("onShow",function(){
+				if (!myGrid) return;
+				//myGrid.filterBy(0,"");
+				//myGrid._f_rowsBuffer = null;
+				if (myGrid._loaded) {
+					myGrid.filterBy(1, myForm.getItemValue("country"));
+				}
+				selectRowIfNotSelected();
+			});
+		}
+		
+		function selectRowIfNotSelected() {
+			var id = myGrid.getSelectedRowId();
+			if (!id) {
+				myGrid.selectRow(0);
+			} else {
+				if (myGrid.getRowIndex(id) < 0) myGrid.selectRow(0);
+			}
+		}
+		
+	</script>
+	<style>
+		
+		
+	</style>
+
+
+	<div id="myForm"></div>
+			
+			
+         </div>
+    <div style="clear:both;"></div>
+    <div class="source">
+        <div class="teg">Source</div>
+        <div class="code" id="code">
+		<div class="hl-main"><pre><span class="hl-brackets">&lt;</span><span class="hl-reserved">meta</span><span class="hl-code"> </span><span class="hl-var">charset</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">UTF-8</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">link</span><span class="hl-code"> </span><span class="hl-var">rel</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">stylesheet</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">type</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">text/css</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">href</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../codebase/skins/dhtmlxpopup_dhx_skyblue.css</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">/&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">link</span><span class="hl-code"> </span><span class="hl-var">rel</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">stylesheet</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">type</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">text/css</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">href</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../../dhtmlxForm/codebase/skins/dhtmlxform_dhx_skyblue.css</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">/&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">link</span><span class="hl-code"> </span><span class="hl-var">rel</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">stylesheet</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">type</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">text/css</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">href</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../../dhtmlxGrid/codebase/dhtmlxgrid.css</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">link</span><span class="hl-code"> </span><span class="hl-var">rel</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">stylesheet</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">type</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">text/css</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">href</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../../dhtmlxGrid/codebase/skins/dhtmlxgrid_dhx_skyblue.css</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../codebase/dhtmlxcommon.js</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../codebase/dhtmlxpopup.js</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../../dhtmlxForm/codebase/dhtmlxform.js</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../../dhtmlxGrid/codebase/dhtmlxgrid.js</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../../dhtmlxGrid/codebase/dhtmlxgridcell.js</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../../dhtmlxGrid/codebase/ext/dhtmlxgrid_filter.js</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">style</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+        table.obj.row20px tr td img {
+            float: left;
+            margin-left: 7px;
+        }
+    </span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">style</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code"><div class="hl-main"><pre><span class="hl-code"> 
+</span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">myForm</span><span class="hl-code">;
+</span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">myPop</span><span class="hl-code">;
+</span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">myGrid</span><span class="hl-code">;
+</span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">eId</span><span class="hl-code">;
+ 
+</span><span class="hl-reserved">function</span><span class="hl-code"> </span><span class="hl-identifier">doOnLoad</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+ 
+    </span><span class="hl-identifier">myForm</span><span class="hl-code"> = </span><span class="hl-reserved">new</span><span class="hl-code"> </span><span class="hl-identifier">dhtmlXForm</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">myForm</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-brackets">[</span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-identifier">type</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">settings</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-identifier">position</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">label-left</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-identifier">labelWidth</span><span class="hl-code">: </span><span class="hl-number">110</span><span class="hl-code">,
+        </span><span class="hl-identifier">inputWidth</span><span class="hl-code">: </span><span class="hl-number">170</span><span class="hl-code">
+    </span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-identifier">type</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">input</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-identifier">name</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">name</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-reserved">label</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Full Name</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-identifier">value</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Joe Black</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+    </span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-identifier">type</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">input</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-identifier">name</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">email</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-reserved">label</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Email</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-identifier">value</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">joe@mail.com</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+    </span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-identifier">type</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">input</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-identifier">name</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">country</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-reserved">label</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Country</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-identifier">value</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+        </span><span class="hl-identifier">note</span><span class="hl-code">: </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">text</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Start typing</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-code">
+    </span><span class="hl-brackets">}</span><span class="hl-brackets">]</span><span class="hl-brackets">)</span><span class="hl-code">;
+    </span><span class="hl-identifier">myForm</span><span class="hl-code">.</span><span class="hl-identifier">setSkin</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">dhx_skyblue</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+    </span><span class="hl-identifier">myPop</span><span class="hl-code"> = </span><span class="hl-reserved">new</span><span class="hl-code"> </span><span class="hl-identifier">dhtmlXPopup</span><span class="hl-brackets">(</span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-identifier">form</span><span class="hl-code">: </span><span class="hl-identifier">myForm</span><span class="hl-code">,
+        </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-brackets">[</span><span class="hl-quotes">&quot;</span><span class="hl-string">country</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">]</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+    </span><span class="hl-identifier">myForm</span><span class="hl-code">.</span><span class="hl-identifier">attachEvent</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">onFocus</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-comment">//</span><span class="hl-comment">myPop.show(id);</span><span class="hl-comment"></span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+    </span><span class="hl-comment">//</span><span class="hl-comment">myForm.getInput(&quot;title&quot;).setAttribute(&quot;autocomplete&quot;,&quot;off&quot;);</span><span class="hl-comment"></span><span class="hl-code">
+    </span><span class="hl-identifier">myForm</span><span class="hl-code">.</span><span class="hl-identifier">attachEvent</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">onKeyUp</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-identifier">input</span><span class="hl-code">, </span><span class="hl-identifier">e</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+ 
+        </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-code">!</span><span class="hl-identifier">myGrid</span><span class="hl-brackets">)</span><span class="hl-code">
+            </span><span class="hl-reserved">return</span><span class="hl-code">
+        </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">isVisible</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">e</span><span class="hl-code">.</span><span class="hl-identifier">keyCode</span><span class="hl-code"> == </span><span class="hl-number">38</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+                </span><span class="hl-comment">//</span><span class="hl-comment"> up</span><span class="hl-comment"></span><span class="hl-code">
+                </span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">id</span><span class="hl-code"> = </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">getSelectedRowId</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">;
+                </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-code"> != </span><span class="hl-reserved">null</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+                    </span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">ind</span><span class="hl-code"> = </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">getRowIndex</span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-brackets">)</span><span class="hl-code">;
+                    </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">selectRow</span><span class="hl-brackets">(</span><span class="hl-identifier">ind</span><span class="hl-code"> - </span><span class="hl-number">1</span><span class="hl-brackets">)</span><span class="hl-code">;
+                </span><span class="hl-brackets">}</span><span class="hl-code"> </span><span class="hl-reserved">else</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+                    </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">selectRow</span><span class="hl-brackets">(</span><span class="hl-number">0</span><span class="hl-brackets">)</span><span class="hl-code">;
+                </span><span class="hl-brackets">}</span><span class="hl-code">
+            </span><span class="hl-brackets">}</span><span class="hl-code">
+            </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">e</span><span class="hl-code">.</span><span class="hl-identifier">keyCode</span><span class="hl-code"> == </span><span class="hl-number">40</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+                </span><span class="hl-comment">//</span><span class="hl-comment"> down</span><span class="hl-comment"></span><span class="hl-code">
+                </span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">id</span><span class="hl-code"> = </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">getSelectedRowId</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">;
+                </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-code"> != </span><span class="hl-reserved">null</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+                    </span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">ind</span><span class="hl-code"> = </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">getRowIndex</span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-brackets">)</span><span class="hl-code">;
+                    </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">selectRow</span><span class="hl-brackets">(</span><span class="hl-identifier">ind</span><span class="hl-code"> + </span><span class="hl-number">1</span><span class="hl-brackets">)</span><span class="hl-code">;
+                </span><span class="hl-brackets">}</span><span class="hl-code"> </span><span class="hl-reserved">else</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+                    </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">selectRow</span><span class="hl-brackets">(</span><span class="hl-number">0</span><span class="hl-brackets">)</span><span class="hl-code">;
+                </span><span class="hl-brackets">}</span><span class="hl-code">
+            </span><span class="hl-brackets">}</span><span class="hl-code">
+            </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">e</span><span class="hl-code">.</span><span class="hl-identifier">keyCode</span><span class="hl-code"> == </span><span class="hl-number">13</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+                </span><span class="hl-comment">//</span><span class="hl-comment"> enter</span><span class="hl-comment"></span><span class="hl-code">
+                </span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">id</span><span class="hl-code"> = </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">getSelectedRowId</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">;
+                </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-code"> != </span><span class="hl-reserved">null</span><span class="hl-code"> &amp;&amp; </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">getRowIndex</span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-brackets">)</span><span class="hl-code"> &gt;= </span><span class="hl-number">0</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+                    </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">callEvent</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">onRowDblClicked</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-brackets">[</span><span class="hl-identifier">id</span><span class="hl-brackets">]</span><span class="hl-brackets">)</span><span class="hl-code">;
+                </span><span class="hl-brackets">}</span><span class="hl-code">
+            </span><span class="hl-brackets">}</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-code"> </span><span class="hl-reserved">else</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">e</span><span class="hl-code">.</span><span class="hl-identifier">keyCode</span><span class="hl-code"> == </span><span class="hl-number">113</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+                </span><span class="hl-comment">//</span><span class="hl-comment"> f2</span><span class="hl-comment"></span><span class="hl-code">
+                </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">show</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">;
+            </span><span class="hl-brackets">}</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-code">
+    </span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+    </span><span class="hl-identifier">myForm</span><span class="hl-code">.</span><span class="hl-identifier">attachEvent</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">onInputChange</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-code">, </span><span class="hl-identifier">value</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-code">!</span><span class="hl-identifier">myGrid</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-code">!</span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">isVisible</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-brackets">)</span><span class="hl-code">
+                </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">show</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">country</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-code">;
+            </span><span class="hl-reserved">return</span><span class="hl-code">;
+        </span><span class="hl-brackets">}</span><span class="hl-code">
+        </span><span class="hl-comment">//</span><span class="hl-comment">myGrid.filterBy(1,&quot;&quot;);</span><span class="hl-comment"></span><span class="hl-code">
+        </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-code">!</span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">isVisible</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-brackets">)</span><span class="hl-code">
+            </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">show</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">country</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-code">;
+        </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">_loaded</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">filterBy</span><span class="hl-brackets">(</span><span class="hl-number">1</span><span class="hl-code">, </span><span class="hl-identifier">value</span><span class="hl-brackets">)</span><span class="hl-code">;
+            </span><span class="hl-identifier">selectRowIfNotSelected</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">;
+        </span><span class="hl-brackets">}</span><span class="hl-code">
+    </span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+    </span><span class="hl-identifier">eId</span><span class="hl-code"> = </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">attachEvent</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">onShow</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+ 
+        </span><span class="hl-identifier">myGrid</span><span class="hl-code"> = </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">attachGrid</span><span class="hl-brackets">(</span><span class="hl-number">300</span><span class="hl-code">, </span><span class="hl-number">200</span><span class="hl-brackets">)</span><span class="hl-code">;
+        </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">setImagePath</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../../dhtmlxGrid/codebase/imgs/</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-code">
+            </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">loadXML</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">../common/grid2.xml?etc=</span><span class="hl-quotes">&quot;</span><span class="hl-code"> + </span><span class="hl-reserved">new</span><span class="hl-code"> </span><span class="hl-builtin">Date</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">.</span><span class="hl-identifier">getTime</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">, </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">filterBy</span><span class="hl-brackets">(</span><span class="hl-number">1</span><span class="hl-code">, </span><span class="hl-identifier">myForm</span><span class="hl-code">.</span><span class="hl-identifier">getItemValue</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">country</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-brackets">)</span><span class="hl-code">;
+            </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">selectRow</span><span class="hl-brackets">(</span><span class="hl-number">0</span><span class="hl-brackets">)</span><span class="hl-code">;
+            </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">_loaded</span><span class="hl-code"> = </span><span class="hl-reserved">true</span><span class="hl-code">;
+        </span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+        </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">attachEvent</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">onRowDblClicked</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">myForm</span><span class="hl-code">.</span><span class="hl-identifier">setItemValue</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">country</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">cells</span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-code">, </span><span class="hl-number">1</span><span class="hl-brackets">)</span><span class="hl-code">.</span><span class="hl-identifier">getValue</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-brackets">)</span><span class="hl-code">;
+            </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">hide</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">;
+            </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">clearSelection</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">;
+        </span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+        </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">detachEvent</span><span class="hl-brackets">(</span><span class="hl-identifier">eId</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+    </span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+    </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">attachEvent</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">onShow</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-code">!</span><span class="hl-identifier">myGrid</span><span class="hl-brackets">)</span><span class="hl-code">
+            </span><span class="hl-reserved">return</span><span class="hl-code">;
+        </span><span class="hl-comment">//</span><span class="hl-comment">myGrid.filterBy(0,&quot;&quot;);</span><span class="hl-comment"></span><span class="hl-code">
+        </span><span class="hl-comment">//</span><span class="hl-comment">myGrid._f_rowsBuffer = null;</span><span class="hl-comment"></span><span class="hl-code">
+        </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">_loaded</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">filterBy</span><span class="hl-brackets">(</span><span class="hl-number">1</span><span class="hl-code">, </span><span class="hl-identifier">myForm</span><span class="hl-code">.</span><span class="hl-identifier">getItemValue</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">country</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-brackets">)</span><span class="hl-code">;
+        </span><span class="hl-brackets">}</span><span class="hl-code">
+        </span><span class="hl-identifier">selectRowIfNotSelected</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">;
+    </span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+</span><span class="hl-brackets">}</span><span class="hl-code">
+ 
+</span><span class="hl-reserved">function</span><span class="hl-code"> </span><span class="hl-identifier">selectRowIfNotSelected</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">id</span><span class="hl-code"> = </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">getSelectedRowId</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">;
+    </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-code">!</span><span class="hl-identifier">id</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">selectRow</span><span class="hl-brackets">(</span><span class="hl-number">0</span><span class="hl-brackets">)</span><span class="hl-code">;
+    </span><span class="hl-brackets">}</span><span class="hl-code"> </span><span class="hl-reserved">else</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-reserved">if</span><span class="hl-code"> </span><span class="hl-brackets">(</span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">getRowIndex</span><span class="hl-brackets">(</span><span class="hl-identifier">id</span><span class="hl-brackets">)</span><span class="hl-code"> &lt; </span><span class="hl-number">0</span><span class="hl-brackets">)</span><span class="hl-code">
+            </span><span class="hl-identifier">myGrid</span><span class="hl-code">.</span><span class="hl-identifier">selectRow</span><span class="hl-brackets">(</span><span class="hl-number">0</span><span class="hl-brackets">)</span><span class="hl-code">;
+    </span><span class="hl-brackets">}</span><span class="hl-code">
+</span><span class="hl-brackets">}</span></pre></div></span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">style</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+        
+        
+    </span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">style</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+ 
+ 
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">div</span><span class="hl-code"> </span><span class="hl-var">id</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">myForm</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">div</span><span class="hl-brackets">&gt;</span></pre></div>
+        </div>
+    <div class="footer">
+        <div class="footer-logo"></div>
+        <div class="copyright">Copyright &copy; 1998-2012 DHTMLX LTD.<br />All rights reserved.</div>
+    </div>
+	</body>
+</html>

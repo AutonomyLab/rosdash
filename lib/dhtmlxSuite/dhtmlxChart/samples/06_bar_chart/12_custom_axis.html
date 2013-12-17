@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>Custom Axis Units</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="title" content="Samples" />
+		<meta name="keywords" content="" />
+		<meta name="description" content="" />
+		<link rel="icon" href="../common/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="../common/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../common/css/style.css" type="text/css" media="screen" />
+
+	</head>
+	<body>
+        <div class="header">
+            <a class="logo" href="http://www.dhtmlx.com" title="DHTMLX homepage"></a>
+            <div class="tittle-dhtmlx">DHTMLX Docs & Samples Explorer</div>
+            <div class="search-field">
+                <form action="http://docs.dhtmlx.com/doku.php" accept-charset="utf-8" id="dw__search"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" id="qsearch__in" accesskey="f" name="id" title="Search" /><input class="button" type="submit" value=""><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>
+            </div>
+            <div class="buttons">
+                <a class="doc_inact" href="../../../docsExplorer/index.html" title="DHTMLX Documentation homepage"></a>
+                <a class="sample"></a>
+            </div>
+        </div>
+        <div class="content">
+            <div class="navigation-div">
+                <a href="../../../docsExplorer/samples.html" class="navigation"><img src="../common/icons/file.gif" alt="" >All components</a>
+                <div class="arrow"></div>
+                <a href="../index.html" class="navigation"><img height="22" src="../common/icons/chart.gif" alt="" >dhtmlxChart</a>
+                <div class="arrow"></div>
+                <a href="./index.html" class="navigation"><img src="../common/icons/none.gif" alt="" >Bar Charts</a>
+            </div>
+            <div style="display:block;">
+                <h3>Custom Axis Units</h3>
+            </div>
+            <div class="navigation-div">
+                <a href="#code" class="navigation view-source"><img src="../common/icons/source.gif" alt="" >View page source</a>
+            </div>
+            <script src="../../codebase/dhtmlxchart.js" type="text/javascript"></script>
+    <link rel="STYLESHEET" type="text/css" href="../../codebase/dhtmlxchart.css">
+    <script src="../common/testdata.js"></script>
+    <style>
+        .title{
+            font-weight: bold;
+
+
+        }
+    </style>
+
+
+<div id="chart1" style="width:800px;height:250px;border:1px solid #A4BED4;"></div>
+
+
+<script>
+    var data = [
+        { id:1, sales:20, date:"05.01.2012", color: "#ee4339"},
+        { id:2, sales:55, date:"10.01.2012", color: "#ee9336"},
+        { id:3, sales:40, date:"15.01.2012", color: "#eed236"},
+        { id:4, sales:78, date:"18.01.2012", color: "#d3ee36"},
+        { id:5, sales:61, date:"25.01.2012", color: "#a7ee70"},
+        { id:6, sales:35, date:"02.02.2012", color: "#58dccd"},
+        { id:7, sales:80, date:"06.02.2012", color: "#36abee"},
+        { id:8, sales:50, date:"19.02.2012", color: "#476cee"},
+        { id:9, sales:65, date:"22.02.2012", color: "#a244ea"},
+        { id:10, sales:59, date:"27.02.2012", color: "#e33fc7"},
+        { id:11, sales:86, date:"11.01.2013", color: "#e33fc7"}
+    ];
+    var barChart1 =  new dhtmlXChart({
+        view:"bar",
+        container:"chart1",
+        value:"#sales#",
+        color: "#color#",
+        gradient:"rising",
+        tooltip:{
+            template:"Date <span class='title'>#date#</span><br/>Value <span class='title'>#sales#</span>"
+        },
+        width:60,
+        xAxis:{
+            template:function(obj){
+                return obj.$unit.getDate()==15?dhtmlx.Date.date_to_str("%F")(obj.$unit):""
+            },
+            lineColor:function(obj){
+                return obj.$unit.valueOf() == (new Date(2012,1,1)).valueOf()?"#737373":"#cfcfcf"
+            },
+            value:function(obj){
+                return dhtmlx.Date.str_to_date("%d.%m.%Y")(obj.date);
+            },
+            units:{
+                start:new Date(2012,0,1),
+                end:new Date(2012,1,29),
+                next:function(d){
+                    return  dhtmlx.Date.add(d, 1, "day");
+                }
+            }
+        },
+        yAxis:{
+            start:0,
+            step:10,
+            end:100
+        }
+    });
+
+    barChart1.parse(data,"json");
+
+
+</script>
+			
+			
+         </div>
+    <div style="clear:both;"></div>
+    <div class="source">
+        <div class="teg">Source</div>
+        <div class="code" id="code">
+		<div class="hl-main"><pre><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../codebase/dhtmlxchart.js</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">type</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">text/javascript</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+</span><span class="hl-brackets">&lt;</span><span class="hl-reserved">link</span><span class="hl-code"> </span><span class="hl-var">rel</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">STYLESHEET</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">type</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">text/css</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">href</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../codebase/dhtmlxchart.css</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+</span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../common/testdata.js</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+</span><span class="hl-brackets">&lt;</span><span class="hl-reserved">style</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    .title{
+        font-weight: bold;
+ 
+    }
+</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">style</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+ 
+</span><span class="hl-brackets">&lt;</span><span class="hl-reserved">div</span><span class="hl-code"> </span><span class="hl-var">id</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">chart1</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">style</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">width:800px;height:250px;border:1px solid #A4BED4;</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">div</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+ 
+</span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code"><div class="hl-main"><pre><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">data</span><span class="hl-code"> = </span><span class="hl-brackets">[</span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">1</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">20</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">05.01.2012</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#ee4339</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">2</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">55</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">10.01.2012</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#ee9336</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">3</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">40</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">15.01.2012</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#eed236</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">4</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">78</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">18.01.2012</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#d3ee36</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">5</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">61</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">25.01.2012</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#a7ee70</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">6</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">35</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">02.02.2012</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#58dccd</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">7</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">80</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">06.02.2012</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#36abee</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">8</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">50</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">19.02.2012</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#476cee</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">9</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">65</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">22.02.2012</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#a244ea</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">10</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">59</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">27.02.2012</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#e33fc7</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">11</span><span class="hl-code">,
+    </span><span class="hl-identifier">sales</span><span class="hl-code">: </span><span class="hl-number">86</span><span class="hl-code">,
+    </span><span class="hl-identifier">date</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">11.01.2013</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#e33fc7</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-brackets">]</span><span class="hl-code">;
+</span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">barChart1</span><span class="hl-code"> = </span><span class="hl-reserved">new</span><span class="hl-code"> </span><span class="hl-identifier">dhtmlXChart</span><span class="hl-brackets">(</span><span class="hl-brackets">{</span><span class="hl-code">
+    </span><span class="hl-identifier">view</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">bar</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">container</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">chart1</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">value</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#sales#</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">color</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#color#</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">gradient</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">rising</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+    </span><span class="hl-identifier">tooltip</span><span class="hl-code">: </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-identifier">template</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Date &lt;span class='title'&gt;#date#&lt;/span&gt;&lt;br/&gt;Value &lt;span class='title'&gt;#sales#&lt;/span&gt;</span><span class="hl-quotes">&quot;</span><span class="hl-code">;
+    </span><span class="hl-brackets">}</span><span class="hl-code">,
+    </span><span class="hl-identifier">width</span><span class="hl-code">: </span><span class="hl-number">60</span><span class="hl-code">,
+    </span><span class="hl-identifier">xAxis</span><span class="hl-code">: </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-identifier">template</span><span class="hl-code">: </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-identifier">obj</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-reserved">return</span><span class="hl-code"> </span><span class="hl-identifier">obj</span><span class="hl-code">.$</span><span class="hl-identifier">unit</span><span class="hl-code">.</span><span class="hl-identifier">getDate</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> == </span><span class="hl-number">15</span><span class="hl-code"> ? </span><span class="hl-identifier">dhtmlx</span><span class="hl-code">.</span><span class="hl-builtin">Date</span><span class="hl-code">.</span><span class="hl-identifier">date_to_str</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">%F</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-brackets">(</span><span class="hl-identifier">obj</span><span class="hl-code">.$</span><span class="hl-identifier">unit</span><span class="hl-brackets">)</span><span class="hl-code"> : </span><span class="hl-quotes">&quot;</span><span class="hl-quotes">&quot;</span><span class="hl-code">;
+        </span><span class="hl-brackets">}</span><span class="hl-code">,
+        </span><span class="hl-identifier">lineColor</span><span class="hl-code">: </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-identifier">obj</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-reserved">return</span><span class="hl-code"> </span><span class="hl-identifier">obj</span><span class="hl-code">.$</span><span class="hl-identifier">unit</span><span class="hl-code">.</span><span class="hl-identifier">valueOf</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> == </span><span class="hl-brackets">(</span><span class="hl-reserved">new</span><span class="hl-code"> </span><span class="hl-builtin">Date</span><span class="hl-brackets">(</span><span class="hl-number">2012</span><span class="hl-code">, </span><span class="hl-number">1</span><span class="hl-code">, </span><span class="hl-number">1</span><span class="hl-brackets">)</span><span class="hl-brackets">)</span><span class="hl-code">.</span><span class="hl-identifier">valueOf</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> ? </span><span class="hl-quotes">&quot;</span><span class="hl-string">#737373</span><span class="hl-quotes">&quot;</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">#cfcfcf</span><span class="hl-quotes">&quot;</span><span class="hl-code">;
+        </span><span class="hl-brackets">}</span><span class="hl-code">,
+        </span><span class="hl-identifier">value</span><span class="hl-code">: </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-identifier">obj</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-reserved">return</span><span class="hl-code"> </span><span class="hl-identifier">dhtmlx</span><span class="hl-code">.</span><span class="hl-builtin">Date</span><span class="hl-code">.</span><span class="hl-identifier">str_to_date</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">%d.%m.%Y</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-brackets">(</span><span class="hl-identifier">obj</span><span class="hl-code">.</span><span class="hl-identifier">date</span><span class="hl-brackets">)</span><span class="hl-code">;
+        </span><span class="hl-brackets">}</span><span class="hl-code">,
+        </span><span class="hl-identifier">units</span><span class="hl-code">: </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">start</span><span class="hl-code">: </span><span class="hl-reserved">new</span><span class="hl-code"> </span><span class="hl-builtin">Date</span><span class="hl-brackets">(</span><span class="hl-number">2012</span><span class="hl-code">, </span><span class="hl-number">0</span><span class="hl-code">, </span><span class="hl-number">1</span><span class="hl-brackets">)</span><span class="hl-code">,
+            </span><span class="hl-identifier">end</span><span class="hl-code">: </span><span class="hl-reserved">new</span><span class="hl-code"> </span><span class="hl-builtin">Date</span><span class="hl-brackets">(</span><span class="hl-number">2012</span><span class="hl-code">, </span><span class="hl-number">1</span><span class="hl-code">, </span><span class="hl-number">29</span><span class="hl-brackets">)</span><span class="hl-code">,
+            </span><span class="hl-identifier">next</span><span class="hl-code">: </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-identifier">d</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+                </span><span class="hl-reserved">return</span><span class="hl-code"> </span><span class="hl-identifier">dhtmlx</span><span class="hl-code">.</span><span class="hl-builtin">Date</span><span class="hl-code">.</span><span class="hl-identifier">add</span><span class="hl-brackets">(</span><span class="hl-identifier">d</span><span class="hl-code">, </span><span class="hl-number">1</span><span class="hl-code">, </span><span class="hl-quotes">&quot;</span><span class="hl-string">day</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-code">;
+            </span><span class="hl-brackets">}</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-code">
+    </span><span class="hl-brackets">}</span><span class="hl-code">,
+    </span><span class="hl-identifier">yAxis</span><span class="hl-code">: </span><span class="hl-brackets">{</span><span class="hl-code">
+        </span><span class="hl-identifier">start</span><span class="hl-code">: </span><span class="hl-number">0</span><span class="hl-code">,
+        </span><span class="hl-identifier">step</span><span class="hl-code">: </span><span class="hl-number">10</span><span class="hl-code">,
+        </span><span class="hl-identifier">end</span><span class="hl-code">: </span><span class="hl-number">100</span><span class="hl-code">;
+    </span><span class="hl-brackets">}</span><span class="hl-code">
+</span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+</span><span class="hl-identifier">barChart1</span><span class="hl-code">.</span><span class="hl-identifier">parse</span><span class="hl-brackets">(</span><span class="hl-identifier">data</span><span class="hl-code">, </span><span class="hl-quotes">&quot;</span><span class="hl-string">json</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-code">;</span></pre></div></span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span></pre></div>
+        </div>
+    <div class="footer">
+        <div class="footer-logo"></div>
+        <div class="copyright">Copyright &copy; 1998-2012 DHTMLX LTD.<br />All rights reserved.</div>
+    </div>
+	</body>
+</html>

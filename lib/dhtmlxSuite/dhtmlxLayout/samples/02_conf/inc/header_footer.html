@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head>
+	<title>Header/Footer</title>
+	<link rel="stylesheet" type="text/css" href="../../../codebase/dhtmlxlayout.css">
+	<link rel="stylesheet" type="text/css" href="../../../codebase/skins/dhtmlxlayout_dhx_skyblue.css">
+	<script src="../../../codebase/dhtmlxcommon.js"></script>
+	<script src="../../../codebase/dhtmlxcontainer.js"></script>
+	<script src="../../../codebase/dhtmlxlayout.js"></script>
+	
+	<style>
+		html, body {
+			width: 100%;
+			height: 100%;
+			margin: 0px;
+			padding: 0px;
+			overflow: hidden;
+		}
+		.hdr_ftr {
+			height: 74px;
+			background-color: white;
+			border: 1px solid #a4bed4;
+		}
+		.hdr_ftr .text {
+			font-family: Tahoma;
+			font-size: 12px;
+			margin: 5px 10px;
+		}
+	</style>
+	<script>
+		
+		var dhxLayout;
+		function doOnLoad() {
+			dhxLayout = new dhtmlXLayoutObject(document.body, "3L");
+			dhxLayout.cells("a").attachObject("controls");
+			document.getElementById("my_logo").style.display = "none";
+			document.getElementById("my_copy").style.display = "none";
+		}
+		function attachHeader() {
+			document.getElementById("my_logo").style.display = "";
+			dhxLayout.attachHeader("my_logo");
+		}
+		function attachFooter() {
+			document.getElementById("my_copy").style.display = "";
+			dhxLayout.attachFooter("my_copy");
+		}
+		function detachHeader() {
+			dhxLayout.detachHeader();
+			document.getElementById("my_logo").style.display = "none";
+		}
+		function detachFooter() {
+			dhxLayout.detachFooter();
+			document.getElementById("my_copy").style.display = "none";
+		}
+		
+	</script>
+</head>
+<body onload="doOnLoad();">
+	<div id="my_logo" class="hdr_ftr"><div class="text">Hi! I'm header!</div></div>
+	<div id="my_copy" class="hdr_ftr"><div class="text">Hi! I'm copyright &copy;!</div></div>
+	<div id="controls">
+		<div style="margin:20px;">
+			<input type="button" value="attach header" onclick="attachHeader();">
+			<input type="button" value="detach header" onclick="detachHeader();">
+			<br><br>
+			<input type="button" value="attach footer" onclick="attachFooter();">
+			<input type="button" value="detach footer" onclick="detachFooter();">
+		</div>
+	</div>
+</body>
+</html>

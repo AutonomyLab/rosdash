@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>Attach List</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="title" content="Samples" />
+		<meta name="keywords" content="" />
+		<meta name="description" content="" />
+		<link rel="icon" href="../common/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="../common/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../common/css/style.css" type="text/css" media="screen" />
+
+	</head>
+	<body onload="doOnLoad()">
+        <div class="header">
+            <a class="logo" href="http://www.dhtmlx.com" title="DHTMLX homepage"></a>
+            <div class="tittle-dhtmlx">DHTMLX Docs & Samples Explorer</div>
+            <div class="search-field">
+                <form action="http://docs.dhtmlx.com/doku.php" accept-charset="utf-8" id="dw__search"><div class="no"><input type="hidden" name="do" value="search" /><input type="text" id="qsearch__in" accesskey="f" name="id" title="Search" /><input class="button" type="submit" value=""><div id="qsearch__out" class="ajax_qsearch JSpopup"></div></div></form>
+            </div>
+            <div class="buttons">
+                <a class="doc_inact" href="../../../docsExplorer/index.html" title="DHTMLX Documentation homepage"></a>
+                <a class="sample"></a>
+            </div>
+        </div>
+        <div class="content">
+            <div class="navigation-div">
+                <a href="../../../docsExplorer/samples.html" class="navigation"><img src="../common/icons/file.gif" alt="" >All components</a>
+                <div class="arrow"></div>
+                <a href="../index.html" class="navigation"><img height="22" src="../common/icons/popup.gif" alt="" >dhtmlxPopup</a>
+                <div class="arrow"></div>
+                <a href="./index.html" class="navigation"><img src="../common/icons/none.gif" alt="" >Attaches</a>
+            </div>
+            <div style="display:block;">
+                <h3>Attach List</h3>
+            </div>
+            <div class="navigation-div">
+                <a href="#code" class="navigation view-source"><img src="../common/icons/source.gif" alt="" >View page source</a>
+            </div>
+            <meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="../../../dhtmlxToolbar/codebase/skins/dhtmlxtoolbar_dhx_skyblue.css"/>
+	<link rel="stylesheet" type="text/css" href="../../codebase/skins/dhtmlxpopup_dhx_skyblue.css"/>
+	
+	<script src="../../codebase/dhtmlxcommon.js"></script>
+	<script src="../../../dhtmlxToolbar/codebase/dhtmlxtoolbar.js"></script>
+	<script src="../../codebase/dhtmlxpopup.js"></script>
+	
+	<style>
+		#myToolbar {
+			margin: 10px;
+		}
+	</style>
+	<script>
+		
+		var myToolbar;
+		var myPop;
+		
+		function doOnLoad() {
+			
+			myToolbar = new dhtmlXToolbarObject("myToolbar", "dhx_skyblue");
+			myToolbar.setIconsPath("../common/imgs/");
+			myToolbar.loadXML("../common/toolbar.xml?etc="+new Date().getTime(), function(){
+				
+				myToolbar.setItemText("workbut", "List");
+				
+				myPop = new dhtmlXPopup({ toolbar: myToolbar, id: "workbut" });
+				
+				myPop.attachList("name,price", [
+					{id: 1, name: "Audi A5 Coupe", price: "&euro; 31,550"},
+					{id: 2, name: "Audi A5 Sportback", price: "&euro; 30,990"},
+					myPop.separator,
+					{id: 3, name: "Audi A6", price: "&euro; 30,990"},
+					{id: 4, name: "Audi A6 Avant", price: "&euro; 37,450"},
+					{id: 5, name: "Audi A6 Quattro", price: "&euro; 55,360"},
+					myPop.separator,
+					{id: 6, name: "Audi TT Coupe", price: "&euro; 29,830"},
+					{id: 7, name: "Audi TT RS Coupe", price: "&euro; 59,800"}
+				]);
+				
+			});
+			
+		}
+		
+		
+	</script>
+	<style>
+		
+		
+	</style>
+
+
+	<div id="myToolbar"></div>
+			
+			
+         </div>
+    <div style="clear:both;"></div>
+    <div class="source">
+        <div class="teg">Source</div>
+        <div class="code" id="code">
+		<div class="hl-main"><pre><span class="hl-brackets">&lt;</span><span class="hl-reserved">meta</span><span class="hl-code"> </span><span class="hl-var">charset</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">UTF-8</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">link</span><span class="hl-code"> </span><span class="hl-var">rel</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">stylesheet</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">type</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">text/css</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">href</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../../dhtmlxToolbar/codebase/skins/dhtmlxtoolbar_dhx_skyblue.css</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">/&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">link</span><span class="hl-code"> </span><span class="hl-var">rel</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">stylesheet</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">type</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">text/css</span><span class="hl-quotes">&quot;</span><span class="hl-code"> </span><span class="hl-var">href</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../codebase/skins/dhtmlxpopup_dhx_skyblue.css</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">/&gt;</span><span class="hl-code">
+    
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../codebase/dhtmlxcommon.js</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../../dhtmlxToolbar/codebase/dhtmlxtoolbar.js</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-code"> </span><span class="hl-var">src</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">../../codebase/dhtmlxpopup.js</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">style</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+        #myToolbar {
+            margin: 10px;
+        }
+    </span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">style</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code"><div class="hl-main"><pre><span class="hl-code"> 
+</span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">myToolbar</span><span class="hl-code">;
+</span><span class="hl-reserved">var</span><span class="hl-code"> </span><span class="hl-identifier">myPop</span><span class="hl-code">;
+ 
+</span><span class="hl-reserved">function</span><span class="hl-code"> </span><span class="hl-identifier">doOnLoad</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+ 
+    </span><span class="hl-identifier">myToolbar</span><span class="hl-code"> = </span><span class="hl-reserved">new</span><span class="hl-code"> </span><span class="hl-identifier">dhtmlXToolbarObject</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">myToolbar</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-quotes">&quot;</span><span class="hl-string">dhx_skyblue</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-code">;
+    </span><span class="hl-identifier">myToolbar</span><span class="hl-code">.</span><span class="hl-identifier">setIconsPath</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">../common/imgs/</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-code">;
+    </span><span class="hl-identifier">myToolbar</span><span class="hl-code">.</span><span class="hl-identifier">loadXML</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">../common/toolbar.xml?etc=</span><span class="hl-quotes">&quot;</span><span class="hl-code"> + </span><span class="hl-reserved">new</span><span class="hl-code"> </span><span class="hl-builtin">Date</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">.</span><span class="hl-identifier">getTime</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code">, </span><span class="hl-reserved">function</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code">
+ 
+        </span><span class="hl-identifier">myToolbar</span><span class="hl-code">.</span><span class="hl-identifier">setItemText</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">workbut</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-quotes">&quot;</span><span class="hl-string">List</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+        </span><span class="hl-identifier">myPop</span><span class="hl-code"> = </span><span class="hl-reserved">new</span><span class="hl-code"> </span><span class="hl-identifier">dhtmlXPopup</span><span class="hl-brackets">(</span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">toolbar</span><span class="hl-code">: </span><span class="hl-identifier">myToolbar</span><span class="hl-code">,
+            </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">workbut</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+        </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">attachList</span><span class="hl-brackets">(</span><span class="hl-quotes">&quot;</span><span class="hl-string">name,price</span><span class="hl-quotes">&quot;</span><span class="hl-code">, </span><span class="hl-brackets">[</span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">1</span><span class="hl-code">,
+            </span><span class="hl-identifier">name</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Audi A5 Coupe</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+            </span><span class="hl-identifier">price</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">&amp;euro; 31,550</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">2</span><span class="hl-code">,
+            </span><span class="hl-identifier">name</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Audi A5 Sportback</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+            </span><span class="hl-identifier">price</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">&amp;euro; 30,990</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">separator</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">3</span><span class="hl-code">,
+            </span><span class="hl-identifier">name</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Audi A6</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+            </span><span class="hl-identifier">price</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">&amp;euro; 30,990</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">4</span><span class="hl-code">,
+            </span><span class="hl-identifier">name</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Audi A6 Avant</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+            </span><span class="hl-identifier">price</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">&amp;euro; 37,450</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">5</span><span class="hl-code">,
+            </span><span class="hl-identifier">name</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Audi A6 Quattro</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+            </span><span class="hl-identifier">price</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">&amp;euro; 55,360</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-identifier">myPop</span><span class="hl-code">.</span><span class="hl-identifier">separator</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">6</span><span class="hl-code">,
+            </span><span class="hl-identifier">name</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Audi TT Coupe</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+            </span><span class="hl-identifier">price</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">&amp;euro; 29,830</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-code">, </span><span class="hl-brackets">{</span><span class="hl-code">
+            </span><span class="hl-identifier">id</span><span class="hl-code">: </span><span class="hl-number">7</span><span class="hl-code">,
+            </span><span class="hl-identifier">name</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">Audi TT RS Coupe</span><span class="hl-quotes">&quot;</span><span class="hl-code">,
+            </span><span class="hl-identifier">price</span><span class="hl-code">: </span><span class="hl-quotes">&quot;</span><span class="hl-string">&amp;euro; 59,800</span><span class="hl-quotes">&quot;</span><span class="hl-code">
+        </span><span class="hl-brackets">}</span><span class="hl-brackets">]</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+    </span><span class="hl-brackets">}</span><span class="hl-brackets">)</span><span class="hl-code">;
+ 
+</span><span class="hl-brackets">}</span></pre></div></span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">script</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">style</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+        
+        
+    </span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">style</span><span class="hl-brackets">&gt;</span><span class="hl-code">
+ 
+ 
+    </span><span class="hl-brackets">&lt;</span><span class="hl-reserved">div</span><span class="hl-code"> </span><span class="hl-var">id</span><span class="hl-code">=</span><span class="hl-quotes">&quot;</span><span class="hl-string">myToolbar</span><span class="hl-quotes">&quot;</span><span class="hl-brackets">&gt;</span><span class="hl-brackets">&lt;/</span><span class="hl-reserved">div</span><span class="hl-brackets">&gt;</span></pre></div>
+        </div>
+    <div class="footer">
+        <div class="footer-logo"></div>
+        <div class="copyright">Copyright &copy; 1998-2012 DHTMLX LTD.<br />All rights reserved.</div>
+    </div>
+	</body>
+</html>
