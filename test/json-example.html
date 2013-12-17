@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>JSON Sample</title>
+</head>
+<body>
+    <div id="placeholder"></div>
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script>
+$.getJSON('file/test-diagram.json', function(data) {
+	var d = data.elements;
+	var output="<ul><li>testing ...</li>";
+	for (var i in d)
+	{
+		output += "<li>";
+		if (typeof d[i] == "object")
+		{
+			for (var j in d[i])
+			{
+				if (typeof d[i][j] == "object")
+				{
+					for (var k in d[i][j])
+					{
+						if (typeof d[i][j] == "object")
+						{
+							for (var m in d[i][j][k])
+							{
+								output += " (m) " + d[i][j][k][m];
+							}
+						} else
+						{
+							output += " (k) " + d[i][j][k];
+						}
+					}
+				} else
+				{
+					output += " (j) " + d[i][j];
+				}
+			}
+		} else
+		{
+			output += " (i) " + d[i];
+		}
+		output += "</li>";
+	}
+
+        output+="</ul>";
+        document.getElementById("placeholder").innerHTML=output;
+});
+    </script>
+</body>
+</html>

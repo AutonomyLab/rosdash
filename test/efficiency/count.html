@@ -1,0 +1,52 @@
+<html>
+	<head>
+		<script type="text/javascript">
+function calljs()
+{
+	var time1 = new Date(), time2 = new Date(), COUNT = 100000000;
+	document.getElementById("answer").innerHTML += 'now: ' + time1.getTime() + '; ';
+	
+	time1 = new Date();
+	for (i = 0; i < COUNT; ++ i)
+	{}
+	time2 = new Date();
+	document.getElementById("answer").innerHTML += 'loop in javascript: ' + (time2.getTime() - time1.getTime()) + '(' + i + '); ';
+
+	time1 = new Date();
+	var xmlhttp;
+	xmlhttp=new XMLHttpRequest();
+	xmlhttp.onreadystatechange=function()
+	{
+	  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		{
+			time2 = new Date();
+			document.getElementById("answer").innerHTML += 'loop in php: ' + (time2.getTime() - time1.getTime()) + ' ('+ xmlhttp.responseText + '); ';
+		}
+	}
+	xmlhttp.open("GET","loop.php?q=" + String(COUNT), true);
+	xmlhttp.send();
+	
+	time1 = new Date();
+	var xmlhttp2;
+	xmlhttp2 = new XMLHttpRequest();
+	xmlhttp2.onreadystatechange=function()
+	{
+	  if (xmlhttp2.readyState==4 && xmlhttp2.status==200)
+		{
+			time2 = new Date();
+			document.getElementById("answer").innerHTML += 'loop in c++: ' + (time2.getTime() - time1.getTime()) + ' ('+ xmlhttp2.responseText + '); ';
+		}
+	}
+	xmlhttp2.open("GET","callcpp.php?q=" + String(COUNT),true);
+	xmlhttp2.send();
+}
+		</script>
+	</head>
+	<body>
+		<form action=""> 
+		press to start<input type="text" id="txt1" onkeyup="calljs()" />
+		</form>
+		<p>answer: <span id="answer"></span></p> 
+	</body>
+</html>
+

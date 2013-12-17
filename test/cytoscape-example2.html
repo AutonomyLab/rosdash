@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="description" content="[Visual style example]" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<meta charset=utf-8 />
+<title>Visual style example</title>
+  <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+	<style>
+	body { 
+  font: 14px helvetica neue, helvetica, arial, sans-serif;
+}
+
+#cy {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+	</style>
+</head>
+<body>
+  <div id="cy"></div>
+	<script type="text/javascript">
+var connect = "", connect_count = 0;
+$('#cy').cytoscape({
+
+  elements: [
+    { // node n1
+      group: 'nodes', // 'nodes' for a node, 'edges' for an edge
+
+      data: { // element data (put dev data here)
+          id: 'n1', // mandatory for each element, assigned automatically on undefined
+          parent: 'nparent', // indicates the compound node parent id; not defined => no parent
+      },
+
+      position: { // the model position of the node (optional on init, mandatory after)
+          x: 100,
+          y: 100
+      },
+
+      selected: false, // whether the element is selected (default false)
+
+      selectable: true, // whether the selection state is mutable (default true)
+
+      locked: false, // when locked a node's position is immutable (default false)
+
+      grabbable: true, // whether the node can be grabbed and moved by the user
+
+      classes: 'foo bar' // a space separated list of class names that the element has
+    },
+
+    { // node n2
+      group: 'nodes',
+      data: { id: 'n2' },
+      renderedPosition: { x: 200, y: 200 } // can alternatively specify position in rendered on-screen pixels
+    },
+
+    { // node n3
+      group: 'nodes',
+      data: { id: 'n3', parent: 'nparent' },
+      position: { x: 123, y: 234 },
+      locked: true
+    },
+
+    { // node nparent
+      group: 'nodes',
+      data: { id: 'nparent' },
+    },
+
+    { // edge e1
+      group: 'edges',
+      data: {
+          id: 'e1',
+          source: 'n1', // the source node id (edge comes from this node)
+          target: 'n2'  // the target node id (edge goes to this node)
+      }
+    }
+  ],
+
+  // so we can see the ids
+  style: cytoscape.stylesheet().
+    selector('node')
+      .css({
+          'content': 'data(id)'
+        }),
+	ready: function(){
+		window.cy = this;
+		window.cy.on('position', function(evt){
+		  if (evt.cyTarget.id() == "n1")
+		  {
+			  window.cy.$('#n3').position({
+				  x: evt.cyTarget.position('x') + 100,
+				  y: evt.cyTarget.position('y')
+				});
+		  }
+		});
+		window.cy.on('select', function(evt){
+			console.log("select " + evt.cyTarget.id());
+			if (! connect || "" == connect)
+			{
+				connect = evt.cyTarget.id();
+			} else
+			{
+				console.log("connect: " + connect + " + " + evt.cyTarget.id());
+				window.cy.add({
+				  group: 'edges',
+				  data: {
+					  id: 'con' + connect_count,
+					  source: connect,
+					  target: evt.cyTarget.id()
+				  }
+				});
+				connect = "";
+				++ connect_count;
+			}
+		});
+	}
+});
+	</script>
+</body>
+</html>

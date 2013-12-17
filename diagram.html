@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>ROSDASH Diagram</title>
+		<link rel="stylesheet" href="lib/jquery-ui-1.10.3/themes/base/jquery-ui.css" />
+		<script src="lib/jquery-2.0.3.min.js"></script>
+		<script src="lib/jquery-ui-1.10.3/ui/jquery-ui.js"></script>
+		<script src="lib/cytoscape.js-2.0.2/cytoscape.min.js"></script>
+ 		<!-- dhtmlxToolbar -->
+		<script type="text/javascript" src="lib/dhtmlxSuite/dhtmlxToolbar/codebase/dhtmlxcommon.js"></script>
+		<script type="text/javascript" src="lib/dhtmlxSuite/dhtmlxToolbar/codebase/dhtmlxtoolbar.js"></script>
+		<link rel="stylesheet" type="text/css" href="lib/dhtmlxSuite/dhtmlxToolbar/codebase/skins/dhtmlxtoolbar_dhx_skyblue.css"></link>
+ 		<!-- dhtmlxForm -->
+		<link rel="stylesheet" type="text/css" href="lib/dhtmlxSuite/dhtmlxForm/codebase/skins/dhtmlxform_dhx_skyblue.css"></link>
+		<script src="lib/dhtmlxSuite/dhtmlxForm/codebase/dhtmlxcommon.js"></script>
+		<script src="lib/dhtmlxSuite/dhtmlxForm/codebase/dhtmlxform.js"></script>
+		<script src="lib/dhtmlxSuite/dhtmlxForm/codebase/ext/dhtmlxform_dyn.js"></script>
+		<!-- roslibjs -->
+		<script src="lib/roslibjs/include/EventEmitter2/eventemitter2.js"></script>
+		<script src="lib/roslibjs/build/roslib.js"></script>
+		<!-- jsoneditor -->
+		<link rel="stylesheet" href="lib/FlexiJsonEditor/jsoneditor.css"/>
+		<script src="lib/FlexiJsonEditor/json2.js"></script>
+		<script src="lib/FlexiJsonEditor/jquery.jsoneditor.js"></script>
+		<!-- eventemitter -->
+		<script type="text/javascript" src="lib/EventEmitter/EventEmitter.min.js"></script>
+		<!-- rosdash -->
+		<script src="rosdash.js"></script>
+		<script src="rosdash-widgets.js"></script>
+		<script type="text/javascript">
+$(function() {
+	var user = ROSDASH.checkCookie();
+	ROSDASH.setUser(user);
+	ROSDASH.connectROS("<?php echo $_GET["host"]; ?>", "<?php echo $_GET["port"]; ?>");
+	ROSDASH.startDiagram("<?php echo $_GET["owner"]; ?>", "<?php echo $_GET["panel"]; ?>", "<?php echo $_GET["selected"]; ?>");
+});
+// test an input textbox
+//<input type="text" value="a" style="position: absolute; left: 100px; top: 150px; z-index: 10;" />
+		</script>
+	</head>
+	<body >
+		<div id="toolbarObj"></div>
+		<div style="background-color: MediumTurquoise; position: absolute; left: 0px; top: 50px; width: 200px; height: 94%; z-index: 10;">
+			<div id="rosform"></div>
+			<div id="jsoneditor" class="json-editor"></div>
+		</div>
+		<div id="cy" style="background-color:AliceBlue; height: 94%; width: 87%; position: absolute; left: 200px; top: 50px;"></div>
+	</body>
+</html>
