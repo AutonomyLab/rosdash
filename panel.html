@@ -42,6 +42,7 @@
 		<script type="text/javascript" src="lib/EventEmitter/EventEmitter.min.js"></script>
 		<!-- rosdash -->
 		<script src="rosdash.js"></script>
+		<script src="rosdash-ui.js"></script>
 		<script src="rosdash-widgets.js"></script>
 
 		<!-- google maps -->
@@ -106,10 +107,10 @@ div.slide {
 }
 		</style>
 		<script type="text/javascript">
-var status = "<?php echo $_GET['status'] ?>";
+var status = ROSDASH.queryString.status;
 if ("login" == status)
 {
-	<?php require ('token-url.php'); ?>
+	//<?php require ('token-url.php'); ?>
 }
 $(function() {
 	var user;
@@ -129,9 +130,8 @@ $(function() {
 		break;
 	}
 	ROSDASH.setUser(user);
-	ROSDASH.connectROS("<?php echo $_GET["host"]; ?>", "<?php echo $_GET["port"]; ?>");
-	var owner = "<?php echo $_GET["owner"]; ?>";
-	ROSDASH.startPanel(owner, "<?php echo $_GET["panel"]; ?>", "<?php echo $_GET["selected"]; ?>");
+	ROSDASH.connectROS(ROSDASH.queryString.host, ROSDASH.queryString.port);
+	ROSDASH.startPanel(ROSDASH.queryString.owner, ROSDASH.queryString.panel, ROSDASH.queryString.selected);
 });
 		</script>
 	</head>
