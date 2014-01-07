@@ -12,6 +12,7 @@
 			<h3><a href="http://localhost/rosdash-devel/">ROSDASH</a></h3>
 			<h4><a href="#introduction">Introduction</a></h4>
 			<h4><a href="#usage">Usage</a></h4>
+			<h4><a href="#examples">Examples</a></h4>
 			<h4><a href="#widget">Widget Development</a></h4>
 			<h4><a href="#dependencies">Dependencies</a></h4>
 			<h4><a href="#license">License</a></h4>
@@ -30,6 +31,7 @@
 				<li>Develop the dashboard with fancy Javascript</li>
 				<li>Embrace the wonderful world of HTML5</li>
 			</ul>
+
 			<h3 align="center" id="usage">Usage</h3>
 			<p>In ROSDASH, there are three pages for a dashboard: panel, editor, and diagram.</p>
 			<ul>
@@ -59,6 +61,148 @@
 				<li>Click on the pins on those blocks, and put a line between them, which represents send the message from ROS to widget;</li>
 				<li>Press save button.</li>
 			</ul>
+			<p>A list of all widgets available is as follows:</p>
+			<ul>
+				<li><em>toggleButton</em>: ;</li>
+				<li><em>joystick</em>: ;</li>
+				<li><em>text</em>: ;</li>
+				<li><em>speech</em>: ;</li>
+				<li><em>table</em>: ;</li>
+				<li><em>chart</em>: ;</li>
+				<li><em>cyNetwork</em>: ;</li>
+				<li><em>arborNetwork</em>: ;</li>
+				<li><em>draculaNetwork</em>: ;</li>
+				<li><em>UserCamera</em>: ;</li>
+				<li><em>HeadTracker</em>: ;</li>
+				<li><em>HandTracker</em>: ;</li>
+				<li><em>turtlesim</em>: ;</li>
+				<li><em>ros2d</em>: ;</li>
+				<li><em>ros3d</em>: ;</li>
+				<li><em>pr2urdf</em>: ;</li>
+				<li><em>gmap</em>: ;</li>
+				<li><em>OpenLayersMap</em>: ;</li>
+				<li><em>flot</em>: ;</li>
+				<li><em>vumeter</em>: ;</li>
+				<li><em>jsonEditor</em>: ;</li>
+				<li><em>jsonVis</em>: ;</li>
+				<li><em>youtube</em>: ;</li>
+				<li><em>slide</em>: ;</li>
+				<li><em>FathomSlide</em>: ;</li>
+			</ul>
+			<p>A list of all blocks available is as follows:</p>
+			<ul>
+				<li>
+					<em>datatypes</em>: ;
+					<ul>
+						<li><em>multiArray</em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>arithmetics</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>array</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>functional flow</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>ROS</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>input</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>output</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>network</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>database</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>drawing</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>multimedia</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>roslibjs</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>maps</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>plot</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>robot</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>simulator</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>user</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+				<li>
+					<em>others</em>: ;
+					<ul>
+						<li><em></em>: ;</li>
+					</ul>
+				</li>
+			</ul>
+
+			<h3 align="center" id="examples">Examples</h3>
+
 			<h3 align="center" id="widget">Widget Development</h3>
 			<p>The programming language for the widget development is Javascript. Usually, I design a widget as a class, and put callback functions inside.</p>
 			<p>The events for callback functions are as follows:</p>
@@ -82,6 +226,7 @@
 				<li><em>ROSDASH.widgets</em>: information of widgets in the panel;</li>
 				<li><em>ROSDASH.requireLoadList</em>: required files, i.e. js files, css files, etc.</li>
 			</ul>
+
 			<h3 align="center" id="dependencies">Dependencies</h3>
 			<li><em>dracula</em></li>
 			<li><em>mjpegcanvasjs</em></li>
@@ -118,12 +263,15 @@
 			<li><em>bootstrap</em></li>
 			<li><em>js-aruco-read-only</em></li>
 			<li><em>virtualjoystick.js</em></li>
+
 			<h3 align="center" id="license">License</h3>
 			<p>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</p>
+
 			<h3 align="center" id="authors">Authors</h3>
 			<ul>
 				<li>Fei Zhan</li>
 			</ul>
+
 			<h3 align="center" id="acknowledgement">Acknowledgement</h3>
 			<p>Thanks to the support of Prof Richard Vaughan and Autonomy Lab.</p>
 		</div>
