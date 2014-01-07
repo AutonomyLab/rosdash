@@ -49,8 +49,8 @@
 $(function() {
 	var user = ROSDASH.checkCookie();
 	ROSDASH.setUser(user);
-	ROSDASH.connectROS("<?php echo $_GET["host"]; ?>", "<?php echo $_GET["port"]; ?>");
-	ROSDASH.startEditor("<?php echo $_GET["owner"]; ?>", "<?php echo $_GET["panel"]; ?>", "<?php echo $_GET["selected"]; ?>");
+	ROSDASH.connectROS(ROSDASH.queryString.host, ROSDASH.queryString.port);
+	ROSDASH.startEditor(ROSDASH.queryString.owner, ROSDASH.queryString.panel, ROSDASH.queryString.selected);
 });
 		</script>
 	</head>

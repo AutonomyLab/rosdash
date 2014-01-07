@@ -369,7 +369,7 @@ ROSDASH.checkRosConflict = function (name, type)
 
 // the data list from json files
 ROSDASH.jsonLoadList = new Object();
-// transform from raw json into real json. @note check number or not?
+// transform from raw json into real json, i.e. "true" => true. @note check number or not?
 ROSDASH.transformRawJson = function (raw)
 {
 	for (var i in raw)
@@ -393,7 +393,7 @@ ROSDASH.transformRawJson = function (raw)
 // uniform function to load json and register them
 ROSDASH.loadJson = function (file)
 {
-	// if end with .json, you can ignore that
+	// if end with .json, you can ignore that @deprecated
 	if (".json" != file.slice(-5))
 	{
 		file = file + ".json";
@@ -420,14 +420,14 @@ ROSDASH.loadJson = function (file)
 		++ ROSDASH.jsonLoadList[file].status;
 	});
 }
-// status if json load is ready
+// status if all json loading are ready
 ROSDASH.jsonReady = false;
 // wait when loading jsons
 ROSDASH.waitJson = function ()
 {
 	// if owner conf is loaded, load specified jsons. must be executed before examine jsonLoadList
 	var conf_path = "file/" + ROSDASH.ownerConf.name + "/conf.json";
-	if (!ROSDASH.loadOwnerJson && (conf_path in ROSDASH.jsonLoadList) && 2 == ROSDASH.jsonLoadList[conf_path].status)
+	if (! ROSDASH.loadOwnerJson && (conf_path in ROSDASH.jsonLoadList) && 2 == ROSDASH.jsonLoadList[conf_path].status)
 	{
 		ROSDASH.setOwnerConf(ROSDASH.jsonLoadList[conf_path].data);
 	}
@@ -438,7 +438,7 @@ ROSDASH.waitJson = function ()
 		// if loading fails
 		if (ROSDASH.jsonLoadList[i].status < 0)
 		{
-			//flag = false;
+			//flag = false; @bug
 			//break;
 		}
 		// if loading unsuccessfully
@@ -461,15 +461,16 @@ ROSDASH.waitJson = function ()
 		setTimeout(ROSDASH.waitJson, 300);
 	} else
 	{
+		// emit a event for json ready
 		ROSDASH.ee.emitEvent("jsonReady");
 		ROSDASH.jsonReadyFunc();
 		ROSDASH.jsonReady = true;
-		// emit a event for json ready
 	}
 }
 // functions called after jsons are ready
 ROSDASH.jsonReadyFunc = function ()
 {
+	// depend on the page view type
 	switch (ROSDASH.ownerConf.view_type)
 	{
 	case "panel":
@@ -487,6 +488,7 @@ ROSDASH.jsonReadyFunc = function ()
 		ROSDASH.loadWidgetDef();
 		// show panel editor
 		ROSDASH.loadPanel(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json"].data);
+		// load diagram periodically to compare
 		ROSDASH.compareDiagram();
 		ROSDASH.ee.emitEvent("editorReady");
 		break;
@@ -548,7 +550,9 @@ ROSDASH.initJson = function ()
 	ROSDASH.loadWidgetJson();
 }
 
+
 ///////////////////////////////////// msg type definitions
+
 
 // file path list for msg jsons
 ROSDASH.msgJson = ["param/msgs.json"];
@@ -693,7 +697,9 @@ ROSDASH.checkMsgTypeValid = function (name)
 	return (undefined !== ROSDASH.getMsgDef(name));
 }
 
+
 ///////////////////////////////////// widget definitions
+
 
 // json file names for widgets
 ROSDASH.widgetJson = ["param/widgets.json"];
@@ -1270,7 +1276,9 @@ ROSDASH.changePin = function (id, pin_type, action)
 	}
 }
 
+
 ///////////////////////////////////// block actions (cytoscape)
+
 
 // find block by id or name
 ROSDASH.findBlock = function (id)
@@ -1631,7 +1639,9 @@ ROSDASH.selectBlockCallback = function (evt)
 	}
 }
 
+
 ///////////////////////////////////// block popups and comments
+
 
 // remove all popups when unselected
 ROSDASH.removeAllPopup = function ()
@@ -1820,7 +1830,9 @@ ROSDASH.addBlockComment = function (content)
 	return "c-" + (ROSDASH.commentCount - 1);
 }
 
+
 ///////////////////////////////////// diagram
+
 
 ROSDASH.defaultStyle = undefined;
 // depend on cytoscape.js
@@ -1974,7 +1986,9 @@ ROSDASH.runDiagram = function (data)
 	ROSDASH.ee.emitEvent("diagramReady");
 }
 
+
 ///////////////////////////////////// widget actions (based on sDashboard)
+
 
 // a list of widgets in the panel
 ROSDASH.widgets = new Object();
@@ -2233,7 +2247,9 @@ ROSDASH.getWidgetEditableProperty = function (id)
 	return property;
 }
 
+
 ///////////////////////////////////// panel
+
 
 // load widgets from json
 ROSDASH.loadPanel = function (json)
@@ -2437,7 +2453,9 @@ ROSDASH.runJsonEditor = function (json)
 		}, propertyclick: null });
 }
 
+
 ///////////////////////////////////// panel callback
+
 
 ROSDASH.widgetMaxCallback = function (e, data)
 {}
@@ -2448,7 +2466,9 @@ ROSDASH.widgetSetCallback = function (e, data)
 ROSDASH.headerSetCallback = function (e, data)
 {}
 
+
 ///////////////////////////////////// diagram analysis
+
 
 // diagram for analysis
 ROSDASH.diagram = undefined;
@@ -2723,7 +2743,9 @@ ROSDASH.instantiateWidgets = function ()
 	}
 }
 
+
 ///////////////////////////////////// widget dependency
+
 
 ROSDASH.requireLoadList = new Object();
 // load js file required by widgets
@@ -2782,7 +2804,9 @@ ROSDASH.loadCss = function (file)
 		console.debug("css load", file);
 }
 
+
 ///////////////////////////////////// diagram execution
+
 
 // new object by a string of name with at most two arguments
 ROSDASH.newObjByName = function (name, arg1, arg2)
