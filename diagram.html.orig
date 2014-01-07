@@ -27,14 +27,22 @@
 		<script type="text/javascript" src="lib/EventEmitter/EventEmitter.min.js"></script>
 		<!-- rosdash -->
 		<script src="rosdash.js"></script>
+<<<<<<< HEAD
+=======
 		<script src="rosdash-ui.js"></script>
+>>>>>>> master
 		<script src="rosdash-widgets.js"></script>
 		<script type="text/javascript">
 $(function() {
 	var user = ROSDASH.checkCookie();
 	ROSDASH.setUser(user);
+<<<<<<< HEAD
+	ROSDASH.connectROS("<?php echo $_GET["host"]; ?>", "<?php echo $_GET["port"]; ?>");
+	ROSDASH.startDiagram("<?php echo $_GET["owner"]; ?>", "<?php echo $_GET["panel"]; ?>", "<?php echo $_GET["selected"]; ?>");
+=======
 	ROSDASH.connectROS(ROSDASH.queryString.host, ROSDASH.queryString.port);
 	ROSDASH.startDiagram(ROSDASH.queryString.owner, ROSDASH.queryString.panel, ROSDASH.queryString.selected);
+>>>>>>> master
 });
 // test an input textbox
 //<input type="text" value="a" style="position: absolute; left: 100px; top: 150px; z-index: 10;" />

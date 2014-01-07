@@ -43,13 +43,14 @@
 		<script type="text/javascript" src="lib/EventEmitter/EventEmitter.min.js"></script>
 		<!-- rosdash -->
 		<script src="rosdash.js"></script>
+		<script src="rosdash-ui.js"></script>
 		<script src="rosdash-widgets.js"></script>
 		<script type="text/javascript">
 $(function() {
 	var user = ROSDASH.checkCookie();
 	ROSDASH.setUser(user);
-	ROSDASH.connectROS("<?php echo $_GET["host"]; ?>", "<?php echo $_GET["port"]; ?>");
-	ROSDASH.startEditor("<?php echo $_GET["owner"]; ?>", "<?php echo $_GET["panel"]; ?>", "<?php echo $_GET["selected"]; ?>");
+	ROSDASH.connectROS(ROSDASH.queryString.host, ROSDASH.queryString.port);
+	ROSDASH.startEditor(ROSDASH.queryString.owner, ROSDASH.queryString.panel, ROSDASH.queryString.selected);
 });
 		</script>
 	</head>
