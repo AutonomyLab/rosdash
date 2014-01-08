@@ -428,6 +428,7 @@
 		"output": []
 	}, {
 		"type": "speech",
+		"descrip": "A text box with speaking library.",
 		"category": [
 			"output"
 		],
@@ -448,6 +449,7 @@
 		]
 	}, {
 		"type": "table",
+		"descrip": "Table.",
 		"category": [
 			"output"
 		],
@@ -504,6 +506,7 @@
 		"output": []
 	}, {
 		"type": "cyNetwork",
+		"descrip": "A network by cytoscape.js.",
 		"category": [
 			"network"
 		],
@@ -525,32 +528,8 @@
 			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
 		]
 	}, {
-		"type": "cyNetworkLoadOnce",
-		"category": [
-			"network"
-		],
-		"class_name": "ROSDASH.cyNetworkLoadOnce",
-		"has_panel": "true",
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "cy"
-			}, {
-				"datatype": "Object",
-				"name": "eles"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "cy"
-			}
-		],
-		"js": [
-			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
-		]
-	}, {
 		"type": "cyDiagram",
+		"descrip": "rosdash diagram by cytoscape.js",
 		"category": [
 			"network"
 		],
@@ -563,6 +542,7 @@
 		]
 	}, {
 		"type": "arborNetwork",
+		"descrip": "network by arbor.js",
 		"category": [
 			"network"
 		],
@@ -580,6 +560,7 @@
 		]
 	}, {
 		"type": "draculaNetwork",
+		"descrip": "network by dracula.js",
 		"category": [
 			"network"
 		],
@@ -599,6 +580,7 @@
 		]
 	}, {
 		"type": "JsDatabase",
+		"descrip": "A javascript database",
 		"category": [
 			"database"
 		],
@@ -615,6 +597,7 @@
 		]
 	}, {
 		"type": "DbInsert",
+		"descrip": "Insert data into database",
 		"category": [
 			"database"
 		],
@@ -639,6 +622,7 @@
 		}
 	}, {
 		"type": "DbQuery",
+		"descrip": "Query to a database",
 		"category": [
 			"database"
 		],
@@ -663,6 +647,7 @@
 		]
 	}, {
 		"type": "DbStatus",
+		"descrip": "Show the status of a database",
 		"category": [
 			"database"
 		],
@@ -684,6 +669,7 @@
 		]
 	}, {
 		"type": "RedisDb",
+		"descrip": "Create an instance of Redis database",
 		"category": [
 			"database"
 		],

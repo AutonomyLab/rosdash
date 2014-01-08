@@ -721,11 +721,11 @@ ROSDASH.Text.prototype.run = function (input)
 	$("#myDashboard").sDashboard("setContentById", this.block.id, input[0]);
 }
 
-// text widget with speaking library
+// A text box with speaking library.
 ROSDASH.Speech = function (block)
 {
 	this.block = block;
-	this.canvas_id = "Speech" + this.block.id;
+	this.canvas_id = "Speech-" + this.block.id;
 	this.content = "";
 }
 ROSDASH.Speech.prototype.addWidget = function (widget)
@@ -854,15 +854,17 @@ ROSDASH.Table.prototype.run = function (input)
 	$("#myDashboard").sDashboard("refreshTableById", this.block.id, aaData);
 }
 
+
 //////////////////////////////////// networks
+
 
 //@todo a uniform representation for network diagram
 // network by cytoscape.js
 ROSDASH.cyNetwork = function (block)
 {
 	this.block = block;
-	this.canvas = "cyNetwork_" + this.block.id;
-	this.cy = undefined;
+	this.canvas = "cyNetwork-" + this.block.id;
+	this.cy;
 	var that = this;
 	this.options = ("config" in this.block && "option" in this.block.config) ? this.block.config.option : {
     showOverlay: false,
@@ -925,7 +927,7 @@ ROSDASH.cyNetwork = function (block)
         { data: { source: 'g', target: 'j' } }
       ],
     },
-    ready: function(){
+    ready: function () {
       that.cy = this;
     }
   };
@@ -941,7 +943,7 @@ ROSDASH.cyNetwork.prototype.init = function ()
 	{
 		return false;
 	}
-  $('#' + this.canvas).cytoscape(this.options);
+	$('#' + this.canvas).cytoscape(this.options);
 	return true;
 }
 //@input	none
@@ -949,22 +951,6 @@ ROSDASH.cyNetwork.prototype.init = function ()
 ROSDASH.cyNetwork.prototype.run = function (input)
 {
 	return {o0: this.cy};
-}
-
-//@deprecated
-ROSDASH.cyNetworkLoadOnce = function (block)
-{
-	this.block = block;
-	this.success = false;
-}
-ROSDASH.cyNetworkLoadOnce.prototype.run = function (input)
-{
-	if (! this.success && undefined !== input[0] && undefined !== input[1])
-	{
-		input[0].load(input[1]);
-		this.success = true;
-	}
-	return {o0: input[0]};
 }
 
 // rosdash diagram by cytoscape.js
@@ -1302,9 +1288,12 @@ ROSDASH.draculaNetwork.prototype.draculaInit = function (canvas)
     return g;
 };
 
+
 //////////////////////////////////// database
 
+
 //@todo sql, uniform insert and query
+// A javascript database
 ROSDASH.JsDatabase = function (block)
 {
 	this.block = block;
@@ -1325,6 +1314,7 @@ ROSDASH.JsDatabase.prototype.run = function (input)
 	return {o0 : this.db};
 }
 
+// Insert data into database
 ROSDASH.DbInsert = function (block)
 {
 	this.block = block;
@@ -1363,6 +1353,7 @@ ROSDASH.DbInsert.prototype.run = function (input)
 	return {o0 : input[0]};
 }
 
+// Query to a database
 ROSDASH.DbQuery = function (block)
 {
 	this.block = block;
@@ -1410,6 +1401,7 @@ ROSDASH.DbQuery.prototype.run = function (input)
 	return {o0 : input[0], o1 : that.output};
 }
 
+// Show the status of a database
 ROSDASH.DbStatus = function (block)
 {
 	this.block = block;
@@ -1462,6 +1454,7 @@ ROSDASH.DbStatus.prototype.run = function (input)
 	};
 }
 
+// Create an instance of Redis database
 ROSDASH.RedisDb = function (block)
 {
 	this.block = block;
@@ -1472,6 +1465,7 @@ ROSDASH.RedisDb.prototype.run = function (input)
 	return {o0 : this.database};
 }
 
+//@todo
 ROSDASH.RedisBackup = function (block)
 {
 	this.block = block;
@@ -1482,7 +1476,9 @@ ROSDASH.RedisBackup.prototype.run = function (input)
 	return {o0 : input[0]};
 }
 
+
 //////////////////////////////////// drawings
+
 
 //@todo config the target canvas
 ROSDASH.Painter = function (block)
