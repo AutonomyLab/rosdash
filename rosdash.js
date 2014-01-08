@@ -394,11 +394,6 @@ ROSDASH.transformRawJson = function (raw)
 // uniform function to load json and register them
 ROSDASH.loadJson = function (file)
 {
-	// if end with .json, you can ignore that @deprecated
-	if (".json" != file.slice(-5))
-	{
-		file = file + ".json";
-	}
 	// init status
 	if (! (file in ROSDASH.jsonLoadList))
 	{
@@ -2821,7 +2816,7 @@ ROSDASH.loadCss = function (file)
 {
 	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
 	//@todo
-	console.debug("css load", file);
+	console.log("css load", file);
 }
 
 

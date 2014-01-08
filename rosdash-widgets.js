@@ -1,8 +1,8 @@
-//@bug@solved input.length does not work
+//@note input.length does not work
 
 //////////////////////////////////// datatypes
 
-// constant value
+//@deprecated constant value
 ROSDASH.Constant = function (block)
 {
 	this.block = block;
@@ -23,7 +23,7 @@ ROSDASH.Constant.prototype.run = function (input)
 	}
 }
 
-// multi array
+// An array consisting of several data
 ROSDASH.multiArray = function (block)
 {
 	this.block = block;
@@ -45,13 +45,16 @@ ROSDASH.multiArray.prototype.addTo = function (pos, value)
 	this.array.push(value);
 }
 
-// memorable array, can memorize historic data with max length
+// Memorable array, can memorize historic data with fixed length
 ROSDASH.memArray = function (block)
 {
 	this.block = block;
 	this.data = new Array();
 	//@todo change to config
-	this.max_length = 100;
+	if (undefined === this.block.config.max_length || this.block.config.max_length < 0)
+	{
+		this.block.config.max_length = 100;
+	}
 }
 //@input	one new data
 //@output	an array of historic data with length of this.max_length
@@ -59,22 +62,22 @@ ROSDASH.memArray.prototype.run = function (input)
 {
 	this.data.push(input[0]);
 	// if exceeds
-	if (this.max_length < this.data.length)
+	if (this.block.config.max_length < this.data.length)
 	{
 		// cut the beginning ones
-		this.data.splice(0, this.data.length - this.max_length);
+		this.data.splice(0, this.data.length - this.block.config.max_length);
 	}
 	return {o0: this.data};
 }
 
-// json
+// A json object.
 ROSDASH.Json = function (block)
 {
 	this.block = block;
 	this.json = new Array();
 }
-//@input	
-//@output	
+//@input	an array of data as keys and values of json
+//@output	a json with keys and values
 ROSDASH.Json.prototype.run = function (input)
 {
 	var count = 0;
@@ -97,6 +100,8 @@ ROSDASH.Json.prototype.addTo = function (key, value)
 
 //////////////////////////////////// datatype operations
 
+
+// Add an element to an array or json.
 ROSDASH.AddTo = function (block)
 {
 	this.block = block;
@@ -106,6 +111,7 @@ ROSDASH.AddTo.prototype.run = function (input)
 	switch (typeof input[0])
 	{
 	case "array":
+		// call corresponding block method to add	
 		var a = new ROSDASH.multiArray();
 		a.run(input[0]);
 		a.addTo(input[1]);
@@ -119,6 +125,7 @@ ROSDASH.AddTo.prototype.run = function (input)
 	return {o0 : a};
 }
 
+// Extract the value from an array or json.
 ROSDASH.ValueAt = function (block)
 {
 	this.block = block;
@@ -138,39 +145,27 @@ ROSDASH.ValueAt.prototype.run = function (input)
 	return {o0 : value};
 }
 
-// transform json into string
-ROSDASH.arrayToStr = function (block)
+// Transform json into string.
+ROSDASH.jsonToStr = function (block)
 {
 	this.block = block;
 }
-//@input	the array (object, associative array, or topic message)
+//@input	json
 //@output	the corresponding string
-//@todo str to json, simply JSON.stringify
-ROSDASH.arrayToStr.prototype.run = function (input)
+ROSDASH.jsonToStr.prototype.run = function (input)
 {
-	// if empty
-	if (undefined === input || undefined === input[0])
-	{
-		return {o0: ""};
-	}
-	var msg = input[0];
 	var str = "";
-	if (typeof msg == "object" || typeof msg == "array")
+	if (typeof input[0] == "object" || typeof input[0] == "array")
 	{
-		for (var i in msg)
-		{
-			str += " ( " + i + ": ";
-			// recursive call for sub-array
-			str += this.run({0: msg[i]}).o0;
-			str += " ) ";
-		}
+		str = JSON.stringify(input[0]);
 	} else
 	{
-		str += msg;
+		str += input[0];
 	}
 	return {o0: str};
 }
 
+// Parse string into json.
 ROSDASH.StrToJson = function (block)
 {
 	this.block = block;
@@ -180,9 +175,11 @@ ROSDASH.StrToJson.prototype.run = function (input)
 	return {o0 : JSON.parse(input[0])};
 }
 
+
 //////////////////////////////////// arithmetics
 
-// add inputs up
+
+// Add inputs up.
 ROSDASH.Addition = function (block)
 {
 	this.block = block;
@@ -199,7 +196,7 @@ ROSDASH.Addition.prototype.run = function (input)
 	return {o0: sum};
 }
 
-// not tested
+//@todo not tested
 ROSDASH.Division = function (block)
 {
 	this.block = block;
@@ -228,32 +225,7 @@ ROSDASH.Division.prototype.run = function (input)
 	return {o0: output};
 }
 
-//////////////////////////////////// matrix operations
-
-// just for array @deprecated
-ROSDASH.Insert = function (block)
-{
-	this.block = block;
-}
-ROSDASH.Insert.prototype.run = function (input)
-{
-	if (undefined === input[2] || (typeof input[0] != "array" && typeof input[0] != "object"))
-	{
-		return undefined;
-	}
-	var output = new Array();
-	for (var i in input[0])
-	{
-		var num = parseInt(i, 10);
-		if (!isNaN(i) && i >= 0)
-		{
-			output[i] = input[0][i];
-		}
-	}
-	output.splice(input[2], 0, input[1]);
-	return {o0: output};
-}
-
+//@todo need to be checked
 ROSDASH.Reshape = function (block)
 {
 	this.block = block;
@@ -357,42 +329,9 @@ ROSDASH.Reshape.prototype.run = function (input)
 	}
 }
 
-//@deprecated json, add to json, diagram representation
-ROSDASH.AssocArray = function (block)
-{
-	this.block = block;
-}
-ROSDASH.AssocArray.prototype.run = function (input)
-{
-	var assoc = new Object();
-	if (undefined !== input[0])
-	{
-		assoc[input[0]] = input[1];
-	}
-	return {o0: assoc};
-}
-
-//@deprecated
-ROSDASH.addToAssocArray = function (block)
-{
-	this.block = block;
-}
-ROSDASH.addToAssocArray.prototype.run = function (input)
-{
-	var assoc;
-	if (typeof input[0] != "object")
-	{
-		return {o0: new Object()};
-	} else if (undefined === input[1])
-	{
-		return {o0: input[0]};
-	}
-	assoc = input[0];
-	assoc[input[1]] = input[2];
-	return {o0: assoc};
-}
 
 //////////////////////////////////// functional flow
+
 
 // switch-case function
 ROSDASH.Switch = function (block)
@@ -440,8 +379,11 @@ ROSDASH.Switch.prototype.run = function (input)
 	return output;
 }
 
+
 //////////////////////////////////// ROS
 
+
+// A list of all ros items (transformed for table)
 ROSDASH.RosList = function (block)
 {
 	this.block = block;
@@ -524,6 +466,7 @@ ROSDASH.Topic.prototype.run = function (input)
 	return {o0:  this.ros_msg};
 }
 
+// ROS service
 ROSDASH.Service = function (block)
 {
 	this.block = block;
@@ -551,6 +494,7 @@ ROSDASH.Service.prototype.run = function (input)
 	return {o0: this.result};
 }
 
+// ROS param
 ROSDASH.Param = function (block)
 {
 	this.block = block;
@@ -579,9 +523,12 @@ ROSDASH.Param.prototype.run = function (input)
 	return {o0: that.output};
 }
 
+
 //////////////////////////////////// input
 
+
 // toggle button (don't use the name of switch because it is used)
+//@todo an array of buttons
 ROSDASH.ToggleButton = function (block)
 {
 	this.block = block;
@@ -676,11 +623,11 @@ ROSDASH.VirtualJoystick.prototype.init = function ()
 		if ("lock" == $("#" + that.canvas_id + "-lock").val())
 		{
 			that.unlock = false;
-			$("#" + that.canvas_id + "-lock").val("unlock");
+			$("#" + that.canvas_id + "-lock").val("click to unlock");
 		} else
 		{
 			that.unlock = true;
-			$("#" + that.canvas_id + "-lock").val("lock");
+			$("#" + that.canvas_id + "-lock").val("click to lock");
 		}
 	});
 	//console.log("touchscreen for VirtualJoystick is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
@@ -708,6 +655,7 @@ ROSDASH.VirtualJoystick.prototype.run = function (input)
 		axes : [Number(this.joy_obj.left() - this.joy_obj.right()), Number(this.joy_obj.up() - this.joy_obj.down()), 0, 0, 0, 0],
 		buttons : [Number(this.unlock), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	};
+	// check if joy is changed
 	if (undefined !== this.prev_joy)
 	{
 		var flag = false;
@@ -735,6 +683,7 @@ ROSDASH.VirtualJoystick.prototype.run = function (input)
 			};
 		}
 	}
+	// deep copy
 	this.prev_joy = $.extend(true, [], this.joy);
 	return {
 		o0: this.joy,
@@ -742,9 +691,11 @@ ROSDASH.VirtualJoystick.prototype.run = function (input)
 	};
 }
 
+
 //////////////////////////////////// basic output
 
-// text widget
+
+// A text box.
 ROSDASH.Text = function (block)
 {
 	this.block = block;

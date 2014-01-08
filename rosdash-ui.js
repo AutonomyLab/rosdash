@@ -658,8 +658,7 @@ ROSDASH.initToolbar = function ()
 			{
 			case "panel":
 			case "editor":
-				//@todo
-				console.log("remove");
+				console.warning("Please click x on the widget to remove.");
 				break;
 			case "diagram":
 				ROSDASH.removeBlock(ROSDASH.toolbar.getValue("input"));
