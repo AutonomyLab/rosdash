@@ -689,6 +689,22 @@ ROSDASH.initToolbar = function ()
 				window.cy.center(c);
 			}
 			break;
+		// download json
+		case "download":
+			var url = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-";   
+			switch (ROSDASH.ownerConf.view_type)
+			{
+			case "panel":
+			case "editor":
+				url += "panel";
+				break;
+			case "diagram":
+				url += "diagram";
+				break;
+			} 
+			url += ".json";
+			window.open(url, 'Download');  
+			break;
 		// open the corresponding diagram
 		case "diagram":
 			var url = 'diagram.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port;
@@ -766,6 +782,7 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addButton("zindex", ++ count, "zindex", "database.gif", "database.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
+	ROSDASH.toolbar.addButton("download", ++ count, "download", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
@@ -804,6 +821,7 @@ ROSDASH.resetEditorToolbar = function ()
 	}
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
+	ROSDASH.toolbar.addButton("download", ++ count, "download", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
@@ -844,6 +862,7 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addButton("fit", ++ count, "fit", "stylesheet.gif", "stylesheet.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
+	ROSDASH.toolbar.addButton("download", ++ count, "download", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
