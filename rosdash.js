@@ -174,6 +174,7 @@ ROSDASH.ownerConf = {
 	header_height: 16,
 	content_height: 180
 };
+//@todo
 ROSDASH.dashboardConf = {
 };
 ROSDASH.checkDashboardConfValid = function ()
@@ -393,11 +394,6 @@ ROSDASH.transformRawJson = function (raw)
 // uniform function to load json and register them
 ROSDASH.loadJson = function (file)
 {
-	// if end with .json, you can ignore that @deprecated
-	if (".json" != file.slice(-5))
-	{
-		file = file + ".json";
-	}
 	// init status
 	if (! (file in ROSDASH.jsonLoadList))
 	{
@@ -579,7 +575,7 @@ ROSDASH.loadMsgDef = function ()
 	{
 		ROSDASH.msgList["_"] = new Array();
 	}
-	// add to block list constant
+	// add to msg list
 	var list = ROSDASH.msgList["_"];
 	for (var i in ROSDASH.msgJson)
 	{
@@ -590,7 +586,7 @@ ROSDASH.loadMsgDef = function ()
 			{
 				// add to definition list
 				ROSDASH.msgs[data[j].name] = data[j];
-				// add to block list for sidebar
+				// add to msg list for sidebar
 				list.push(data[j].name);
 			}
 		}
@@ -633,7 +629,7 @@ ROSDASH.getMsgDefaultValue = function (name)
 		return null;
 	}
 	var value;
-	// if a simple value as one
+	// if it is a simple value without sub-msgs
 	if (1 == ROSDASH.msgs[name].definition.length)
 	{
 		switch (ROSDASH.msgs[name].definition[0].type)
@@ -709,7 +705,7 @@ ROSDASH.widgetDef = new Object();
 ROSDASH.blockList = new Object();
 // widget lists for editor sidebar
 ROSDASH.widgetList = new Object();
-// save to sidebar list
+// set to sidebar list
 ROSDASH.loadWidgetList = function (json)
 {
 	// alias for block list for sidebar
@@ -760,7 +756,7 @@ ROSDASH.loadWidgetList = function (json)
 		list2["_"].push(json.type);
 	}
 }
-// save widget definitions
+// load widget definitions
 ROSDASH.loadWidgetDef = function ()
 {
 	// for each json file
@@ -811,7 +807,9 @@ ROSDASH.checkWidgetTypeValid = function (name)
 	return (name in ROSDASH.widgetDef) && ("class_name" in ROSDASH.widgetDef[name]);
 }
 
+
 ///////////////////////////////////// blocks in diagram
+
 
 //@todo generate the position for new blocks to be. maybe should follow the mouse
 ROSDASH.getNextNewBlockPos = function ()
@@ -833,11 +831,13 @@ ROSDASH.addRosItem = function (rosname, type)
 		console.error("ros item name is not valid: ", rosname);
 		return;
 	}
+	// set the new block location
 	var next_pos = ROSDASH.getNextNewBlockPos();
 	var x = (typeof x !== "undefined") ? parseFloat(x) : next_pos[0];
 	var y = (typeof y !== "undefined") ? parseFloat(y) : next_pos[1];
 	var count = ROSDASH.rosBlocks[type].length;
 	var id = type + "-" + count;
+	// add block body
 	var body = window.cy.add({
 		group: "nodes",
 		data: {
@@ -848,6 +848,7 @@ ROSDASH.addRosItem = function (rosname, type)
 		position: { x: x, y: y },
 		classes: "body"
 	});
+	// add block input pins
 	window.cy.add({
 		group: "nodes",
 		data: {
@@ -857,6 +858,7 @@ ROSDASH.addRosItem = function (rosname, type)
 		classes: "input",
 		locked: true
 	});
+	// add block output pins
 	window.cy.add({
 		group: "nodes",
 		data: {
@@ -894,9 +896,10 @@ ROSDASH.addRosItem = function (rosname, type)
 	{
 		block.output = new Array();
 	}
+	// register the new block
 	ROSDASH.blocks[id] = block;
 	ROSDASH.rosBlocks[type].push(rosname);
-	// return to facilitate fitting to
+	// return to facilitate "fit"
 	return id;
 }
 // add a new block based on type
@@ -1154,7 +1157,9 @@ ROSDASH.addBlock = function (block)
 	return block.id;
 }
 
+
 ///////////////////////////////////// pins
+
 
 // input pin position distribution
 ROSDASH.INPUT_POS = {
@@ -1164,7 +1169,7 @@ ROSDASH.INPUT_POS = {
 	"4": [[-70, -30], [-70, -10], [-70, 10], [-70, 30]],
 	"5": [[-70, -40], [-70, -20], [-70, 0], [-70, 20], [-70, 40]],
 	"6": [[-70, -50], [-70, -30], [-70, -10], [-70, 10], [-70, 30], [-70, 50]],
-	// more are coming
+	//@todo more are coming
 };
 // output pin position distribution
 ROSDASH.OUTPUT_POS = {
@@ -1174,7 +1179,7 @@ ROSDASH.OUTPUT_POS = {
 	"4": [[70, -30], [70, -10], [70, 10], [70, 30]],
 	"5": [[70, -40], [70, -20], [70, 0], [70, 20], [70, 40]],
 	"6": [[70, -50], [70, -30], [70, -10], [70, 10], [70, 30], [70, 50]],
-	// more are coming
+	//@todo more are coming
 };
 //@note undone
 ROSDASH.addPin = function (block, type, num)
@@ -1207,29 +1212,29 @@ ROSDASH.addPin = function (block, type, num)
 // get the body name of a pin
 ROSDASH.getBlockParent = function (block)
 {
-	// Blockname-TypeNumber
+	// format: Blockname-TypeNumber
 	var index = block.lastIndexOf("-");
 	return block.substring(0, index);
 }
 // get the number of a pin
 ROSDASH.getPinNum = function (pin)
 {
-	// Blockname-TypeNumber
+	// format: Blockname-TypeNumber
 	var index = pin.lastIndexOf("-");
 	return parseFloat(pin.substring(index + 2));
 }
 // get the type of a pin
 ROSDASH.getPinType = function (pin)
 {
-	// Blockname-TypeNumber
+	// format: Blockname-TypeNumber
 	var index = pin.lastIndexOf("-");
-	//@note 1 is not always true
+	//@bug 1 is not always true
 	return pin.substring(index + 1, 1);
 }
 // get the type and number of a pin
 ROSDASH.getPinTypeNum = function (pin)
 {
-	// Blockname-TypeNumber
+	// format: Blockname-TypeNumber
 	var index = pin.lastIndexOf("-");
 	return pin.substring(index + 1);
 }
@@ -1915,7 +1920,7 @@ ROSDASH.saveDiagram = function ()
 		};
 		json.edge.push(e);
 	});
-	ROSDASH.saveJson(json, "file/" + json.user + "/" + json.panel_name + "-diagram");
+	ROSDASH.saveJson(json, "file/" + json.user + "/" + json.panel_name + "-diagram.json");
 }
 // load diagram from json
 ROSDASH.loadDiagram = function (json)
@@ -2307,7 +2312,7 @@ ROSDASH.savePanel = function ()
 		content_height: ROSDASH.ownerConf.content_height,
 		widgets: ROSDASH.widgets
 	};
-	ROSDASH.saveJson(json, "file/" + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel");
+	ROSDASH.saveJson(json, "file/" + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json");
 }
 // bind callback functions
 ROSDASH.panelBindEvent = function ()
@@ -2383,8 +2388,10 @@ ROSDASH.exePanel = function ()
 	ROSDASH.runWidgets();
 }
 
+// jsonEditor page
 ROSDASH.jsonEditorLoadSuccess = false;
 ROSDASH.jsonEditorSrc = undefined;
+// the json in jsonEditor
 ROSDASH.jsonEditorJson = {
 	"string": "test",
 	"number": 5,
@@ -2470,7 +2477,7 @@ ROSDASH.headerSetCallback = function (e, data)
 ///////////////////////////////////// diagram analysis
 
 
-// diagram for analysis
+// diagram for analysis or checking for updates
 ROSDASH.diagram = undefined;
 // check diagram for updates
 ROSDASH.checkDiagram = function ()
@@ -2510,6 +2517,7 @@ ROSDASH.checkDiagram = function ()
 		setTimeout(ROSDASH.checkDiagram, 2000);
 	});
 }
+//@note looks deprecated?
 ROSDASH.compareDiagram = function ()
 {
 	var file = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json";
@@ -2541,6 +2549,7 @@ ROSDASH.compareDiagram = function ()
 	});
 }
 
+// panel for checking for updates
 ROSDASH.panel = undefined;
 // check panel for updates
 ROSDASH.checkPanel = function ()
@@ -2747,6 +2756,7 @@ ROSDASH.instantiateWidgets = function ()
 ///////////////////////////////////// widget dependency
 
 
+// a list of dependencies, i.e. js, css, etc.
 ROSDASH.requireLoadList = new Object();
 // load js file required by widgets
 ROSDASH.loadJs = function (file)
@@ -2759,7 +2769,7 @@ ROSDASH.loadJs = function (file)
 	{
 		ROSDASH.requireLoadList[file] = 0;
 	}
-	// do not load again
+	// do not load again @todo check static loaded
 	if (ROSDASH.requireLoadList[file] >= 2)
 	{
 		return;
@@ -2775,11 +2785,13 @@ ROSDASH.loadJs = function (file)
 		++ ROSDASH.requireLoadList[file];
 	});
 }
+// wait for loading js
 ROSDASH.waitLoadJs = function ()
 {
 	var flag = true;
 	for (var i in ROSDASH.requireLoadList)
 	{
+		// if not loaded
 		if (ROSDASH.requireLoadList[i] < 2)
 		{
 			ROSDASH.loadJs(i);
@@ -2788,10 +2800,12 @@ ROSDASH.waitLoadJs = function ()
 	}
 	if (! flag)
 	{
+		// wait for loading again
 		console.log("wait for loading js");
 		setTimeout(ROSDASH.waitLoadJs, 300);
 	} else
 	{
+		// successfully loaded
 		ROSDASH.instantiateWidgets();
 		ROSDASH.loadPanel(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json"].data);
 		ROSDASH.exePanel();
@@ -2801,7 +2815,8 @@ ROSDASH.waitLoadJs = function ()
 ROSDASH.loadCss = function (file)
 {
 	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
-		console.debug("css load", file);
+	//@todo
+	console.log("css load", file);
 }
 
 
@@ -2907,12 +2922,15 @@ ROSDASH.runFuncByName = function (name, context, arg1, arg2)
 	}
 }
 
+// set a block as initialized, manually by developer
 ROSDASH.setInitialized = function (id)
 {
 	if (id in ROSDASH.diagramConnection)
 	{
 		ROSDASH.diagramConnection[id].initialized = true;
+		return true;
 	}
+	return false;
 }
 // call init functions of widgets
 ROSDASH.initWidgets = function ()
@@ -2991,6 +3009,7 @@ ROSDASH.callWidgetInit = function (id)
 }
 
 ROSDASH.doneCount = 0;
+// cycles executed in ROSDASH
 ROSDASH.cycle = -1;
 ROSDASH.runWidgets = function ()
 {

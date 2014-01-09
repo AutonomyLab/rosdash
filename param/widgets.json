@@ -3,23 +3,8 @@
 "version": "0.1",
 "widgets": [
 	{
-		"type": "constant",
-		"descrip": "A constant value",
-		"category": [
-			"datatypes"
-		],
-		"class_name": "ROSDASH.Constant",
-		"input": [],
-		"output": [
-			{
-				"datatype": "universal",
-				"name": "value",
-				"attribute": "compulsory"
-			}
-		]
-	}, {
 		"type": "multiArray",
-		"descrip": "An array consisting of several data with the same type",
+		"descrip": "An array consisting of several data",
 		"category": [
 			"datatypes"
 		],
@@ -32,15 +17,15 @@
 			}, {
 				"datatype": "universal",
 				"name": "input1",
-				"attribute": "additional"
+				"attribute": "optional"
 			}, {
 				"datatype": "universal",
 				"name": "input2",
-				"attribute": "additional"
+				"attribute": "optional"
 			}, {
 				"datatype": "universal",
 				"name": "input3",
-				"attribute": "additional"
+				"attribute": "optional"
 			}
 		],
 		"output": [
@@ -51,12 +36,15 @@
 			}
 		]
 	}, {
-		"type": "memarray",
-		"descrip": "Memorable array, can memorize historic data with max length",
+		"type": "memArray",
+		"descrip": "Memorable array, can memorize historic data with fixed length",
 		"category": [
 			"datatypes"
 		],
 		"class_name": "ROSDASH.memArray",
+		"config": {
+			"max_length": "100"
+		},
 		"input": [
 			{
 				"datatype": "universal",
@@ -73,7 +61,7 @@
 		]
 	}, {
 		"type": "Json",
-		"descrip": "",
+		"descrip": "A json object.",
 		"category": [
 			"datatypes"
 		],
@@ -81,20 +69,32 @@
 		"input": [
 			{
 				"datatype": "universal",
-				"name": "input",
+				"name": "key0",
 				"attribute": "compulsory"
+			}, {
+				"datatype": "universal",
+				"name": "value0",
+				"attribute": "compulsory"
+			}, {
+				"datatype": "universal",
+				"name": "key1",
+				"attribute": "optional"
+			}, {
+				"datatype": "universal",
+				"name": "value1",
+				"attribute": "optional"
 			}
 		],
 		"output": [
 			{
 				"datatype": "universal",
-				"name": "output",
+				"name": "json",
 				"attribute": "compulsory"
 			}
 		]
 	}, {
 		"type": "AddTo",
-		"descrip": "",
+		"descrip": "Add an element to an array or json.",
 		"category": [
 			"datatypes"
 		],
@@ -104,6 +104,14 @@
 				"datatype": "universal",
 				"name": "input",
 				"attribute": "compulsory"
+			}, {
+				"datatype": "universal",
+				"name": "element0",
+				"attribute": "compulsory"
+			}, {
+				"datatype": "universal",
+				"name": "element1",
+				"attribute": "optional"
 			}
 		],
 		"output": [
@@ -115,7 +123,7 @@
 		]
 	}, {
 		"type": "ValueAt",
-		"descrip": "",
+		"descrip": "Extract the value from a json.",
 		"category": [
 			"datatypes"
 		],
@@ -139,8 +147,50 @@
 			}
 		]
 	}, {
+		"type": "jsonToStr",
+		"descrip": "Transform json into string.",
+		"category": [
+			"datatypes"
+		],
+		"class_name": "ROSDASH.jsonToStr",
+		"input": [
+			{
+				"datatype": "json",
+				"name": "json",
+				"attribute": "compulsory"
+			}
+		],
+		"output": [
+			{
+				"datatype": "String",
+				"name": "string",
+				"attribute": "compulsory"
+			}
+		]
+	}, {
+		"type": "StrToJson",
+		"descrip": "Parse string into json.",
+		"category": [
+			"datatypes"
+		],
+		"class_name": "ROSDASH.StrToJson",
+		"input": [
+			{
+				"datatype": "String",
+				"name": "string",
+				"attribute": "compulsory"
+			}
+		],
+		"output": [
+			{
+				"datatype": "json",
+				"name": "json",
+				"attribute": "compulsory"
+			}
+		]
+	}, {
 		"type": "addition",
-		"descrip": "Add inputs up",
+		"descrip": "Add inputs up.",
 		"category": [
 			"arithmetics"
 		],
@@ -157,7 +207,7 @@
 			}, {
 				"datatype": "universal",
 				"name": "input2",
-				"attribute": "additional"
+				"attribute": "optional"
 			}
 		],
 		"output": [
@@ -181,34 +231,6 @@
 			}, {
 				"datatype": "universal",
 				"name": "divisor",
-				"attribute": "compulsory"
-			}
-		],
-		"output": [
-			{
-				"datatype": "universal",
-				"name": "output",
-				"attribute": "compulsory"
-			}
-		]
-	}, {
-		"type": "insert",
-		"category": [
-			"array"
-		],
-		"class_name": "ROSDASH.Insert",
-		"input": [
-			{
-				"datatype": "universal",
-				"name": "array",
-				"attribute": "compulsory"
-			}, {
-				"datatype": "universal",
-				"name": "value",
-				"attribute": "compulsory"
-			}, {
-				"datatype": "universal",
-				"name": "position",
 				"attribute": "compulsory"
 			}
 		],
@@ -248,78 +270,6 @@
 			}
 		]
 	}, {
-		"type": "AssocArray",
-		"category": [
-			"array"
-		],
-		"class_name": "ROSDASH.AssocArray",
-		"input": [
-			{
-				"datatype": "universal",
-				"name": "key",
-				"addKey": "true",
-				"attribute": "additional"
-			}, {
-				"datatype": "universal",
-				"name": "value",
-				"addKey": "true",
-				"attribute": "additional"
-			}
-		],
-		"output": [
-			{
-				"datatype": "object",
-				"name": "output",
-				"attribute": "compulsory"
-			}
-		]
-	}, {
-		"type": "addToAssocArray",
-		"category": [
-			"array"
-		],
-		"class_name": "ROSDASH.addToAssocArray",
-		"input": [
-			{
-				"datatype": "universal",
-				"name": "input",
-				"attribute": "compulsory"
-			}, {
-				"datatype": "universal",
-				"name": "key",
-				"attribute": "compulsory"
-			}, {
-				"datatype": "universal",
-				"name": "value",
-				"attribute": "compulsory"
-			}
-		],
-		"output": [
-			{
-				"datatype": "object",
-				"name": "output",
-				"attribute": "compulsory"
-			}
-		]
-	}, {
-		"type": "arrayToStr",
-		"category": [
-			"array"
-		],
-		"class_name": "ROSDASH.arrayToStr",
-		"input": [
-			{
-				"datatype": "array",
-				"name": "multiArray"
-			}
-		],
-		"output": [
-			{
-				"datatype": "String",
-				"name": "str"
-			}
-		]
-	}, {
 		"type": "switch",
 		"descrip": "switch-case function",
 		"category": [
@@ -346,6 +296,7 @@
 		]
 	}, {
 		"type": "rosList",
+		"descrip": "A list of all ros items (transformed for table)",
 		"category": [
 			"ROS"
 		],
@@ -360,6 +311,7 @@
 		]
 	}, {
 		"type": "topic",
+		"descrip": "ROS topic",
 		"category": [
 			"ROS"
 		],
@@ -380,6 +332,7 @@
 		]
 	}, {
 		"type": "service",
+		"descrip": "ROS service",
 		"category": [
 			"ROS"
 		],
@@ -400,6 +353,7 @@
 		]
 	}, {
 		"type": "param",
+		"descrip": "ROS param",
 		"category": [
 			"ROS"
 		],
@@ -420,6 +374,7 @@
 		]
 	}, {
 		"type": "toggleButton",
+		"descrip": "Toggle button",
 		"category": [
 			"input"
 		],
@@ -454,13 +409,14 @@
 		]
 	}, {
 		"type": "text",
+		"descrip": "A text box.",
 		"category": [
 			"output"
 		],
 		"has_panel": "true",
 		"class_name": "ROSDASH.Text",
 		"config": {
-			"once": "false",
+			"title": "false",
 			"cacheable": "false"
 		},
 		"input": [
@@ -472,6 +428,7 @@
 		"output": []
 	}, {
 		"type": "speech",
+		"descrip": "A text box with speaking library.",
 		"category": [
 			"output"
 		],
@@ -492,6 +449,7 @@
 		]
 	}, {
 		"type": "table",
+		"descrip": "Table.",
 		"category": [
 			"output"
 		],
@@ -547,7 +505,26 @@
 		],
 		"output": []
 	}, {
+		"type": "vumeter",
+		"descrip": "V U meter",
+		"category": [
+			"output"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.Vumeter",
+		"input": [
+			{
+				"datatype": "number",
+				"name": "left"
+			}, {
+				"datatype": "number",
+				"name": "right"
+			}
+		],
+		"output": []
+	}, {
 		"type": "cyNetwork",
+		"descrip": "A network by cytoscape.js.",
 		"category": [
 			"network"
 		],
@@ -569,32 +546,8 @@
 			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
 		]
 	}, {
-		"type": "cyNetworkLoadOnce",
-		"category": [
-			"network"
-		],
-		"class_name": "ROSDASH.cyNetworkLoadOnce",
-		"has_panel": "true",
-		"input": [
-			{
-				"datatype": "Object",
-				"name": "cy"
-			}, {
-				"datatype": "Object",
-				"name": "eles"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "cy"
-			}
-		],
-		"js": [
-			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
-		]
-	}, {
 		"type": "cyDiagram",
+		"descrip": "rosdash diagram by cytoscape.js",
 		"category": [
 			"network"
 		],
@@ -607,6 +560,7 @@
 		]
 	}, {
 		"type": "arborNetwork",
+		"descrip": "network by arbor.js",
 		"category": [
 			"network"
 		],
@@ -624,6 +578,7 @@
 		]
 	}, {
 		"type": "draculaNetwork",
+		"descrip": "network by dracula.js",
 		"category": [
 			"network"
 		],
@@ -643,6 +598,7 @@
 		]
 	}, {
 		"type": "JsDatabase",
+		"descrip": "A javascript database",
 		"category": [
 			"database"
 		],
@@ -659,6 +615,7 @@
 		]
 	}, {
 		"type": "DbInsert",
+		"descrip": "Insert data into database",
 		"category": [
 			"database"
 		],
@@ -683,6 +640,7 @@
 		}
 	}, {
 		"type": "DbQuery",
+		"descrip": "Query to a database",
 		"category": [
 			"database"
 		],
@@ -707,6 +665,7 @@
 		]
 	}, {
 		"type": "DbStatus",
+		"descrip": "Show the status of a database",
 		"category": [
 			"database"
 		],
@@ -728,6 +687,7 @@
 		]
 	}, {
 		"type": "RedisDb",
+		"descrip": "Create an instance of Redis database",
 		"category": [
 			"database"
 		],
@@ -742,6 +702,7 @@
 		]
 	}, {
 		"type": "Painter",
+		"descrip": "",
 		"category": [
 			"drawing"
 		],
@@ -753,6 +714,7 @@
 		]
 	}, {
 		"type": "UserCamera",
+		"descrip": "Show the video from user's USB camera",
 		"category": [
 			"multimedia"
 		],
@@ -767,6 +729,7 @@
 		]
 	}, {
 		"type": "HeadTracker",
+		"descrip": "Track the head in user's USB camera",
 		"category": [
 			"multimedia"
 		],
@@ -784,6 +747,7 @@
 		]
 	}, {
 		"type": "HandTracker",
+		"descrip": "Track the hand in user's USB camera",
 		"category": [
 			"multimedia"
 		],
@@ -793,6 +757,7 @@
 		"output": []
 	}, {
 		"type": "turtlesim",
+		"descrip": "Turtlesim just like ROS desktop widget",
 		"category": [
 			"roslibjs"
 		],
@@ -802,6 +767,7 @@
 		"output": []
 	}, {
 		"type": "ros2d",
+		"descrip": "A 2D map for ROS",
 		"category": [
 			"roslibjs"
 		],
@@ -811,6 +777,7 @@
 		"output": []
 	}, {
 		"type": "ros3d",
+		"descrip": "A 3D map for ROS",
 		"category": [
 			"roslibjs"
 		],
@@ -825,6 +792,7 @@
 		]
 	}, {
 		"type": "Ros3dUrdf",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -843,6 +811,7 @@
 		]
 	}, {
 		"type": "Ros3dMarker",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -864,6 +833,7 @@
 		]
 	}, {
 		"type": "Ros3dInteractiveMarker",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -885,6 +855,7 @@
 		]
 	}, {
 		"type": "pr2urdf",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -894,6 +865,7 @@
 		"output": []
 	}, {
 		"type": "Marker3DPos",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -907,6 +879,7 @@
 		"output": []
 	}, {
 		"type": "JoystickToRos3dMarker",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -928,6 +901,7 @@
 		]
 	}, {
 		"type": "RosInteractiveMarker",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -949,6 +923,7 @@
 		]
 	}, {
 		"type": "RosMjpeg",
+		"descrip": "Mjpeg video for ROS",
 		"category": [
 			"roslibjs"
 		],
@@ -968,6 +943,7 @@
 		]
 	}, {
 		"type": "gmap",
+		"descrip": "Google maps",
 		"category": [
 			"map"
 		],
@@ -993,6 +969,7 @@
 		]
 	}, {
 		"type": "gmapTraj",
+		"descrip": "Google maps robot trajectory overlay",
 		"category": [
 			"map"
 		],
@@ -1014,6 +991,7 @@
 		]
 	}, {
 		"type": "GmapEnergyGrid",
+		"descrip": "Grids on Google maps representing energy",
 		"category": [
 			"map"
 		],
@@ -1035,6 +1013,7 @@
 		]
 	}, {
 		"type": "OpenLayersMap",
+		"descrip": "Offline maps by openLayers",
 		"category": [
 			"map"
 		],
@@ -1061,6 +1040,7 @@
 		]
 	}, {
 		"type": "OpenLayersTraj",
+		"descrip": "OpenLayers maps robot trajectory overlay",
 		"category": [
 			"map"
 		],
@@ -1083,31 +1063,8 @@
 			}
 		]
 	}, {
-		"type": "saferange",
-		"category": [
-			"plot"
-		],
-		"class_name": "ROSDASH.SafeRange",
-		"input": [
-			{
-				"datatype": "Float32",
-				"name": "data"
-			}, {
-				"datatype": "Float32",
-				"name": "min"
-			}, {
-				"datatype": "Float32",
-				"name": "max"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Bool",
-				"name": "isSafe"
-			}
-		]
-	}, {
 		"type": "FlotSafeRange",
+		"descrip": "",
 		"category": [
 			"plot"
 		],
@@ -1125,6 +1082,7 @@
 		]
 	}, {
 		"type": "flot",
+		"descrip": "a plot widget",
 		"category": [
 			"plot"
 		],
@@ -1176,47 +1134,8 @@
 			"lib/flot/jquery.flot.navigate.js"
 		]
 	}, {
-		"type": "raserScanToFlot",
-		"category": [
-			"plot"
-		],
-		"has_panel": "false",
-		"class_name": "ROSDASH.raserScanToFlot",
-		"config": {
-		},
-		"input": [
-			{
-				"datatype": "String[]",
-				"name": "data"
-			}
-		],
-		"output": [
-			{
-				"datatype": "object",
-				"name": "flot"
-			}
-		],
-		"js": [
-		]
-	}, {
-		"type": "vumeter",
-		"category": [
-			"output"
-		],
-		"has_panel": "true",
-		"class_name": "ROSDASH.Vumeter",
-		"input": [
-			{
-				"datatype": "number",
-				"name": "left"
-			}, {
-				"datatype": "number",
-				"name": "right"
-			}
-		],
-		"output": []
-	}, {
 		"type": "pos2d",
+		"descrip": "2d position",
 		"category": [
 			"robot"
 		],
@@ -1235,6 +1154,7 @@
 		]
 	}, {
 		"type": "simrobot",
+		"descrip": "a simulated mobile robot",
 		"category": [
 			"simulator"
 		],
@@ -1260,6 +1180,7 @@
 		]
 	}, {
 		"type": "UserLogin",
+		"descrip": "User login widget by openID",
 		"category": [
 			"user"
 		],
@@ -1269,6 +1190,7 @@
 		"js": []
 	}, {
 		"type": "OwnerList",
+		"descrip": "a list of owner names",
 		"category": [
 			"user"
 		],
@@ -1282,6 +1204,7 @@
 		]
 	}, {
 		"type": "userWelcome",
+		"descrip": "user welcome",
 		"category": [
 			"user"
 		],
@@ -1297,6 +1220,7 @@
 		"width": "600"
 	}, {
 		"type": "panelList",
+		"descrip": "a list of panel names for a user",
 		"category": [
 			"user"
 		],
@@ -1309,20 +1233,8 @@
 			}
 		]
 	}, {
-		"type": "ownerConfig",
-		"category": [
-			"user"
-		],
-		"class_name": "ROSDASH.ownerConfig",
-		"input": [],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "conf"
-			}
-		]
-	}, {
 		"type": "jsonEditor",
+		"descrip": "A widget to visualize and edit a json",
 		"category": [
 			"user"
 		],
@@ -1343,6 +1255,7 @@
 		"output": []
 	}, {
 		"type": "jsonVis",
+		"descrip": "Visualization of json",
 		"category": [
 			"user"
 		],
@@ -1352,6 +1265,7 @@
 		"output": []
 	}, {
 		"type": "youtube",
+		"descrip": "Video from youtube",
 		"category": [
 			"others"
 		],
@@ -1361,6 +1275,7 @@
 		"output": []
 	}, {
 		"type": "slide",
+		"descrip": "Slide from www.slideshare.net",
 		"category": [
 			"others"
 		],
@@ -1370,6 +1285,7 @@
 		"output": []
 	}, {
 		"type": "FathomSlide",
+		"descrip": "A slide by fathom",
 		"category": [
 			"others"
 		],
@@ -1382,8 +1298,9 @@
 		"output": []
 	}, {
 		"type": "DoodleGod",
+		"descrip": "A test for a game",
 		"category": [
-			"fun"
+			"others"
 		],
 		"class_name": "ROSDASH.DoodleGod",
 		"has_panel": "true",
