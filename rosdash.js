@@ -2257,7 +2257,16 @@ ROSDASH.updateWidgetContent = function (id, content)
 {
 	$("#myDashboard").sDashboard("setContentById", id, content);
 }
-
+ROSDASH.findWidget = function (id)
+{
+	if (id in ROSDASH.widgets)
+	{
+		$("#myDashboard").sDashboard("findWidget", id);
+	} else
+	{
+		console.log("cannot find ", id);
+	}
+}
 
 ///////////////////////////////////// panel
 

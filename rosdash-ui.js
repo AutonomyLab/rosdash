@@ -631,8 +631,7 @@ ROSDASH.initToolbar = function ()
 			{
 			case "panel":
 			case "editor":
-				//@todo
-				console.log("find");
+				ROSDASH.findWidget(ROSDASH.toolbar.getValue("input"));
 				break;
 			case "diagram":
 				ROSDASH.findBlock(ROSDASH.toolbar.getValue("input"));
