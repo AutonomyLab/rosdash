@@ -1130,7 +1130,7 @@ ROSDASH.cyDiagram.prototype.init = function ()
 	{
 		return;
 	}
-	ROSDASH.startDiagram(ROSDASH.ownerConf.name, ROSDASH.ownerConf.panel_name, undefined);
+	ROSDASH.startDiagram(ROSDASH.dashboardConf.name, ROSDASH.dashboardConf.panel_name, undefined);
 	this.init_success = true;
 	return true;
 }
@@ -2070,7 +2070,7 @@ ROSDASH.Turtlesim = function (block)
 }
 ROSDASH.Turtlesim.prototype.addWidget = function (widget)
 {
-	widget.widgetContent = '<canvas id="' + this.canvas_id + '" width="' + ROSDASH.ownerConf.widget_width + 'px" height="' + ROSDASH.ownerConf.content_height + 'px"></canvas>';
+	widget.widgetContent = '<canvas id="' + this.canvas_id + '" width="' + ROSDASH.dashboardConf.widget_width + 'px" height="' + ROSDASH.dashboardConf.content_height + 'px"></canvas>';
 	return widget;
 }
 ROSDASH.Turtlesim.prototype.initRos = function ()
@@ -2114,8 +2114,8 @@ ROSDASH.Ros2d.prototype.initRos = function ()
 	// Create the main viewer.
 	that.viewer = new ROS2D.Viewer({
 	  divID : this.canvas_id,
-	  width : ROSDASH.ownerConf.widget_width,
-	  height : ROSDASH.ownerConf.content_height
+	  width : ROSDASH.dashboardConf.widget_width,
+	  height : ROSDASH.dashboardConf.content_height
 	});
 	// Setup the map client.
 	var gridClient = new ROS2D.OccupancyGridClient({
@@ -2159,8 +2159,8 @@ ROSDASH.Ros3d.prototype.init = function ()
 	// Create the main viewer.
 	that.viewer = new ROS3D.Viewer({
 	  divID : that.canvas_id,
-	  width : 600, //ROSDASH.ownerConf.widget_width,
-	  height : 600, //ROSDASH.ownerConf.content_height,
+	  width : 600, //ROSDASH.dashboardConf.widget_width,
+	  height : 600, //ROSDASH.dashboardConf.content_height,
 	  antialias : true
 	});
 	that.viewer.addObject(new ROS3D.Grid());
@@ -2358,9 +2358,9 @@ ROSDASH.RosMjpeg.prototype.init = function ()
 	var that = this;
 	this.viewer = new MJPEGCANVAS.Viewer({
 		divID : this.canvas,
-		host : ROSDASH.ownerConf.ros_host,
-		width : ROSDASH.ownerConf.widget_width,
-		height : ROSDASH.ownerConf.content_height,
+		host : ROSDASH.dashboardConf.ros_host,
+		width : ROSDASH.dashboardConf.widget_width,
+		height : ROSDASH.dashboardConf.content_height,
 		// get from block config
 		topic : that.block.config.topic
 	});
@@ -3101,14 +3101,14 @@ ROSDASH.userWelcome.prototype.newPanel = function (name)
 		url: "rosdash.php",
 		data: {
 			func: "newPanel",
-			username: ROSDASH.ownerConf.name,
+			username: ROSDASH.dashboardConf.name,
 			panel: name,
 		},
 		success: function( data, textStatus, jqXHR )
 		{
 			console.log("newUser success: ", data);
 			// relocate to new panel page
-			location.replace("editor.html?owner=" + ROSDASH.ownerConf.name + "&panel=" + name);
+			location.replace("editor.html?owner=" + ROSDASH.dashboardConf.name + "&panel=" + name);
 		},
 		error: function(jqXHR, textStatus, errorThrown)
 		{
@@ -3120,7 +3120,7 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 {
 	widget.widgetTitle = 'Welcome to ROSDASH';
 	// if index page
-	if ("index" == ROSDASH.ownerConf.name)
+	if ("index" == ROSDASH.dashboardConf.name)
 	{
 		widget.widgetContent = '<h1 style="color:blue;">Welcome to ROSDASH !</h1>'
 			+ '<p style="color:Navy;">A web-based platform of dashboards for roboticists and ROS users.</p>'
@@ -3136,16 +3136,16 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 	} else // if a user's personal page
 	{
 		// add welcome
-		widget.widgetContent = '<h1 style="color:blue;">Welcome to ROSDASH, ' + ROSDASH.ownerConf.name + ' !</h1>';
+		widget.widgetContent = '<h1 style="color:blue;">Welcome to ROSDASH, ' + ROSDASH.dashboardConf.name + ' !</h1>';
 		// add user discription
-		if (undefined !== ROSDASH.ownerConf.discrip && "" != ROSDASH.ownerConf.discrip)
+		if (undefined !== ROSDASH.dashboardConf.discrip && "" != ROSDASH.dashboardConf.discrip)
 		{
-			widget.widgetContent += '<p style="color:Navy;">' + ROSDASH.ownerConf.discrip + '</p>';
+			widget.widgetContent += '<p style="color:Navy;">' + ROSDASH.dashboardConf.discrip + '</p>';
 		}
 		// add "add new page"
 		widget.widgetContent += //'Your ROS host name:<input type="text" name="ros" id="roshost">'
 			'<p>Please select a panel or diagram from the list</p>';
-		if (ROSDASH.userConf.name == ROSDASH.ownerConf.name || "@@sudo@@" == ROSDASH.userConf.name)
+		if (ROSDASH.userConf.name == ROSDASH.dashboardConf.name || "@@sudo@@" == ROSDASH.userConf.name)
 		{
 			widget.widgetContent += '<p>or Add a new one '
 					+ '<input type="text" name="name" id="newname_' + this.block.id + '">'
@@ -3159,7 +3159,7 @@ ROSDASH.userWelcome.prototype.init = function (input)
 {
 	var that = this;
 	// if index page
-	if ("index" == ROSDASH.ownerConf.name)
+	if ("index" == ROSDASH.dashboardConf.name)
 	{
 		this.userLogin();
 		if ("Guest" != ROSDASH.userConf.name)
@@ -3204,7 +3204,7 @@ ROSDASH.panelList.prototype.init = function ()
 		url: "rosdash.php",
 		data: {
 			func: "getPanelList",
-			user: ROSDASH.ownerConf.name
+			user: ROSDASH.dashboardConf.name
 		},
 		success: function ( data, textStatus, jqXHR )
 		{
@@ -3231,14 +3231,14 @@ ROSDASH.panelList.prototype.init = function ()
 					// first show the panel name
 					list.push(file_name);
 					// a link to that panel
-					list.push('<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + file_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port + '" target="_blank">Panel</a>');
+					list.push('<a href="panel.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + file_name + '&host=' + ROSDASH.dashboardConf.ros_host + '&port=' + ROSDASH.dashboardConf.ros_port + '" target="_blank">Panel</a>');
 					// a link to editor
-					list.push('<a href="editor.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + file_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port + '" target="_blank">Editor</a>');
+					list.push('<a href="editor.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + file_name + '&host=' + ROSDASH.dashboardConf.ros_host + '&port=' + ROSDASH.dashboardConf.ros_port + '" target="_blank">Editor</a>');
 					// if exists diagram
 					if (self.panels.indexOf(file_name + "-diagram.json") != -1)
 					{
 						// a link to diagram
-						list.push('<a href="diagram.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + file_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port + '" target="_blank">Diagram</a>');
+						list.push('<a href="diagram.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + file_name + '&host=' + ROSDASH.dashboardConf.ros_host + '&port=' + ROSDASH.dashboardConf.ros_port + '" target="_blank">Diagram</a>');
 						// delete diagram from name list
 						self.panels.splice(self.panels.indexOf(file_name + "-diagram.json"), 1);
 					} else // if diagram does not exist
@@ -3253,14 +3253,14 @@ ROSDASH.panelList.prototype.init = function ()
 					// if panel exists
 					if (self.panels.indexOf(file_name + "-panel.json") != -1)
 					{
-						list.push('<a href="panel.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + file_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port + '" target="_blank">Panel</a>');
-						list.push('<a href="editor.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + file_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port + '" target="_blank">Editor</a>');
+						list.push('<a href="panel.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + file_name + '&host=' + ROSDASH.dashboardConf.ros_host + '&port=' + ROSDASH.dashboardConf.ros_port + '" target="_blank">Panel</a>');
+						list.push('<a href="editor.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + file_name + '&host=' + ROSDASH.dashboardConf.ros_host + '&port=' + ROSDASH.dashboardConf.ros_port + '" target="_blank">Editor</a>');
 						self.panels.splice(self.panels.indexOf(file_name + "-panel.json"), 1);
 					} else
 					{
 						list.push(" ");
 					}
-					list.push('<a href="diagram.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + file_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port + '" target="_blank">Diagram</a>');
+					list.push('<a href="diagram.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + file_name + '&host=' + ROSDASH.dashboardConf.ros_host + '&port=' + ROSDASH.dashboardConf.ros_port + '" target="_blank">Diagram</a>');
 				} else
 				{
 					continue;

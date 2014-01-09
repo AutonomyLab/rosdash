@@ -63,7 +63,7 @@ ROSDASH.initForm = function ()
 {
 	ROSDASH.removeForm();
 	// create a new form
-	switch (ROSDASH.ownerConf.view_type)
+	switch (ROSDASH.dashboardConf.view_type)
 	{
 	case "editor":
 		ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, ROSDASH.formPanelMain);
@@ -155,7 +155,7 @@ ROSDASH.initForm = function ()
 		case "config":
 		case "allproperty":
 			ROSDASH.jsonFormType = id;
-			switch (ROSDASH.ownerConf.view_type)
+			switch (ROSDASH.dashboardConf.view_type)
 			{
 			case "panel":
 			case "editor":
@@ -171,8 +171,8 @@ ROSDASH.initForm = function ()
 			ROSDASH.callJsonForm(ROSDASH.msgTypes);
 			break;
 		case "dashboard":
-			ROSDASH.jsonFormType = "ownerConf";
-			ROSDASH.callJsonForm(ROSDASH.ownerConf);
+			ROSDASH.jsonFormType = "dashboardConf";
+			ROSDASH.callJsonForm(ROSDASH.dashboardConf);
 			break;
 		default:
 			console.error("sidebar click error", id);
@@ -337,7 +337,7 @@ ROSDASH.formClickBlockId = undefined;
 ROSDASH.formClickBlock = function (id)
 {
 	// don't view in panel
-	if ("panel" == ROSDASH.ownerConf.view_type)
+	if ("panel" == ROSDASH.dashboardConf.view_type)
 	{
 		return;
 	}
@@ -371,7 +371,7 @@ ROSDASH.formClickBlock = function (id)
 	}
 	ROSDASH.formClickBlockId = id;
 	var show;
-	switch (ROSDASH.ownerConf.view_type)
+	switch (ROSDASH.dashboardConf.view_type)
 	{
 	case "panel":
 	case "editor":
@@ -400,7 +400,7 @@ ROSDASH.callJsonForm = function (block)
 	{
 	// for selective property of block
 	case "property":
-		switch (ROSDASH.ownerConf.view_type)
+		switch (ROSDASH.dashboardConf.view_type)
 		{
 		case "panel":
 		case "editor":
@@ -413,7 +413,7 @@ ROSDASH.callJsonForm = function (block)
 		break;
 	// for config of block
 	case "config":
-		switch (ROSDASH.ownerConf.view_type)
+		switch (ROSDASH.dashboardConf.view_type)
 		{
 		case "panel":
 		case "editor":
@@ -432,7 +432,7 @@ ROSDASH.callJsonForm = function (block)
 		break;
 	// for all property of block
 	case "allproperty":
-		switch (ROSDASH.ownerConf.view_type)
+		switch (ROSDASH.dashboardConf.view_type)
 		{
 		case "panel":
 		case "editor":
@@ -465,7 +465,7 @@ ROSDASH.updateJsonForm = function (data)
 	switch (ROSDASH.jsonFormType)
 	{
 	case "property":
-		switch (ROSDASH.ownerConf.view_type)
+		switch (ROSDASH.dashboardConf.view_type)
 		{
 		case "panel":
 		case "editor":
@@ -488,7 +488,7 @@ ROSDASH.updateJsonForm = function (data)
 		break;
 	// save changed data to config
 	case "config":
-		switch (ROSDASH.ownerConf.view_type)
+		switch (ROSDASH.dashboardConf.view_type)
 		{
 		case "panel":
 		case "editor":
@@ -499,10 +499,10 @@ ROSDASH.updateJsonForm = function (data)
 			break;
 		}
 		break;
-	// save changed data to ownerConf
-	case "ownerConf":
-		ROSDASH.ownerConf = data;
-		ROSDASH.saveJson(ROSDASH.ownerConf, "file/" + ROSDASH.ownerConf.name + "/conf.json");
+	// save changed data to dashboardConf
+	case "dashboardConf":
+		ROSDASH.dashboardConf = data;
+		ROSDASH.saveJson(ROSDASH.dashboardConf, "file/" + ROSDASH.dashboardConf.name + "/conf.json");
 		break;
 	default:
 		console.error("You cannot make changes to that", ROSDASH.jsonFormType, data);
@@ -591,7 +591,7 @@ ROSDASH.initToolbar = function ()
 		{
 		// back to main view of toolbar
 		case "main":
-			switch (ROSDASH.ownerConf.view_type)
+			switch (ROSDASH.dashboardConf.view_type)
 			{
 			case "panel":
 				ROSDASH.resetPanelToolbar();
@@ -618,16 +618,16 @@ ROSDASH.initToolbar = function ()
 			break;
 		// go to owner's page
 		case "owner":
-			window.open('panel.html?owner=' + ROSDASH.ownerConf.name, "_blank");
+			window.open('panel.html?owner=' + ROSDASH.dashboardConf.name, "_blank");
 			break;
 		// connect with ROS
 		case "connect":
 			//ROSDASH.connectROS(ROSDASH.toolbar.getValue("input"));
-			window.open('panel.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.toolbar.getValue("input") + '&port=9090', "_blank");
+			window.open('panel.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + ROSDASH.dashboardConf.panel_name + '&host=' + ROSDASH.toolbar.getValue("input") + '&port=9090', "_blank");
 			break;
 		// find a widget or block
 		case "find":
-			switch (ROSDASH.ownerConf.view_type)
+			switch (ROSDASH.dashboardConf.view_type)
 			{
 			case "panel":
 			case "editor":
@@ -640,7 +640,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// save to json file
 		case "save":
-			switch (ROSDASH.ownerConf.view_type)
+			switch (ROSDASH.dashboardConf.view_type)
 			{
 			case "panel":
 			case "editor":
@@ -653,7 +653,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// remove a widget or block
 		case "remove":
-			switch (ROSDASH.ownerConf.view_type)
+			switch (ROSDASH.dashboardConf.view_type)
 			{
 			case "panel":
 			case "editor":
@@ -690,8 +690,8 @@ ROSDASH.initToolbar = function ()
 			break;
 		// download json
 		case "download":
-			var url = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-";   
-			switch (ROSDASH.ownerConf.view_type)
+			var url = 'file/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-";   
+			switch (ROSDASH.dashboardConf.view_type)
 			{
 			case "panel":
 			case "editor":
@@ -706,7 +706,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// open the corresponding diagram
 		case "diagram":
-			var url = 'diagram.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port;
+			var url = 'diagram.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + ROSDASH.dashboardConf.panel_name + '&host=' + ROSDASH.dashboardConf.ros_host + '&port=' + ROSDASH.dashboardConf.ros_port;
 			// if an item is selected, diagram should focus on that
 			if (undefined !== ROSDASH.selectedWidget)
 			{
@@ -716,7 +716,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// open the corresponding panel
 		case "panel":
-			var url = 'panel.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port;
+			var url = 'panel.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + ROSDASH.dashboardConf.panel_name + '&host=' + ROSDASH.dashboardConf.ros_host + '&port=' + ROSDASH.dashboardConf.ros_port;
 			// if an item is selected, diagram should focus on that
 			if (undefined !== ROSDASH.selectedWidget)
 			{
@@ -726,7 +726,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// open the corresponding editor
 		case "editor":
-			var url = 'editor.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port;
+			var url = 'editor.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + ROSDASH.dashboardConf.panel_name + '&host=' + ROSDASH.dashboardConf.ros_host + '&port=' + ROSDASH.dashboardConf.ros_port;
 			// if an item is selected, diagram should focus on that
 			if (undefined !== ROSDASH.selectedWidget)
 			{
@@ -735,7 +735,7 @@ ROSDASH.initToolbar = function ()
 			window.open(url);
 			break;
 		case "jsoneditor":
-			var url = 'jsoneditor.html?owner=' + ROSDASH.ownerConf.name;
+			var url = 'jsoneditor.html?owner=' + ROSDASH.dashboardConf.name;
 			window.open(url);
 			break;
 		default:
@@ -743,7 +743,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		}
 	});
-	switch (ROSDASH.ownerConf.view_type)
+	switch (ROSDASH.dashboardConf.view_type)
 	{
 	case "panel":
 		ROSDASH.resetPanelToolbar();
@@ -766,12 +766,12 @@ ROSDASH.resetPanelToolbar = function ()
 	});
 	var count = 0;
 	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addButton("user", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addButton("user", ++ count, ROSDASH.dashboardConf.name, "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
-	var ros_host = (undefined !== ROSDASH.ownerConf.ros_host && "" != ROSDASH.ownerConf.ros_host) ? ROSDASH.ownerConf.ros_host : "disconnected";
+	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.dashboardConf.name, "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.dashboardConf.panel_name);
+	var ros_host = (undefined !== ROSDASH.dashboardConf.ros_host && "" != ROSDASH.dashboardConf.ros_host) ? ROSDASH.dashboardConf.ros_host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
@@ -796,12 +796,12 @@ ROSDASH.resetEditorToolbar = function ()
 	});
 	var count = 0;
 	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addButton("user", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addButton("user", ++ count, ROSDASH.dashboardConf.name, "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
-	var ros_host = (undefined !== ROSDASH.ownerConf.ros_host && "" != ROSDASH.ownerConf.ros_host) ? ROSDASH.ownerConf.ros_host : "disconnected";
+	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.dashboardConf.name, "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.dashboardConf.panel_name);
+	var ros_host = (undefined !== ROSDASH.dashboardConf.ros_host && "" != ROSDASH.dashboardConf.ros_host) ? ROSDASH.dashboardConf.ros_host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addText("saving", ++ count, "unchanged");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
@@ -814,7 +814,7 @@ ROSDASH.resetEditorToolbar = function ()
 	ROSDASH.toolbar.addButton("zindex", ++ count, "zindex", "database.gif", "database.gif");
 	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
 	// if you are not the owner, cannot save
-	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name && "@@sudo@@" != ROSDASH.userConf.name)
+	if (ROSDASH.userConf.name != ROSDASH.dashboardConf.name && "@@sudo@@" != ROSDASH.userConf.name)
 	{
 		ROSDASH.toolbar.disableItem("save");
 	}
@@ -837,9 +837,9 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addButton("user", ++ count, "Guest", "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
-	var ros_host = (undefined !== ROSDASH.ownerConf.ros_host && "" != ROSDASH.ownerConf.ros_host) ? ROSDASH.ownerConf.ros_host : "disconnected";
+	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.dashboardConf.name, "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.dashboardConf.panel_name);
+	var ros_host = (undefined !== ROSDASH.dashboardConf.ros_host && "" != ROSDASH.dashboardConf.ros_host) ? ROSDASH.dashboardConf.ros_host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addText("saving", ++ count, "unchanged");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
@@ -854,7 +854,7 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
 	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
-	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name && "@@sudo@@" != ROSDASH.userConf.name)
+	if (ROSDASH.userConf.name != ROSDASH.dashboardConf.name && "@@sudo@@" != ROSDASH.userConf.name)
 	{
 		ROSDASH.toolbar.disableItem("save");
 	}
@@ -887,12 +887,12 @@ ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarUserName);
 ROSDASH.addToolbarPanelName = function ()
 {
 	// add to HTML title
-	$('title').text($('title').text() + " - " + ROSDASH.ownerConf.name + " - " + ROSDASH.ownerConf.panel_name);
+	$('title').text($('title').text() + " - " + ROSDASH.dashboardConf.name + " - " + ROSDASH.dashboardConf.panel_name);
 	if ($("#toolbarObj").length > 0)
 	{
 		// add to toolbar
-		ROSDASH.toolbar.setItemText("owner", ROSDASH.ownerConf.name);
-		ROSDASH.toolbar.setItemText("panelname", ROSDASH.ownerConf.panel_name);
+		ROSDASH.toolbar.setItemText("owner", ROSDASH.dashboardConf.name);
+		ROSDASH.toolbar.setItemText("panelname", ROSDASH.dashboardConf.panel_name);
 	}
 }
 ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarPanelName);
@@ -900,18 +900,18 @@ ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarPanelName);
 ROSDASH.addToolbarRosValue = function ()
 {
 	// add to HTML title
-	$('title').text($('title').text() + " - " + ROSDASH.ownerConf.ros_host);
+	$('title').text($('title').text() + " - " + ROSDASH.dashboardConf.ros_host);
 	if ($("#toolbarObj").length > 0)
 	{
 		// add to toolbar
-		ROSDASH.toolbar.setItemText("ros", ROSDASH.ownerConf.ros_host);
+		ROSDASH.toolbar.setItemText("ros", ROSDASH.dashboardConf.ros_host);
 	}
 }
 
 // when changes, notify user
 ROSDASH.onChange = function ()
 {
-	if (undefined === ROSDASH.toolbar || "panel" == ROSDASH.ownerConf.view_type)
+	if (undefined === ROSDASH.toolbar || "panel" == ROSDASH.dashboardConf.view_type)
 	{
 		return;
 	}
@@ -921,7 +921,7 @@ ROSDASH.ee.addListener("change", ROSDASH.onChange);
 // when saves, notify user
 ROSDASH.onSave = function ()
 {
-	if (undefined === ROSDASH.toolbar || "panel" == ROSDASH.ownerConf.view_type)
+	if (undefined === ROSDASH.toolbar || "panel" == ROSDASH.dashboardConf.view_type)
 	{
 		return;
 	}
