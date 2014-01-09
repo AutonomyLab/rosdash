@@ -505,6 +505,24 @@
 		],
 		"output": []
 	}, {
+		"type": "vumeter",
+		"descrip": "V U meter",
+		"category": [
+			"output"
+		],
+		"has_panel": "true",
+		"class_name": "ROSDASH.Vumeter",
+		"input": [
+			{
+				"datatype": "number",
+				"name": "left"
+			}, {
+				"datatype": "number",
+				"name": "right"
+			}
+		],
+		"output": []
+	}, {
 		"type": "cyNetwork",
 		"descrip": "A network by cytoscape.js.",
 		"category": [
@@ -684,6 +702,7 @@
 		]
 	}, {
 		"type": "Painter",
+		"descrip": "",
 		"category": [
 			"drawing"
 		],
@@ -695,6 +714,7 @@
 		]
 	}, {
 		"type": "UserCamera",
+		"descrip": "Show the video from user's USB camera",
 		"category": [
 			"multimedia"
 		],
@@ -709,6 +729,7 @@
 		]
 	}, {
 		"type": "HeadTracker",
+		"descrip": "Track the head in user's USB camera",
 		"category": [
 			"multimedia"
 		],
@@ -726,6 +747,7 @@
 		]
 	}, {
 		"type": "HandTracker",
+		"descrip": "Track the hand in user's USB camera",
 		"category": [
 			"multimedia"
 		],
@@ -735,6 +757,7 @@
 		"output": []
 	}, {
 		"type": "turtlesim",
+		"descrip": "Turtlesim just like ROS desktop widget",
 		"category": [
 			"roslibjs"
 		],
@@ -744,6 +767,7 @@
 		"output": []
 	}, {
 		"type": "ros2d",
+		"descrip": "A 2D map for ROS",
 		"category": [
 			"roslibjs"
 		],
@@ -753,6 +777,7 @@
 		"output": []
 	}, {
 		"type": "ros3d",
+		"descrip": "A 3D map for ROS",
 		"category": [
 			"roslibjs"
 		],
@@ -767,6 +792,7 @@
 		]
 	}, {
 		"type": "Ros3dUrdf",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -785,6 +811,7 @@
 		]
 	}, {
 		"type": "Ros3dMarker",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -806,6 +833,7 @@
 		]
 	}, {
 		"type": "Ros3dInteractiveMarker",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -827,6 +855,7 @@
 		]
 	}, {
 		"type": "pr2urdf",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -836,6 +865,7 @@
 		"output": []
 	}, {
 		"type": "Marker3DPos",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -849,6 +879,7 @@
 		"output": []
 	}, {
 		"type": "JoystickToRos3dMarker",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -870,6 +901,7 @@
 		]
 	}, {
 		"type": "RosInteractiveMarker",
+		"descrip": "",
 		"category": [
 			"roslibjs"
 		],
@@ -891,6 +923,7 @@
 		]
 	}, {
 		"type": "RosMjpeg",
+		"descrip": "Mjpeg video for ROS",
 		"category": [
 			"roslibjs"
 		],
@@ -910,6 +943,7 @@
 		]
 	}, {
 		"type": "gmap",
+		"descrip": "Google maps",
 		"category": [
 			"map"
 		],
@@ -935,6 +969,7 @@
 		]
 	}, {
 		"type": "gmapTraj",
+		"descrip": "Google maps robot trajectory overlay",
 		"category": [
 			"map"
 		],
@@ -956,6 +991,7 @@
 		]
 	}, {
 		"type": "GmapEnergyGrid",
+		"descrip": "Grids on Google maps representing energy",
 		"category": [
 			"map"
 		],
@@ -977,6 +1013,7 @@
 		]
 	}, {
 		"type": "OpenLayersMap",
+		"descrip": "Offline maps by openLayers",
 		"category": [
 			"map"
 		],
@@ -1003,6 +1040,7 @@
 		]
 	}, {
 		"type": "OpenLayersTraj",
+		"descrip": "OpenLayers maps robot trajectory overlay",
 		"category": [
 			"map"
 		],
@@ -1025,31 +1063,8 @@
 			}
 		]
 	}, {
-		"type": "saferange",
-		"category": [
-			"plot"
-		],
-		"class_name": "ROSDASH.SafeRange",
-		"input": [
-			{
-				"datatype": "Float32",
-				"name": "data"
-			}, {
-				"datatype": "Float32",
-				"name": "min"
-			}, {
-				"datatype": "Float32",
-				"name": "max"
-			}
-		],
-		"output": [
-			{
-				"datatype": "Bool",
-				"name": "isSafe"
-			}
-		]
-	}, {
 		"type": "FlotSafeRange",
+		"descrip": "",
 		"category": [
 			"plot"
 		],
@@ -1067,6 +1082,7 @@
 		]
 	}, {
 		"type": "flot",
+		"descrip": "a plot widget",
 		"category": [
 			"plot"
 		],
@@ -1118,47 +1134,8 @@
 			"lib/flot/jquery.flot.navigate.js"
 		]
 	}, {
-		"type": "raserScanToFlot",
-		"category": [
-			"plot"
-		],
-		"has_panel": "false",
-		"class_name": "ROSDASH.raserScanToFlot",
-		"config": {
-		},
-		"input": [
-			{
-				"datatype": "String[]",
-				"name": "data"
-			}
-		],
-		"output": [
-			{
-				"datatype": "object",
-				"name": "flot"
-			}
-		],
-		"js": [
-		]
-	}, {
-		"type": "vumeter",
-		"category": [
-			"output"
-		],
-		"has_panel": "true",
-		"class_name": "ROSDASH.Vumeter",
-		"input": [
-			{
-				"datatype": "number",
-				"name": "left"
-			}, {
-				"datatype": "number",
-				"name": "right"
-			}
-		],
-		"output": []
-	}, {
 		"type": "pos2d",
+		"descrip": "2d position",
 		"category": [
 			"robot"
 		],
@@ -1177,6 +1154,7 @@
 		]
 	}, {
 		"type": "simrobot",
+		"descrip": "a simulated mobile robot",
 		"category": [
 			"simulator"
 		],
@@ -1202,6 +1180,7 @@
 		]
 	}, {
 		"type": "UserLogin",
+		"descrip": "User login widget by openID",
 		"category": [
 			"user"
 		],
@@ -1211,6 +1190,7 @@
 		"js": []
 	}, {
 		"type": "OwnerList",
+		"descrip": "a list of owner names",
 		"category": [
 			"user"
 		],
@@ -1224,6 +1204,7 @@
 		]
 	}, {
 		"type": "userWelcome",
+		"descrip": "user welcome",
 		"category": [
 			"user"
 		],
@@ -1239,6 +1220,7 @@
 		"width": "600"
 	}, {
 		"type": "panelList",
+		"descrip": "a list of panel names for a user",
 		"category": [
 			"user"
 		],
@@ -1251,20 +1233,8 @@
 			}
 		]
 	}, {
-		"type": "ownerConfig",
-		"category": [
-			"user"
-		],
-		"class_name": "ROSDASH.ownerConfig",
-		"input": [],
-		"output": [
-			{
-				"datatype": "Object",
-				"name": "conf"
-			}
-		]
-	}, {
 		"type": "jsonEditor",
+		"descrip": "A widget to visualize and edit a json",
 		"category": [
 			"user"
 		],
@@ -1285,6 +1255,7 @@
 		"output": []
 	}, {
 		"type": "jsonVis",
+		"descrip": "Visualization of json",
 		"category": [
 			"user"
 		],
@@ -1294,6 +1265,7 @@
 		"output": []
 	}, {
 		"type": "youtube",
+		"descrip": "Video from youtube",
 		"category": [
 			"others"
 		],
@@ -1303,6 +1275,7 @@
 		"output": []
 	}, {
 		"type": "slide",
+		"descrip": "Slide from www.slideshare.net",
 		"category": [
 			"others"
 		],
@@ -1312,6 +1285,7 @@
 		"output": []
 	}, {
 		"type": "FathomSlide",
+		"descrip": "A slide by fathom",
 		"category": [
 			"others"
 		],
@@ -1324,8 +1298,9 @@
 		"output": []
 	}, {
 		"type": "DoodleGod",
+		"descrip": "A test for a game",
 		"category": [
-			"fun"
+			"others"
 		],
 		"class_name": "ROSDASH.DoodleGod",
 		"has_panel": "true",

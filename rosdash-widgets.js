@@ -854,6 +854,152 @@ ROSDASH.Table.prototype.run = function (input)
 	$("#myDashboard").sDashboard("refreshTableById", this.block.id, aaData);
 }
 
+// V U meter
+//@todo input and output
+ROSDASH.Vumeter = function (block)
+{
+	this.block = block;
+	this.canvas_id = "vumeter_" + this.block.id;
+	this.config = (("config" in this.block) && ("vumeter" in this.block.config)) ? this.block.config.vumeter : {
+	    chart: {
+	        type: 'gauge',
+	        plotBorderWidth: 1,
+	        plotBackgroundColor: {
+	        	linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+	        	stops: [
+	        		[0, '#FFF4C6'],
+	        		[0.3, '#FFFFFF'],
+	        		[1, '#FFF4C6']
+	        	]
+	        },
+	        plotBackgroundImage: null,
+	        height: 200
+	    },
+	    title: {
+	        text: 'VU meter'
+	    },
+	    pane: [{
+	        startAngle: -45,
+	        endAngle: 45,
+	        background: null,
+	        center: ['25%', '145%'],
+	        size: 300
+	    }, {
+	    	startAngle: -45,
+	    	endAngle: 45,
+	    	background: null,
+	        center: ['75%', '145%'],
+	        size: 300
+	    }],
+	    yAxis: [{
+	        min: 0,
+	        max: 1,
+	        minorTickPosition: 'outside',
+	        tickPosition: 'outside',
+	        labels: {
+	        	rotation: 'auto',
+	        	distance: 20
+	        },
+	        plotBands: [{
+	        	from: 0,
+	        	to: 6,
+	        	color: '#C02316',
+	        	innerRadius: '100%',
+	        	outerRadius: '105%'
+	        }],
+	        pane: 0,
+	        title: {
+	        	text: 'VU<br/><span style="font-size:8px">Channel A</span>',
+	        	y: -40
+	        }
+	    }, {
+	        min: 0,
+	        max: 1000,
+	        minorTickPosition: 'outside',
+	        tickPosition: 'outside',
+	        labels: {
+	        	rotation: 'auto',
+	        	distance: 20
+	        },
+	        plotBands: [{
+	        	from: 0,
+	        	to: 6,
+	        	color: '#C02316',
+	        	innerRadius: '100%',
+	        	outerRadius: '105%'
+	        }],
+	        pane: 1,
+	        title: {
+	        	text: 'VU<br/><span style="font-size:8px">Channel B</span>',
+	        	y: -40
+	        }
+	    }],
+	    plotOptions: {
+	    	gauge: {
+	    		dataLabels: {
+	    			enabled: false
+	    		},
+	    		dial: {
+	    			radius: '100%'
+	    		}
+	    	}
+	    },
+	    series: [{
+	        data: [-20],
+	        yAxis: 0
+	    }, {
+	        data: [-20],
+	        yAxis: 1
+	    }]
+	};
+	this.update = function (){};
+	this.meter = undefined;
+	this.left_val = 0;
+	this.right_val = 0;
+}
+ROSDASH.Vumeter.prototype.addWidget = function (widget)
+{
+	widget.widgetContent = '<div id="' + this.canvas_id + '" style="width:80%; height:80%; margin: 0 auto;"></div>';
+	return widget;
+}
+ROSDASH.Vumeter.prototype.init = function ()
+{
+	var that = this;
+	this.meter = $('#' + this.canvas_id).highcharts(this.config,
+	// Let the music play
+	function (chart)
+	{
+	    setInterval(function()
+	    {
+	        var left = chart.series[0].points[0],
+	            right = chart.series[1].points[0],
+	            leftVal, 
+	            inc = (Math.random() - 0.5) * 3;
+	
+	        leftVal =  left.y + inc;
+	        rightVal = leftVal + inc / 3;
+	        if (leftVal < -20 || leftVal > 6) {
+	            leftVal = left.y - inc;
+	        }
+	        if (rightVal < -20 || rightVal > 6) {
+	            rightVal = leftVal;
+	        }
+	        left.update(that.left_val, false);
+	        right.update(that.right_val, false);
+	        chart.redraw();
+	    }, 500);
+	});
+	return true;
+}
+//@input	none
+//@output	meter object
+ROSDASH.Vumeter.prototype.run = function (input)
+{
+	this.left_val = input[0];
+	this.right_val = input[1];
+	return {o0 : this.meter};
+}
+
 
 //////////////////////////////////// networks
 
@@ -1550,8 +1696,11 @@ ROSDASH.Painter.prototype.run = function (input)
 	return;
 }
 
+
 //////////////////////////////////// multimedia
 
+
+// Show the video from user's USB camera
 ROSDASH.UserCamera = function (block)
 {
 	this.block = block;
@@ -1676,6 +1825,7 @@ ROSDASH.UserCamera.prototype.run = function (input)
 	return {o0 : this.video};
 }
 
+// Track the head in user's USB camera
 ROSDASH.HeadTracker = function (block)
 {
 	this.block = block;
@@ -1776,6 +1926,7 @@ ROSDASH.HeadTracker.prototype.run = function (input)
 	return {o0 : {x : this.pos.x, y : this.pos.y}};
 }
 
+// Track the hand in user's USB camera
 ROSDASH.HandTracker = function (block)
 {
 	this.block = block;
@@ -1907,9 +2058,11 @@ ROSDASH.HandTracker.prototype.createImage = function (imagesrc, imagedst)
 	return imagedst;
 };
 
+
 //////////////////////////////////// roslibjs
 
-// Turtlesim from ROS desktop widget
+
+// Turtlesim just like ROS desktop widget
 ROSDASH.Turtlesim = function (block)
 {
 	this.block = block;
@@ -1939,7 +2092,7 @@ ROSDASH.Turtlesim.prototype.initRos = function ()
 	return true;
 }
 
-// ros2djs
+// A 2D map for ROS
 ROSDASH.Ros2d = function (block)
 {
 	this.block = block;
@@ -1981,7 +2134,7 @@ ROSDASH.Ros2d.prototype.run = function (input)
 	return {o0 : this.viewer};
 }
 
-// ros3djs
+// A 3D map for ROS
 // enable 3d for Chrome: (Unfortunately it is not compatible with Diagram)
 // type "about:flags" on address bar of google chrome 
 // then under "Override software rendering list" click "enable" 
@@ -2023,6 +2176,7 @@ ROSDASH.Ros3d.prototype.run = function (input)
 	return {o0: this.viewer};
 }
 
+//@todo
 ROSDASH.Ros3dUrdf = function (block)
 {
 	this.block = block;
@@ -2182,6 +2336,7 @@ ROSDASH.RosInteractiveMarker.prototype.run = function (input)
 	return {o0: marker};
 }
 
+// Mjpeg video for ROS
 // better view in Chrome
 ROSDASH.RosMjpeg = function (block)
 {
@@ -2227,9 +2382,11 @@ ROSDASH.RosMjpeg.prototype.run = function (input)
 	return {o0: this.viewer};
 }
 
+
 //////////////////////////////////// map
 
-// google maps
+
+// Google maps
 ROSDASH.Gmap = function (block)
 {
 	this.block = block;
@@ -2294,7 +2451,7 @@ ROSDASH.Gmap.prototype.resizeGmap = function ()
 	google.maps.event.trigger(this.gmap, "resize");
 }
 
-// google maps robot trajectory overlay
+// Google maps robot trajectory overlay
 ROSDASH.GmapTraj = function (block)
 {
 	this.block = block;
@@ -2353,7 +2510,7 @@ ROSDASH.GmapTraj.prototype.run = function (input)
 	return {o0: input[0]};
 }
 
-// grids on Google maps representing energy
+// Grids on Google maps representing energy
 ROSDASH.GmapEnergyGrid = function (block)
 {
 	this.block = block;
@@ -2485,6 +2642,7 @@ ROSDASH.GmapEnergyGrid.prototype.showGrids = function (grid)
 	}
 }
 
+// Offline maps by openLayers
 ROSDASH.OpenLayersMap = function (block)
 {
 	this.block = block;
@@ -2522,7 +2680,7 @@ ROSDASH.OpenLayersMap.prototype.run = function (input)
 	return {o0: this.map};
 }
 
-// google maps robot trajectory overlay
+// OpenLayers maps robot trajectory overlay
 ROSDASH.OpenLayersTraj = function (block)
 {
 	this.block = block;
@@ -2586,7 +2744,9 @@ ROSDASH.OpenLayersTraj.prototype.run = function (input)
 	return {o0: input[0]};
 }
 
+
 //////////////////////////////////// plot
+
 
 // safe range for text or plot widget
 ROSDASH.FlotSafeRange = function (block)
@@ -2711,157 +2871,11 @@ ROSDASH.Flot.prototype.run = function (input)
 	return {o0 : this.plot};
 }
 
-//////////////////////////////////// other outputs
-
-// V U meter
-//@todo input and output
-ROSDASH.Vumeter = function (block)
-{
-	this.block = block;
-	this.canvas_id = "vumeter_" + this.block.id;
-	this.config = (("config" in this.block) && ("vumeter" in this.block.config)) ? this.block.config.vumeter : {
-	    chart: {
-	        type: 'gauge',
-	        plotBorderWidth: 1,
-	        plotBackgroundColor: {
-	        	linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-	        	stops: [
-	        		[0, '#FFF4C6'],
-	        		[0.3, '#FFFFFF'],
-	        		[1, '#FFF4C6']
-	        	]
-	        },
-	        plotBackgroundImage: null,
-	        height: 200
-	    },
-	    title: {
-	        text: 'VU meter'
-	    },
-	    pane: [{
-	        startAngle: -45,
-	        endAngle: 45,
-	        background: null,
-	        center: ['25%', '145%'],
-	        size: 300
-	    }, {
-	    	startAngle: -45,
-	    	endAngle: 45,
-	    	background: null,
-	        center: ['75%', '145%'],
-	        size: 300
-	    }],
-	    yAxis: [{
-	        min: 0,
-	        max: 1,
-	        minorTickPosition: 'outside',
-	        tickPosition: 'outside',
-	        labels: {
-	        	rotation: 'auto',
-	        	distance: 20
-	        },
-	        plotBands: [{
-	        	from: 0,
-	        	to: 6,
-	        	color: '#C02316',
-	        	innerRadius: '100%',
-	        	outerRadius: '105%'
-	        }],
-	        pane: 0,
-	        title: {
-	        	text: 'VU<br/><span style="font-size:8px">Channel A</span>',
-	        	y: -40
-	        }
-	    }, {
-	        min: 0,
-	        max: 1000,
-	        minorTickPosition: 'outside',
-	        tickPosition: 'outside',
-	        labels: {
-	        	rotation: 'auto',
-	        	distance: 20
-	        },
-	        plotBands: [{
-	        	from: 0,
-	        	to: 6,
-	        	color: '#C02316',
-	        	innerRadius: '100%',
-	        	outerRadius: '105%'
-	        }],
-	        pane: 1,
-	        title: {
-	        	text: 'VU<br/><span style="font-size:8px">Channel B</span>',
-	        	y: -40
-	        }
-	    }],
-	    plotOptions: {
-	    	gauge: {
-	    		dataLabels: {
-	    			enabled: false
-	    		},
-	    		dial: {
-	    			radius: '100%'
-	    		}
-	    	}
-	    },
-	    series: [{
-	        data: [-20],
-	        yAxis: 0
-	    }, {
-	        data: [-20],
-	        yAxis: 1
-	    }]
-	};
-	this.update = function (){};
-	this.meter = undefined;
-	this.left_val = 0;
-	this.right_val = 0;
-}
-ROSDASH.Vumeter.prototype.addWidget = function (widget)
-{
-	widget.widgetContent = '<div id="' + this.canvas_id + '" style="width:80%; height:80%; margin: 0 auto;"></div>';
-	return widget;
-}
-ROSDASH.Vumeter.prototype.init = function ()
-{
-	var that = this;
-	this.meter = $('#' + this.canvas_id).highcharts(this.config,
-	// Let the music play
-	function (chart)
-	{
-	    setInterval(function()
-	    {
-	        var left = chart.series[0].points[0],
-	            right = chart.series[1].points[0],
-	            leftVal, 
-	            inc = (Math.random() - 0.5) * 3;
-	
-	        leftVal =  left.y + inc;
-	        rightVal = leftVal + inc / 3;
-	        if (leftVal < -20 || leftVal > 6) {
-	            leftVal = left.y - inc;
-	        }
-	        if (rightVal < -20 || rightVal > 6) {
-	            rightVal = leftVal;
-	        }
-	        left.update(that.left_val, false);
-	        right.update(that.right_val, false);
-	        chart.redraw();
-	    }, 500);
-	});
-	return true;
-}
-//@input	none
-//@output	meter object
-ROSDASH.Vumeter.prototype.run = function (input)
-{
-	this.left_val = input[0];
-	this.right_val = input[1];
-	return {o0 : this.meter};
-}
 
 //////////////////////////////////// robot simulation
 
-// 2d position controlled by joystick
+
+// 2d position
 ROSDASH.Pos2d = function (block)
 {
 	this.block = block;
@@ -2922,8 +2936,11 @@ ROSDASH.SimRobot.prototype.run = function (input)
 	return output;
 }
 
+
 //////////////////////////////////// user interfaces
 
+
+// User login widget by openID
 ROSDASH.UserLogin = function (block)
 {
 	this.block = block;
@@ -3268,6 +3285,7 @@ ROSDASH.panelList.prototype.run = function (input)
 	return {o0: this.list};
 }
 
+// A widget to visualize and edit a json
 ROSDASH.jsonEditor = function (block)
 {
 	this.block = block;
@@ -3342,6 +3360,7 @@ ROSDASH.jsonEditor.prototype.run = function (input)
 	}
 }
 
+// Visualization of json
 ROSDASH.jsonVis = function (block)
 {
 	this.block = block;
@@ -3436,9 +3455,11 @@ ROSDASH.jsonVis.prototype.run = function (input)
 	this.vizcluster(input[0]);
 }
 
+
 //////////////////////////////////// others
 
-//slide from www.slideshare.net
+
+// Slide from www.slideshare.net
 ROSDASH.slide = function (block)
 {
 	this.block = block;
@@ -3466,6 +3487,7 @@ ROSDASH.slide.prototype.addWidget = function (widget)
 	return widget;
 }
 
+// A slide by fathom
 ROSDASH.FathomSlide = function (block)
 {
 	this.block = block;
@@ -3497,7 +3519,7 @@ ROSDASH.FathomSlide.prototype.init = function ()
 	$("#presentation").fathom();
 }
 
-// video from youtube
+// Video from youtube
 ROSDASH.youtube = function (block)
 {
 	this.block = block;
@@ -3522,8 +3544,7 @@ ROSDASH.youtube.prototype.addWidget = function (widget)
 	return widget;
 }
 
-//////////////////////////////////// for fun
-
+// A test for a game
 ROSDASH.DoodleGod = function (block)
 {
 	this.block = block;
@@ -3533,4 +3554,3 @@ ROSDASH.DoodleGod.prototype.addWidget = function (widget)
 	widget.widgetContent = '<object width="180" height="135"><param name="movie" value="http://www.fupa.com/swf/doodle-god/doodlegod.swf"></param><embed src="http://www.fupa.com/swf/doodle-god/doodlegod.swf" type="application/x-shockwave-flash" width="300px" height="200px"></embed></object>';
 	return widget;
 }
-
