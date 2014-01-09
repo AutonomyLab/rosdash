@@ -422,7 +422,7 @@ ROSDASH.jsonReady = false;
 ROSDASH.waitJson = function ()
 {
 	// if owner conf is loaded, load specified jsons. must be executed before examine jsonLoadList
-	var conf_path = "file/" + ROSDASH.ownerConf.name + "/conf.json";
+	var conf_path = "data/" + ROSDASH.ownerConf.name + "/conf.json";
 	if (! ROSDASH.loadOwnerJson && (conf_path in ROSDASH.jsonLoadList) && 2 == ROSDASH.jsonLoadList[conf_path].status)
 	{
 		ROSDASH.setOwnerConf(ROSDASH.jsonLoadList[conf_path].data);
@@ -475,7 +475,7 @@ ROSDASH.jsonReadyFunc = function ()
 		// load widgets and blocks
 		ROSDASH.loadWidgetDef();
 		// run panel
-		ROSDASH.readDiagram(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json"].data);
+		ROSDASH.readDiagram(ROSDASH.jsonLoadList['data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json"].data);
 		break;
 	case "editor":
 		// parse msgs after loading json
@@ -483,7 +483,7 @@ ROSDASH.jsonReadyFunc = function ()
 		// load widgets and blocks
 		ROSDASH.loadWidgetDef();
 		// show panel editor
-		ROSDASH.loadPanel(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json"].data);
+		ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json"].data);
 		// load diagram periodically to compare
 		ROSDASH.compareDiagram();
 		ROSDASH.ee.emitEvent("editorReady");
@@ -494,7 +494,7 @@ ROSDASH.jsonReadyFunc = function ()
 		// load widgets and blocks
 		ROSDASH.loadWidgetDef();
 		// run diagram after loading json
-		ROSDASH.runDiagram(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json"].data);
+		ROSDASH.runDiagram(ROSDASH.jsonLoadList['data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json"].data);
 		ROSDASH.comparePanel();
 		break;
 	case "jsoneditor":
@@ -541,7 +541,7 @@ ROSDASH.saveJson = function (data, filename)
 ROSDASH.initJson = function ()
 {
 	// load user config json
-	ROSDASH.loadJson("file/" + ROSDASH.ownerConf.name + "/conf.json");
+	ROSDASH.loadJson("data/" + ROSDASH.ownerConf.name + "/conf.json");
 	ROSDASH.loadMsgJson();
 	ROSDASH.loadWidgetJson();
 }
@@ -551,7 +551,7 @@ ROSDASH.initJson = function ()
 
 
 // file path list for msg jsons
-ROSDASH.msgJson = ["param/msgs.json"];
+ROSDASH.msgJson = ["msgs.json"];
 // msg list for sidebar
 ROSDASH.msgList = new Object();
 // msg definitions
@@ -698,7 +698,7 @@ ROSDASH.checkMsgTypeValid = function (name)
 
 
 // json file names for widgets
-ROSDASH.widgetJson = ["param/widgets.json"];
+ROSDASH.widgetJson = ["widgets.json"];
 // widget definitions
 ROSDASH.widgetDef = new Object();
 // block lists for diagram sidebar
@@ -1920,7 +1920,7 @@ ROSDASH.saveDiagram = function ()
 		};
 		json.edge.push(e);
 	});
-	ROSDASH.saveJson(json, "file/" + json.user + "/" + json.panel_name + "-diagram.json");
+	ROSDASH.saveJson(json, "data/" + json.user + "/" + json.panel_name + "-diagram.json");
 }
 // load diagram from json
 ROSDASH.loadDiagram = function (json)
@@ -1968,7 +1968,7 @@ ROSDASH.startDiagram = function (owner, panel_name, selected)
 		{
 			window.cy = this;
 			ROSDASH.selectedBlock = selected;
-			ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json");
+			ROSDASH.loadJson('data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json");
 			ROSDASH.waitJson();
 		}
 	});
@@ -2252,6 +2252,12 @@ ROSDASH.getWidgetEditableProperty = function (id)
 	return property;
 }
 
+// modify the content of a widget directly
+ROSDASH.updateWidgetContent = function (id, content)
+{
+	$("#myDashboard").sDashboard("setContentById", id, content);
+}
+
 
 ///////////////////////////////////// panel
 
@@ -2312,7 +2318,7 @@ ROSDASH.savePanel = function ()
 		content_height: ROSDASH.ownerConf.content_height,
 		widgets: ROSDASH.widgets
 	};
-	ROSDASH.saveJson(json, "file/" + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json");
+	ROSDASH.saveJson(json, "data/" + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json");
 }
 // bind callback functions
 ROSDASH.panelBindEvent = function ()
@@ -2353,7 +2359,7 @@ ROSDASH.startEditor = function (owner, panel_name, selected)
 	// check diagram for updates
 	ROSDASH.checkDiagram();
 	// load panel from json file
-	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json");
+	ROSDASH.loadJson('data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json");
 	ROSDASH.waitJson();
 }
 // the main function for panel
@@ -2373,9 +2379,9 @@ ROSDASH.startPanel = function (owner, panel_name, selected)
 
 	ROSDASH.initJson();
 	// load diagram for analysis
-	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json");
+	ROSDASH.loadJson('data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json");
 	// load panel from json file
-	ROSDASH.loadJson('file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json");
+	ROSDASH.loadJson('data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json");
 	ROSDASH.waitJson();
 }
 // start to execute widgets
@@ -2482,7 +2488,7 @@ ROSDASH.diagram = undefined;
 // check diagram for updates
 ROSDASH.checkDiagram = function ()
 {
-	var file = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json";
+	var file = 'data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json";
 	$.getJSON(file, function (data, status, xhr)
 	{
 		// if different
@@ -2520,7 +2526,7 @@ ROSDASH.checkDiagram = function ()
 //@note looks deprecated?
 ROSDASH.compareDiagram = function ()
 {
-	var file = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json";
+	var file = 'data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-diagram.json";
 	$.getJSON(file, function (data, status, xhr)
 	{
 		for (var i in data.block)
@@ -2554,7 +2560,7 @@ ROSDASH.panel = undefined;
 // check panel for updates
 ROSDASH.checkPanel = function ()
 {
-	var file = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json";
+	var file = 'data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json";
 	$.getJSON(file, function (data, status, xhr)
 	{
 		// if different
@@ -2584,7 +2590,7 @@ ROSDASH.checkPanel = function ()
 }
 ROSDASH.comparePanel = function ()
 {
-	var file = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json";
+	var file = 'data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json";
 	$.getJSON(file, function (data, status, xhr)
 	{
 		for (var i in data.widgets)
@@ -2807,7 +2813,7 @@ ROSDASH.waitLoadJs = function ()
 	{
 		// successfully loaded
 		ROSDASH.instantiateWidgets();
-		ROSDASH.loadPanel(ROSDASH.jsonLoadList['file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json"].data);
+		ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-panel.json"].data);
 		ROSDASH.exePanel();
 	}
 }

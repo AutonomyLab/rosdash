@@ -718,7 +718,7 @@ ROSDASH.Text.prototype.run = function (input)
 	{
 		input[0] = JSON.stringify(input[0]);
 	}
-	$("#myDashboard").sDashboard("setContentById", this.block.id, input[0]);
+	ROSDASH.updateWidgetContent(this.block.id, input[0]);
 }
 
 // A text box with speaking library.
@@ -769,7 +769,7 @@ ROSDASH.Speech.prototype.run = function (input)
 	}
 	// if new message comes, speak
 	//speak(this.content);
-	$("#myDashboard").sDashboard("setContentById", this.block.id, this.content);
+	ROSDASH.updateWidgetContent(this.block.id, this.content);
 }
 
 // table
@@ -2479,8 +2479,8 @@ ROSDASH.GmapTraj.prototype.run = function (input)
 		position: new google.maps.LatLng(new_x, new_y),
 		map: input[0],	// google maps object
 		title: "robot",
-		icon: "resource/cabs.png",
-		//shadow: {url: 'resource/cabs.shadow.png',}
+		icon: "resources/cabs.png",
+		//shadow: {url: 'resources/cabs.shadow.png',}
 	});
 	// keep the length of path no longer than a threshold
 	while (this.robot.path.length >= 20)
@@ -2706,7 +2706,7 @@ ROSDASH.OpenLayersTraj.prototype.run = function (input)
 	}
 	this.robot.marker = new OpenLayers.Layer.Markers( "Markers" );
 	input[0].addLayer(this.robot.marker);
-	var icon = new OpenLayers.Icon('resource/cabs.png');
+	var icon = new OpenLayers.Icon('resources/cabs.png');
 	var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
 	var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
 	var position       = new OpenLayers.LonLat(new_y, new_x).transform( fromProjection, toProjection);
