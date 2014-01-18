@@ -1992,6 +1992,14 @@ ROSDASH.runDiagram = function (data)
 	ROSDASH.checkPanel();
 	ROSDASH.ee.emitEvent("diagramReady");
 }
+ROSDASH.showDiagram = function (show)
+{
+	if (undefined === show)
+	{
+		show = $("#cy").css("visibility") == "hidden";
+	}
+	$("#cy").css("visibility", (show == false ? "hidden" : "inherit"));
+}
 
 
 ///////////////////////////////////// widget actions (based on sDashboard)
@@ -2100,7 +2108,7 @@ ROSDASH.addWidget = function (def)
 	{
 		console.error("widget id duplicate: " + def.widgetId);
 		// show the effect
-		$("#myDashboard").sDashboard("addWidget", def);
+		$("#dash").sDashboard("addWidget", def);
 		return;
 	}
 	def = ROSDASH.getWidgetNum(def);
@@ -2112,7 +2120,7 @@ ROSDASH.addWidget = function (def)
 	{
 		return;
 	}
-	$("#myDashboard").sDashboard("addWidget", widget);
+	$("#dash").sDashboard("addWidget", widget);
 	ROSDASH.ee.emitEvent('addWidget');
 }
 // set the value of widget content
@@ -2257,13 +2265,13 @@ ROSDASH.getWidgetEditableProperty = function (id)
 // modify the content of a widget directly
 ROSDASH.updateWidgetContent = function (id, content)
 {
-	$("#myDashboard").sDashboard("setContentById", id, content);
+	$("#dash").sDashboard("setContentById", id, content);
 }
 ROSDASH.findWidget = function (id)
 {
 	if (id in ROSDASH.widgets)
 	{
-		$("#myDashboard").sDashboard("findWidget", id);
+		$("#dash").sDashboard("findWidget", id);
 	} else
 	{
 		console.log("cannot find ", id);
@@ -2334,20 +2342,20 @@ ROSDASH.savePanel = function ()
 // bind callback functions
 ROSDASH.panelBindEvent = function ()
 {
-	$("#myDashboard").bind("sdashboardorderchanged", function(e, data)
+	$("#dash").bind("sdashboardorderchanged", function(e, data)
 	{
 		ROSDASH.moveWidget(data.sortedDefinitions);
 	});
-	$("#myDashboard").bind("sdashboardheaderclicked", ROSDASH.selectWidgetCallback);
-	$("#myDashboard").bind("sdashboardwidgetmaximized", ROSDASH.widgetMaxCallback);
-	$("#myDashboard").bind("sdashboardwidgetminimized", ROSDASH.widgetMaxCallback);
-	$("#myDashboard").bind("sdashboardwidgetadded", ROSDASH.widgetAddCallback);
-	$("#myDashboard").bind("sdashboardwidgetremoved", function(e, data)
+	$("#dash").bind("sdashboardheaderclicked", ROSDASH.selectWidgetCallback);
+	$("#dash").bind("sdashboardwidgetmaximized", ROSDASH.widgetMaxCallback);
+	$("#dash").bind("sdashboardwidgetminimized", ROSDASH.widgetMaxCallback);
+	$("#dash").bind("sdashboardwidgetadded", ROSDASH.widgetAddCallback);
+	$("#dash").bind("sdashboardwidgetremoved", function(e, data)
 	{
 		ROSDASH.removeWidget(data.widgetDefinition.widgetId);
 	});
-	$("#myDashboard").bind("sdashboardwidgetset", ROSDASH.widgetSetCallback);
-	$("#myDashboard").bind("sdashboardheaderset", ROSDASH.headerSetCallback);
+	$("#dash").bind("sdashboardwidgetset", ROSDASH.widgetSetCallback);
+	$("#dash").bind("sdashboardheaderset", ROSDASH.headerSetCallback);
 }
 
 // the main function for panel editor
@@ -2359,7 +2367,7 @@ ROSDASH.startEditor = function (owner, panel_name, selected)
 	ROSDASH.initSidebar();
 
 	// create empty dashboard
-	$("#myDashboard").sDashboard({
+	$("#dash").sDashboard({
 		dashboardData : [],
 		disableSelection : ROSDASH.dashboardConf.disable_selection
 	});
@@ -2381,7 +2389,7 @@ ROSDASH.startPanel = function (owner, panel_name, selected)
 	ROSDASH.initToolbar();
 
 	// generate empty dashboard
-	$("#myDashboard").sDashboard({
+	$("#dash").sDashboard({
 		dashboardData : [],
 		disableSelection : ROSDASH.dashboardConf.disable_selection
 	});
@@ -2403,6 +2411,16 @@ ROSDASH.exePanel = function ()
 	ROSDASH.initWidgets();
 	ROSDASH.ee.emitEvent("executionBegin");
 	ROSDASH.runWidgets();
+}
+// show panel or not
+//@input bool for showing or not. toggle if not specified.
+ROSDASH.showPanel = function (show)
+{
+	if (undefined === show)
+	{
+		show = $("#dash").css("visibility") == "hidden";
+	}
+	$("#dash").css("visibility", (show == false ? "hidden" : "inherit"));
 }
 
 // jsonEditor page

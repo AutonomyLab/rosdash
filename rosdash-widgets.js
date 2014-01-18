@@ -851,7 +851,7 @@ ROSDASH.Table.prototype.run = function (input)
 			aaData[0].push("");
 		}
 	}
-	$("#myDashboard").sDashboard("refreshTableById", this.block.id, aaData);
+	$("#dash").sDashboard("refreshTableById", this.block.id, aaData);
 }
 
 // V U meter
@@ -1645,7 +1645,7 @@ ROSDASH.Painter = function (block)
 ROSDASH.Painter.prototype.init = function ()
 {
 	var html = '<canvas id="myCanvas" width="960" height="400" style="position: absolute; top: 0px; left: 0px; z-index: 100; border-style:solid; border-width:2px;"></canvas>'
-	$("#myDashboard").sDashboard("addContentById", this.target_id, html);
+	$("#dash").sDashboard("addContentById", this.target_id, html);
 	var that = this;
 	if (window.top != window) {
 		document.getElementById("header").style.display = "none";
