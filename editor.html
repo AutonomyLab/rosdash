@@ -47,8 +47,6 @@
 		<script src="rosdash-widgets.js"></script>
 		<script type="text/javascript">
 $(function() {
-	var user = ROSDASH.checkCookie();
-	ROSDASH.setUser(user);
 	ROSDASH.connectROS(ROSDASH.queryString.host, ROSDASH.queryString.port);
 	ROSDASH.startEditor(ROSDASH.queryString.owner, ROSDASH.queryString.panel, ROSDASH.queryString.selected);
 });

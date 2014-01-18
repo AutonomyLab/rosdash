@@ -39,12 +39,12 @@ ROSDASH.queryString = function () {
 ROSDASH.ee = ("EventEmitter" in window) ? new EventEmitter() : undefined;
 // event when the page is loaded
 $(document).ready(function() {
-	// do stuff when the document has been fully loaded
+	// event when the document has been fully loaded
 	ROSDASH.ee.emitEvent('pageReady');
 });
 
 
-///////////////////////////////////// user configuration
+///////////////////////////////////// user configuration @deprecated
 
 
 // user configuration
@@ -149,7 +149,7 @@ ROSDASH.logOut = function ()
 }
 
 
-///////////////////////////////////// dashboard configuration
+///////////////////////////////////// dashboard configuration @deprecated
 
 
 // dashboard owner configuration
@@ -160,6 +160,7 @@ ROSDASH.dashboardConf = {
 	discrip: "",
 	panel_name: "index",
 	view_type: "panel",
+	editor_type: "panel",
 
 	// ros
 	ros_host: "",
@@ -423,7 +424,7 @@ ROSDASH.jsonReady = false;
 // wait when loading jsons
 ROSDASH.waitJson = function ()
 {
-	// if owner conf is loaded, load specified jsons. must be executed before examine jsonLoadList
+	//@deprecated if owner conf is loaded, load specified jsons. must be executed before examine jsonLoadList
 	var conf_path = "data/" + ROSDASH.dashboardConf.name + "/conf.json";
 	if (! ROSDASH.loadOwnerJson && (conf_path in ROSDASH.jsonLoadList) && 2 == ROSDASH.jsonLoadList[conf_path].status)
 	{
@@ -488,7 +489,7 @@ ROSDASH.jsonReadyFunc = function ()
 		ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
 		// run diagram at the same time
 		ROSDASH.runDiagram(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
-		// load diagram periodically to compare
+		//@deprecated load diagram periodically to compare
 		//ROSDASH.compareDiagram();
 		ROSDASH.ee.emitEvent("editorReady");
 		break;
@@ -499,7 +500,8 @@ ROSDASH.jsonReadyFunc = function ()
 		ROSDASH.loadWidgetDef();
 		// run diagram after loading json
 		ROSDASH.runDiagram(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-diagram.json"].data);
-		ROSDASH.comparePanel();
+		//@deprecated
+		//ROSDASH.comparePanel();
 		break;
 	case "jsoneditor":
 		ROSDASH.jsonEditorLoadSuccess = true;
@@ -512,7 +514,7 @@ ROSDASH.jsonReadyFunc = function ()
 	}
 }
 
-// save data to json file in server. @note PHP will ignore empty json part
+//@deprecated save data to json file in server. @note PHP will ignore empty json part
 ROSDASH.saveJson = function (data, filename)
 {
 	// prevent others from saving
@@ -544,8 +546,8 @@ ROSDASH.saveJson = function (data, filename)
 // init loading msg type and widget definitions from json files
 ROSDASH.initJson = function ()
 {
-	// load user config json
-	ROSDASH.loadJson("data/" + ROSDASH.dashboardConf.name + "/conf.json");
+	//@deprecated load user config json
+	//ROSDASH.loadJson("data/" + ROSDASH.dashboardConf.name + "/conf.json");
 	ROSDASH.loadMsgJson();
 	ROSDASH.loadWidgetJson();
 }
@@ -1848,59 +1850,56 @@ ROSDASH.addBlockComment = function (content)
 ///////////////////////////////////// diagram
 
 
-ROSDASH.defaultStyle = undefined;
 // depend on cytoscape.js
-if ("cytoscape" in window)
-{
-	ROSDASH.defaultStyle = cytoscape.stylesheet()
-		.selector('node').css({
-			'shape': 'data(faveShape)',
-			'background-color': 'data(faveColor)',
-			'border-width': 1,
-			'border-color': 'black',
-			'width': 'mapData(weight, 10, 30, 20, 60)',
-			'height': 'mapData(height, 0, 100, 10, 45)',
-			'content': 'data(name)',
-			'font-size': 25,
-			'text-valign': 'center',
-			'text-outline-width': 2,
-			'text-outline-color': 'data(faveColor)',
-			'color': 'black'
-		})
-		.selector(':selected').css({
-			'border-width': 3,
-			'border-color': 'black',
-			'color': 'red'
-		})
-		.selector('edge').css({
-			'width': 'mapData(strength, 70, 100, 2, 6)',
-			'line-color': 'data(faveColor)',
-			'target-arrow-shape': 'triangle',
-			'source-arrow-color': 'data(faveColor)',
-			'target-arrow-color': 'data(faveColor)'
-		})
-		.selector('.body').css({
-			'shape': 'roundrectangle',
-			'width': '130',
-			'height': '70'
-		})
-		.selector('.input').css({
-			'shape': 'rectangle',
-			'width': '10',
-			'height': '10',
-			'text-outline-color': 'grey',
-			'background-color': 'grey',
-			'border-width': 0,
-		})
-		.selector('.output').css({
-			'shape': 'rectangle',
-			'width': '10',
-			'height': '10',
-			'text-outline-color': 'grey',
-			'background-color': 'grey',
-			'border-width': 0,
-		});
-}
+ROSDASH.defaultStyle = ("cytoscape" in window) ? cytoscape.stylesheet()
+	.selector('node').css({
+		'shape': 'data(faveShape)',
+		'background-color': 'data(faveColor)',
+		'border-width': 1,
+		'border-color': 'black',
+		'width': 'mapData(weight, 10, 30, 20, 60)',
+		'height': 'mapData(height, 0, 100, 10, 45)',
+		'content': 'data(name)',
+		'font-size': 25,
+		'text-valign': 'center',
+		'text-outline-width': 2,
+		'text-outline-color': 'data(faveColor)',
+		'color': 'black'
+	})
+	.selector(':selected').css({
+		'border-width': 3,
+		'border-color': 'black',
+		'color': 'red'
+	})
+	.selector('edge').css({
+		'width': 'mapData(strength, 70, 100, 2, 6)',
+		'line-color': 'data(faveColor)',
+		'target-arrow-shape': 'triangle',
+		'source-arrow-color': 'data(faveColor)',
+		'target-arrow-color': 'data(faveColor)'
+	})
+	.selector('.body').css({
+		'shape': 'roundrectangle',
+		'width': '130',
+		'height': '70'
+	})
+	.selector('.input').css({
+		'shape': 'rectangle',
+		'width': '10',
+		'height': '10',
+		'text-outline-color': 'grey',
+		'background-color': 'grey',
+		'border-width': 0,
+	})
+	.selector('.output').css({
+		'shape': 'rectangle',
+		'width': '10',
+		'height': '10',
+		'text-outline-color': 'grey',
+		'background-color': 'grey',
+		'border-width': 0,
+	})
+: undefined;
 // save diagram into file
 ROSDASH.saveDiagram = function ()
 {
@@ -2369,7 +2368,7 @@ ROSDASH.getPanelJson = function ()
 	}
 	return json;
 }
-// save configuration and widgets to json file
+//@deprecated save configuration and widgets to json file
 ROSDASH.savePanel = function ()
 {
 	ROSDASH.saveJson(ROSDASH.getPanelJson(), "data/" + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json");
@@ -2415,7 +2414,7 @@ ROSDASH.startEditor = function (owner, panel_name, selected)
 	ROSDASH.selectedWidget = selected;
 
 	ROSDASH.initJson();
-	// check diagram for updates
+	//@deprecated check diagram for updates
 	//ROSDASH.checkDiagram();
 	// load panel from json file
 	ROSDASH.loadJson('data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json");
@@ -2564,7 +2563,7 @@ ROSDASH.headerSetCallback = function (e, data)
 {}
 
 
-///////////////////////////////////// diagram analysis
+///////////////////////////////////// update checking @deprecated
 
 
 // diagram for analysis or checking for updates
@@ -2695,6 +2694,10 @@ ROSDASH.comparePanel = function ()
 		}
 	});
 }
+
+
+///////////////////////////////////// diagram analysis
+
 
 // read diagram json for panel execution
 ROSDASH.readDiagram = function (data)

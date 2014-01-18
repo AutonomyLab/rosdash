@@ -30,7 +30,7 @@
  		<!-- roslibjs -->
 		<script src="lib/roslibjs/include/EventEmitter2/eventemitter2.js"></script>
 		<script src="lib/roslibjs/build/roslib.min.js"></script>
-		<!-- jsoneditor -->
+		<!-- jsoneditor @note -->
 		<link rel="stylesheet" href="lib/FlexiJsonEditor/jsoneditor.css"/>
 		<link rel="stylesheet" href="lib/FlexiJsonEditor/style.css"/>
 		<script src="lib/FlexiJsonEditor/json2.js"></script>
@@ -107,29 +107,7 @@ div.slide {
 }
 		</style>
 		<script type="text/javascript">
-var status = ROSDASH.queryString.status;
-if ("login" == status)
-{
-	//<?php require ('token-url.php'); ?>
-}
 $(function() {
-	var user;
-	switch (status)
-	{
-	case "login":
-		user = '<?php echo $auth_info["profile"]["displayName"]; ?>';
-		break;
-	case "logout":
-		user = ROSDASH.logOut();
-		break;
-	case "sudo":
-		user = "@@sudo@@";
-		break;
-	default:
-		user = ROSDASH.checkCookie();
-		break;
-	}
-	ROSDASH.setUser(user);
 	ROSDASH.connectROS(ROSDASH.queryString.host, ROSDASH.queryString.port);
 	ROSDASH.startPanel(ROSDASH.queryString.owner, ROSDASH.queryString.panel, ROSDASH.queryString.selected);
 });
