@@ -1,6 +1,8 @@
 //@note input.length does not work
 
+
 //////////////////////////////////// datatypes
+
 
 //@deprecated constant value
 ROSDASH.Constant = function (block)

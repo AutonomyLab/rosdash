@@ -32,7 +32,7 @@
 		<script src="lib/dhtmlxSuite/dhtmlxForm/codebase/ext/dhtmlxform_dyn.js"></script>
  		<!-- cytoscape -->
 		<script src="lib/cytoscape.js-2.0.2/cytoscape.min.js"></script>
- 		<!-- might useless -->
+ 		<!-- roslibjs -->
 		<script src="lib/roslibjs/include/EventEmitter2/eventemitter2.js"></script>
 		<script src="lib/roslibjs/build/roslib.js"></script>
 		<!-- jsoneditor -->
@@ -56,10 +56,11 @@ $(function() {
 	</head>
 	<body style="background-color:AliceBlue;">
 		<div id="toolbarObj"></div>
-		<div style="background-color: MediumTurquoise; position: absolute; left: 0px; top: 50px; width: 200px; position:fixed; height: 100%; z-index: 10;">
+		<div style="background-color: MediumTurquoise; position: absolute; left: 0px; top: 50px; width: 200px; height: 100%; z-index: 10;">
 			<div id="rosform"></div>
 			<div id="jsoneditor" class="json-editor"></div>
 		</div>
 		<ul id="dash" style="position: absolute; left: 200px;"></ul>
+		<div id="cy" style="visibility: hidden; background-color:AliceBlue; height: 94%; width: 87%; position: absolute; left: 200px; top: 50px;"></div>
 	</body>
 </html>

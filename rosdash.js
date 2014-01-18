@@ -486,8 +486,10 @@ ROSDASH.jsonReadyFunc = function ()
 		ROSDASH.loadWidgetDef();
 		// show panel editor
 		ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
+		// run diagram at the same time
+		ROSDASH.runDiagram(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
 		// load diagram periodically to compare
-		ROSDASH.compareDiagram();
+		//ROSDASH.compareDiagram();
 		ROSDASH.ee.emitEvent("editorReady");
 		break;
 	case "diagram":
@@ -546,6 +548,11 @@ ROSDASH.initJson = function ()
 	ROSDASH.loadJson("data/" + ROSDASH.dashboardConf.name + "/conf.json");
 	ROSDASH.loadMsgJson();
 	ROSDASH.loadWidgetJson();
+}
+// callback for uploading json file
+ROSDASH.uploadJson = function (file)
+{
+	console.debug(file);
 }
 
 
@@ -1992,6 +1999,7 @@ ROSDASH.runDiagram = function (data)
 	ROSDASH.checkPanel();
 	ROSDASH.ee.emitEvent("diagramReady");
 }
+// show or hide diagram
 ROSDASH.showDiagram = function (show)
 {
 	if (undefined === show)
@@ -2278,6 +2286,7 @@ ROSDASH.findWidget = function (id)
 	}
 }
 
+
 ///////////////////////////////////// panel
 
 
@@ -2335,8 +2344,26 @@ ROSDASH.savePanel = function ()
 		widget_height: ROSDASH.dashboardConf.widget_height,
 		header_height: ROSDASH.dashboardConf.header_height,
 		content_height: ROSDASH.dashboardConf.content_height,
-		widgets: ROSDASH.widgets
+		widgets: ROSDASH.widgets,
+		block: new Object(),
+		edge: new Array()
 	};
+	// don't save popups into file
+	ROSDASH.removeAllPopup();
+	// add all blocks into json
+	for (var i in ROSDASH.blocks)
+	{
+		json.block[i] = ROSDASH.blocks[i];
+	}
+	// add all edges into json
+	window.cy.edges().each(function (i, ele)
+	{
+		var e = {
+			source: ele.source().id(),
+			target: ele.target().id()
+		};
+		json.edge.push(e);
+	});
 	ROSDASH.saveJson(json, "data/" + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json");
 }
 // bind callback functions
@@ -2376,9 +2403,20 @@ ROSDASH.startEditor = function (owner, panel_name, selected)
 
 	ROSDASH.initJson();
 	// check diagram for updates
-	ROSDASH.checkDiagram();
+	//ROSDASH.checkDiagram();
 	// load panel from json file
 	ROSDASH.loadJson('data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json");
+	// create diagram at the same time
+	$('#cy').cytoscape({
+		showOverlay: false,
+		style: ROSDASH.defaultStyle,
+		elements: {nodes: new Array(), edges: new Array()},
+		ready: function ()
+		{
+			window.cy = this;
+			ROSDASH.selectedBlock = selected;
+		}
+	});
 	ROSDASH.waitJson();
 }
 // the main function for panel
@@ -2422,6 +2460,10 @@ ROSDASH.showPanel = function (show)
 	}
 	$("#dash").css("visibility", (show == false ? "hidden" : "inherit"));
 }
+
+
+///////////////////////////////////// jsonEditor
+
 
 // jsonEditor page
 ROSDASH.jsonEditorLoadSuccess = false;
