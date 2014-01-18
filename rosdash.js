@@ -2328,8 +2328,8 @@ ROSDASH.loadPanel = function (json)
 		ROSDASH.selectWidgetCallback(undefined, {selectedWidgetId: ROSDASH.selectedWidget});
 	}
 }
-// save configuration and widgets to json file
-ROSDASH.savePanel = function ()
+// create a json representing a dashboard
+ROSDASH.getPanelJson = function ()
 {
 	var json = {
 		user: ROSDASH.dashboardConf.name,
@@ -2348,23 +2348,36 @@ ROSDASH.savePanel = function ()
 		block: new Object(),
 		edge: new Array()
 	};
-	// don't save popups into file
-	ROSDASH.removeAllPopup();
-	// add all blocks into json
-	for (var i in ROSDASH.blocks)
+	if ("cy" in window)
 	{
-		json.block[i] = ROSDASH.blocks[i];
+		// don't save popups into file
+		ROSDASH.removeAllPopup();
+		// add all blocks into json
+		for (var i in ROSDASH.blocks)
+		{
+			json.block[i] = ROSDASH.blocks[i];
+		}
+		// add all edges into json
+		window.cy.edges().each(function (i, ele)
+		{
+			var e = {
+				source: ele.source().id(),
+				target: ele.target().id()
+			};
+			json.edge.push(e);
+		});
 	}
-	// add all edges into json
-	window.cy.edges().each(function (i, ele)
-	{
-		var e = {
-			source: ele.source().id(),
-			target: ele.target().id()
-		};
-		json.edge.push(e);
-	});
-	ROSDASH.saveJson(json, "data/" + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json");
+	return json;
+}
+// save configuration and widgets to json file
+ROSDASH.savePanel = function ()
+{
+	ROSDASH.saveJson(ROSDASH.getPanelJson(), "data/" + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json");
+}
+// download the panel json in a new window
+ROSDASH.downloadPanel = function ()
+{
+	window.open('data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(ROSDASH.getPanelJson())), 'Download');
 }
 // bind callback functions
 ROSDASH.panelBindEvent = function ()

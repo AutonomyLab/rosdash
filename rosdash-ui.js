@@ -718,7 +718,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// download json
 		case "download":
-			var url = 'data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-";   
+			/*var url = 'data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-";   
 			switch (ROSDASH.dashboardConf.view_type)
 			{
 			case "panel":
@@ -730,7 +730,8 @@ ROSDASH.initToolbar = function ()
 				break;
 			} 
 			url += ".json";
-			window.open(url, 'Download');  
+			window.open(url, 'Download');*/
+			ROSDASH.downloadPanel();
 			break;
 		case "upload":
 			break;

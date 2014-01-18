@@ -3126,7 +3126,10 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 	{
 		widget.widgetContent = '<h1 style="color:blue;">Welcome to ROSDASH !</h1>'
 			+ '<p style="color:Navy;">A web-based platform of dashboards for roboticists and ROS users.</p>'
-			+ '<div id="janrainEngageEmbed" align="center"></div>';
+			+ '<div id="janrainEngageEmbed" align="center"></div>'
+			+ '<p>or'
+				+ '<input type="button" value="Try with empty dashboard" id="try-' + this.block.id + '">'
+			+ '</p>';
 		// for a user
 		if ("Guest" != ROSDASH.userConf.name)
 		{
@@ -3164,6 +3167,10 @@ ROSDASH.userWelcome.prototype.init = function (input)
 	if ("index" == ROSDASH.dashboardConf.name)
 	{
 		this.userLogin();
+		$("#try-" + that.block.id).click(function ()
+		{
+			location.replace("editor.html?owner=index&panel=empty");
+		});
 		if ("Guest" != ROSDASH.userConf.name)
 		{
 			// append createPersonal callback function to that button

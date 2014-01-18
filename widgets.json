@@ -3,6 +3,21 @@
 "version": "0.1",
 "widgets": [
 	{
+		"type": "constant",
+		"descrip": "A constant value",
+		"category": [
+				"datatypes"
+		],
+		"class_name": "ROSDASH.Constant",
+		"input": [],
+		"output": [
+				{
+						"datatype": "universal",
+						"name": "value",
+						"attribute": "compulsory"
+				}
+		]
+	}, {
 		"type": "multiArray",
 		"descrip": "An array consisting of several data",
 		"category": [
