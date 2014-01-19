@@ -2,7 +2,7 @@
 
 
 ROSDASH.formCanvas = "rosform";
-// the main form for diagram
+// the main form for diagram @deprecated
 ROSDASH.formDiagramMain = [{
 		type: "label",
 		label: "Add a New Block",
@@ -177,10 +177,9 @@ ROSDASH.initForm = function ()
 			break;
 		// show property or config of a widget or block
 		case "property":
-		case "config":
 		case "allproperty":
 			ROSDASH.jsonFormType = id;
-			switch (ROSDASH.dashboardConf.view_type)
+			switch (ROSDASH.dashboardConf.editor_type)
 			{
 			case "panel":
 			case "editor":
@@ -190,6 +189,10 @@ ROSDASH.initForm = function ()
 				ROSDASH.callJsonForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
 				break;
 			}
+			break;
+		case "config":
+			ROSDASH.jsonFormType = id;
+			ROSDASH.callJsonForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
 			break;
 		case "msgs":
 			ROSDASH.jsonFormType = id;
@@ -366,6 +369,7 @@ ROSDASH.formClickBlock = function (id)
 	{
 		return;
 	}
+	ROSDASH.initForm();
 	// if clicking a new block, add buttons for the block
 	if (undefined === ROSDASH.formClickBlockId)
 	{
@@ -396,7 +400,7 @@ ROSDASH.formClickBlock = function (id)
 	}
 	ROSDASH.formClickBlockId = id;
 	var show;
-	switch (ROSDASH.dashboardConf.view_type)
+	switch (ROSDASH.dashboardConf.editor_type)
 	{
 	case "panel":
 	case "editor":
@@ -428,7 +432,7 @@ ROSDASH.callJsonForm = function (block)
 	{
 	// for selective property of block
 	case "property":
-		switch (ROSDASH.dashboardConf.view_type)
+		switch (ROSDASH.dashboardConf.editor_type)
 		{
 		case "panel":
 		case "editor":
@@ -441,7 +445,7 @@ ROSDASH.callJsonForm = function (block)
 		break;
 	// for config of block
 	case "config":
-		switch (ROSDASH.dashboardConf.view_type)
+		switch (ROSDASH.dashboardConf.editor_type)
 		{
 		case "panel":
 		case "editor":
@@ -460,7 +464,7 @@ ROSDASH.callJsonForm = function (block)
 		break;
 	// for all property of block
 	case "allproperty":
-		switch (ROSDASH.dashboardConf.view_type)
+		switch (ROSDASH.dashboardConf.editor_type)
 		{
 		case "panel":
 		case "editor":
@@ -493,7 +497,7 @@ ROSDASH.updateJsonForm = function (data)
 	switch (ROSDASH.jsonFormType)
 	{
 	case "property":
-		switch (ROSDASH.dashboardConf.view_type)
+		switch (ROSDASH.dashboardConf.editor_type)
 		{
 		case "panel":
 		case "editor":
@@ -516,7 +520,7 @@ ROSDASH.updateJsonForm = function (data)
 		break;
 	// save changed data to config
 	case "config":
-		switch (ROSDASH.dashboardConf.view_type)
+		switch (ROSDASH.dashboardConf.editor_type)
 		{
 		case "panel":
 		case "editor":
@@ -655,7 +659,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// find a widget or block
 		case "find":
-			switch (ROSDASH.dashboardConf.view_type)
+			switch (ROSDASH.dashboardConf.editor_type)
 			{
 			case "panel":
 			case "editor":
@@ -681,7 +685,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// remove a widget or block
 		case "remove":
-			switch (ROSDASH.dashboardConf.view_type)
+			switch (ROSDASH.dashboardConf.editor_type)
 			{
 			case "panel":
 			case "editor":
@@ -740,6 +744,7 @@ ROSDASH.initToolbar = function ()
 			// show or hide diagram
 			ROSDASH.showPanel();
 			ROSDASH.showDiagram();
+			ROSDASH.dashboardConf.editor_type = ("panel" == ROSDASH.dashboardConf.editor_type) ? "diagram" : "panel";
 			/*var url = 'diagram.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + ROSDASH.dashboardConf.panel_name + '&host=' + ROSDASH.dashboardConf.ros_host + '&port=' + ROSDASH.dashboardConf.ros_port;
 			// if an item is selected, diagram should focus on that
 			if (undefined !== ROSDASH.selectedWidget)
