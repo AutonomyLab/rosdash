@@ -3127,9 +3127,8 @@ ROSDASH.userWelcome.prototype.addWidget = function (widget)
 		widget.widgetContent = '<h1 style="color:blue;">Welcome to ROSDASH !</h1>'
 			+ '<p style="color:Navy;">A web-based platform of dashboards for roboticists and ROS users.</p>'
 			+ '<div id="janrainEngageEmbed" align="center"></div>'
-			+ '<p>or'
-				+ '<input type="button" value="Try with empty dashboard" id="try-' + this.block.id + '">'
-			+ '</p>';
+			+ '<p><input type="button" value="Try with empty dashboard" id="try-' + this.block.id + '"></p>'
+			+ '<p>upload json file<input type="file" id="upload-' + this.block.id + '" value=""></p>';
 		// for a user
 		if ("Guest" != ROSDASH.userConf.name)
 		{
@@ -3170,6 +3169,23 @@ ROSDASH.userWelcome.prototype.init = function (input)
 		$("#try-" + that.block.id).click(function ()
 		{
 			location.replace("editor.html?owner=index&panel=empty");
+		});
+		// callback of uploading json file
+		var fileInput = document.getElementById('upload-' + this.block.id);
+		fileInput.addEventListener('change', function(e) {
+			var file = fileInput.files[0];
+			var textType = /text.*/;
+			if (true || file.type.match(textType))
+			{
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					//fileDisplayArea.innerText = reader.result;
+					ROSDASH.uploadJson(reader.result);
+				}
+				reader.readAsText(file);	
+			} else {
+				console.debug("File not supported", file, e);
+			}
 		});
 		if ("Guest" != ROSDASH.userConf.name)
 		{

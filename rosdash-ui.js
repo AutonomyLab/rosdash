@@ -806,10 +806,13 @@ ROSDASH.initToolbar = function ()
 				url += '&selected=' + ROSDASH.selectedWidget;
 			}
 			window.open(url);*/
+			// switch to panel
 			ROSDASH.showDiagram(false);
 			ROSDASH.showPanel(true);
 			ROSDASH.showSidebar();
-			//ROSDASH.startPanel(ROSDASH.queryString.owner, ROSDASH.queryString.panel, ROSDASH.queryString.selected);
+			$("#dash").empty();
+			ROSDASH.widgets = new Object();
+			ROSDASH.startPanel(ROSDASH.queryString.owner, ROSDASH.queryString.panel, ROSDASH.queryString.selected);
 			break;
 		// open the corresponding editor
 		case "editor":
@@ -912,23 +915,6 @@ ROSDASH.resetEditorToolbar = function ()
 	ROSDASH.toolbar.addButton("panel", ++ count, "dashboard", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("json", ++ count, "json editor", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
-	ROSDASH.toolbar.addButton("upload", ++ count, 'upload<input type="file" id="fileInput">', "", "");
-	var fileInput = document.getElementById('fileInput');
-	fileInput.addEventListener('change', function(e) {
-		var file = fileInput.files[0];
-		var textType = /text.*/;
-		if (file.type.match(textType))
-		{
-			var reader = new FileReader();
-			reader.onload = function(e) {
-				//fileDisplayArea.innerText = reader.result;
-				ROSDASH.uploadJson(reader.result);
-			}
-			reader.readAsText(file);	
-		} else {
-			console.debug("File not supported", file, e);
-		}
-	});
 }
 // reset the items in the toolbar for diagram
 ROSDASH.resetDiagramToolbar = function ()
