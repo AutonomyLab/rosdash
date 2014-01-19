@@ -1,9 +1,8 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<title>ROSDASH Panel Editor</title>
-		<!-- load jquery library -->
+		<title>ROSDASH Editor</title>
+		<!-- jquery -->
 		<script src="lib/jquery-2.0.3.min.js"></script>
 		<script src="lib/jquery-ui-1.10.3/ui/jquery-ui.js"></script>
 
@@ -36,7 +35,7 @@
 		<script src="lib/roslibjs/include/EventEmitter2/eventemitter2.js"></script>
 		<script src="lib/roslibjs/build/roslib.js"></script>
 		<!-- jsoneditor -->
-		<link rel="stylesheet" href="lib/FlexiJsonEditor/jsoneditor.css"/>
+		<link rel="stylesheet" href="lib/FlexiJsonEditor/jsoneditor2.css"/>
 		<script src="lib/FlexiJsonEditor/json2.js"></script>
 		<script src="lib/FlexiJsonEditor/jquery.jsoneditor.js"></script>
 		<!-- eventemitter -->
@@ -54,11 +53,11 @@ $(function() {
 	</head>
 	<body style="background-color:AliceBlue;">
 		<div id="toolbarObj"></div>
-		<div style="background-color: MediumTurquoise; position: absolute; left: 0px; top: 50px; width: 200px; height: 100%; z-index: 10;">
+		<div id="sidebar" style="background-color: MediumTurquoise; position: absolute; left: 0px; top: 50px; width: 160px; height: 100%; z-index: 10;">
 			<div id="rosform"></div>
 			<div id="jsoneditor" class="json-editor"></div>
 		</div>
-		<ul id="dash" style="position: absolute; left: 200px;"></ul>
-		<div id="cy" style="visibility: hidden; background-color:AliceBlue; height: 94%; width: 87%; position: absolute; left: 200px; top: 50px;"></div>
+		<ul id="dash" style="position: absolute; left: 160px;"></ul>
+		<div id="cy" style="visibility: hidden; background-color:AliceBlue; height: 94%; width: 87%; position: absolute; left: 160px; top: 50px;"></div>
 	</body>
 </html>

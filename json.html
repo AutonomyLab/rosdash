@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title>ROSDASH JSON Editor</title>
+		<!-- jquery -->
 		<script src="lib/jquery-2.0.3.min.js"></script>
+		<!-- jsoneditor -->
+		<link rel="stylesheet" href="lib/FlexiJsonEditor/jsoneditor.css"/>
 		<script src="lib/FlexiJsonEditor/json2.js"></script>
 		<script src="lib/FlexiJsonEditor/jquery.jsoneditor.js"></script>
-		<link rel="stylesheet" href="lib/FlexiJsonEditor/jsoneditor.css"/>
 		<!-- eventemitter -->
 		<script type="text/javascript" src="lib/EventEmitter/EventEmitter.min.js"></script>
 		<!-- rosdash -->
 		<script src="rosdash.js"></script>
+		<script src="rosdash-ui.js"></script>
 		<script src="rosdash-widgets.js"></script>
-    <style>
+		<style>
         body {
           padding: 0 70px;
         }
@@ -118,30 +122,31 @@
 		  width: 600px;
 		}
     </style>
-	<script type="text/javascript">
-$(document).ready(function() {
+		<script type="text/javascript">
+$(function() {
 	ROSDASH.startJsonEditor(ROSDASH.queryString.src);
 });
-	</script>
-</head>
-<body>
-    <h1>
-        <span>ROSDASH JSON Editor</span>
-    </h1>
-    <div id="legend">
-        <span id="expander">Expand all</span>
-        <span class="array">array</span>
-        <span class="object">object</span>
-        <span class="string">string</span>
-        <span class="number">number</span>
-        <span class="boolean">boolean</span>
-        <span class="null">null</span>
-        <span>Remove item by deleting a property name.</span>
-        <button type="button" id="reload">reload</button>
-        <button type="button" id="save">save</button>
-    </div>
-    <div id="editor" class="json-editor"></div>
-    <p id="json-note">Note that you can edit your JSON directly in the textarea below. The JSON viewer will get updated when you leave the field.</p>
-    <textarea id="json" rows="50" cols="60"></textarea>
-</body>
+		</script>
+	</head>
+	<body style="background-color:AliceBlue;">
+		<div id="toolbarObj"></div>
+		<h1>
+			<span>ROSDASH JSON Editor</span>
+		</h1>
+		<div id="legend">
+			<span id="expander">Expand all</span>
+			<span class="array">array</span>
+			<span class="object">object</span>
+			<span class="string">string</span>
+			<span class="number">number</span>
+			<span class="boolean">boolean</span>
+			<span class="null">null</span>
+			<span>Remove item by deleting a property name.</span>
+			<button type="button" id="reload">reload</button>
+			<button type="button" id="save">save</button>
+		</div>
+		<div id="editor" class="json-editor"></div>
+		<p id="json-note">Note that you can edit your JSON directly in the textarea below. The JSON viewer will get updated when you leave the field.</p>
+		<textarea id="json" rows="50" cols="60"></textarea>
+	</body>
 </html>

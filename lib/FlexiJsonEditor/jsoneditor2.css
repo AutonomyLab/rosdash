@@ -1,6 +1,6 @@
 .json-editor { 
-  margin-left: 10px;
-  padding: 20px;
+  margin-left: 1px;
+  padding: 2px;
 }
 
 .json-editor.expanded .item { 
@@ -19,17 +19,17 @@
 
 .json-editor .value { 
   background-color: #ECF3C3;
-  width: 600px;
+  width: 150px;
 }
 .json-editor .property { 
-  width: 154px;
+  width: 104px;
   background-color: #B1C639;
   color: white;
   font-weight: bold;
   text-shadow: 1px 1px 1px black;
 }
 .json-editor button.property { 
-  width: 160px;
+  width: 110px;
 }
 
 .json-editor .editing { 

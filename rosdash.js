@@ -155,7 +155,6 @@ ROSDASH.logOut = function ()
 // dashboard owner configuration
 ROSDASH.dashboardConf = {
 	// basic
-	version: "0.1",
 	name: "index",
 	discrip: "",
 	panel_name: "index",
@@ -503,7 +502,7 @@ ROSDASH.jsonReadyFunc = function ()
 		//@deprecated
 		//ROSDASH.comparePanel();
 		break;
-	case "jsoneditor":
+	case "json":
 		ROSDASH.jsonEditorLoadSuccess = true;
 		// run jsoneditor
 		ROSDASH.runJsonEditor(ROSDASH.jsonLoadList[ROSDASH.jsonEditorSrc].data);
@@ -2330,23 +2329,11 @@ ROSDASH.loadPanel = function (json)
 // create a json representing a dashboard
 ROSDASH.getPanelJson = function ()
 {
-	var json = {
-		user: ROSDASH.dashboardConf.name,
-		panel_name: ROSDASH.dashboardConf.panel_name,
-		version: ROSDASH.version,
-		view_type: "panel",
-		ros_host: ROSDASH.dashboardConf.ros_host,
-		ros_port: ROSDASH.dashboardConf.ros_port,
-		disable_selection: ROSDASH.dashboardConf.disable_selection,
-		run_msec: ROSDASH.dashboardConf.run_msec,
-		widget_width: ROSDASH.dashboardConf.widget_width,
-		widget_height: ROSDASH.dashboardConf.widget_height,
-		header_height: ROSDASH.dashboardConf.header_height,
-		content_height: ROSDASH.dashboardConf.content_height,
-		widgets: ROSDASH.widgets,
-		block: new Object(),
-		edge: new Array()
-	};
+	var json = ROSDASH.dashboardConf;
+	json.version = ROSDASH.version;
+	json.widgets = ROSDASH.widgets;
+	json.block = new Object();
+	json.edge = new Array();
 	if ("cy" in window)
 	{
 		// don't save popups into file
@@ -2495,7 +2482,7 @@ ROSDASH.jsonEditorJson = {
 };
 ROSDASH.startJsonEditor = function (src)
 {
-	ROSDASH.dashboardConf.view_type = "jsoneditor";
+	ROSDASH.dashboardConf.view_type = "json";
 	ROSDASH.jsonEditorSrc = src;
 	//ROSDASH.initToolbar();
     $('#json').change(function() {
