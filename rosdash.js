@@ -91,7 +91,10 @@ ROSDASH.showPage = function (from, to)
 		$("#cy").css("visibility", "hidden");
 		break;
 	case "json":
-		//$("#dash").css("visibility", "hidden");
+		$("#json").css("visibility", "hidden");
+		break;
+	case "docs":
+		$("#docs").css("visibility", "hidden");
 		break;
 	}
 	switch (to)
@@ -109,7 +112,12 @@ ROSDASH.showPage = function (from, to)
 		ROSDASH.resetDiagramToolbar();
 		break;
 	case "json":
-		//$("#dash").css("visibility", "inherit");
+		$("#json").css("visibility", "inherit");
+		ROSDASH.resetJsonToolbar();
+		ROSDASH.startJsonEditor(ROSDASH.queryString.src);
+		break;
+	case "docs":
+		$("#docs").css("visibility", "inherit");
 		ROSDASH.resetJsonToolbar();
 		break;
 	default:
@@ -403,21 +411,21 @@ ROSDASH.startJsonEditor = function (src)
 	ROSDASH.dashboardConf.view_type = "json";
 	ROSDASH.jsonEditorSrc = src;
 	//ROSDASH.initToolbar();
-    $('#json').change(function() {
-        var val = $('#json').val();
+    $('#jsontext').change(function() {
+        var val = $('#jsontext').val();
         if (val) {
             try { ROSDASH.jsonEditorJson = JSON.parse(val); }
             catch (e) { alert('Error in parsing json. ' + e); }
         } else {
             ROSDASH.jsonEditorJson = {};
         }
-        $('#editor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
+        $('#jsoneditor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
 				ROSDASH.jsonEditorJson = data;
-				$('#json').val(JSON.stringify(json));
+				$('#jsontext').val(JSON.stringify(json));
 			}, propertyclick: null });
     });
     $('#expander').click(function() {
-        var editor = $('#editor');
+        var editor = $('#jsoneditor');
         editor.toggleClass('expanded');
         $(this).text(editor.hasClass('expanded') ? 'Collapse' : 'Expand all');
     });
@@ -446,11 +454,11 @@ ROSDASH.startJsonEditor = function (src)
 }
 ROSDASH.runJsonEditor = function (json)
 {
-	ROSDASH.jsonEditorJson = json;
-	$('#json').val(JSON.stringify(ROSDASH.jsonEditorJson));
-    $('#editor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
+	//ROSDASH.jsonEditorJson = json;
+	$('#jsontext').val(JSON.stringify(ROSDASH.jsonEditorJson));
+    $('#jsoneditor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
 			ROSDASH.jsonEditorJson  = data;
-			$('#json').val(JSON.stringify(json));
+			$('#jsontext').val(JSON.stringify(json));
 		}, propertyclick: null });
 }
 

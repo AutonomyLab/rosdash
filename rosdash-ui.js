@@ -469,7 +469,7 @@ ROSDASH.callJsonForm = function (block)
 		}
 		break;
 	}
-	$('#jsoneditor').jsonEditor(json,
+	$('#jsonsidebar').jsonEditor(json,
 	{
 		change: ROSDASH.updateJsonForm,
 		propertyclick: null
@@ -618,9 +618,6 @@ ROSDASH.initToolbar = function ()
 		case "logo":
 			window.open('index.html', "_blank");
 			break;
-		case "docs":
-			window.open('docs/index.html', "_blank");
-			break;
 		// go to user's page
 		case "user":
 			var user_text = ROSDASH.userConf.name;
@@ -727,11 +724,9 @@ ROSDASH.initToolbar = function ()
 		case "diagram":
 		case "panel":
 		case "editor":
-			ROSDASH.showPage(ROSDASH.dashboardConf.view_type, id);
-			break;
 		case "json":
-			var url = 'json.html';
-			window.open(url);
+		case "docs":
+			ROSDASH.showPage(ROSDASH.dashboardConf.view_type, id);
 			break;
 		default:
 			console.error("unknown button in toolbar: ", id);
@@ -854,6 +849,31 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+}
+ROSDASH.resetJsonToolbar = function ()
+{
+	ROSDASH.toolbar.forEachItem(function(itemId)
+	{
+		ROSDASH.toolbar.removeItem(itemId);
+	});
+	var count = 0;
+	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "logo.jpg", "logo.jpg");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.dashboardConf.panel_name);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	var ros_host = (undefined !== ROSDASH.dashboardConf.ros_host && "" != ROSDASH.dashboardConf.ros_host) ? ROSDASH.dashboardConf.ros_host : "disconnected";
+	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	//ROSDASH.toolbar.addButton("download", ++ count, "download", "text_document.gif", "text_document.gif");
+	ROSDASH.toolbar.addButton("panel", ++ count, "dashboard", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
 }
 
 //@deprecated add user name to toolbar. called when json files are ready

@@ -133,20 +133,22 @@ $(function() {
 		<h1>
 			<span>ROSDASH JSON Editor</span>
 		</h1>
-		<div id="legend">
-			<span id="expander">Expand all</span>
-			<span class="array">array</span>
-			<span class="object">object</span>
-			<span class="string">string</span>
-			<span class="number">number</span>
-			<span class="boolean">boolean</span>
-			<span class="null">null</span>
-			<span>Remove item by deleting a property name.</span>
-			<button type="button" id="reload">reload</button>
-			<button type="button" id="save">save</button>
+		<div style="visibility: inherit;">
+			<div id="legend">
+				<span id="expander">Expand all</span>
+				<span class="array">array</span>
+				<span class="object">object</span>
+				<span class="string">string</span>
+				<span class="number">number</span>
+				<span class="boolean">boolean</span>
+				<span class="null">null</span>
+				<span>Remove item by deleting a property name.</span>
+				<button type="button" id="reload">reload</button>
+				<button type="button" id="save">save</button>
+			</div>
+			<div id="editor" class="json-editor"></div>
+			<p id="json-note">Note that you can edit your JSON directly in the textarea below. The JSON viewer will get updated when you leave the field.</p>
+			<textarea id="json" rows="50" cols="60"></textarea>
 		</div>
-		<div id="editor" class="json-editor"></div>
-		<p id="json-note">Note that you can edit your JSON directly in the textarea below. The JSON viewer will get updated when you leave the field.</p>
-		<textarea id="json" rows="50" cols="60"></textarea>
 	</body>
 </html>
