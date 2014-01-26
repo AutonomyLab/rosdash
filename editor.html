@@ -47,7 +47,7 @@
 		<script type="text/javascript">
 $(function() {
 	ROSDASH.connectROS(ROSDASH.queryString.host, ROSDASH.queryString.port);
-	ROSDASH.startEditor(ROSDASH.queryString.owner, ROSDASH.queryString.panel, ROSDASH.queryString.selected);
+	ROSDASH.loadDash(ROSDASH.queryString.panel);
 });
 		</script>
 	</head>
@@ -58,6 +58,7 @@ $(function() {
 			<div id="jsoneditor" class="json-editor"></div>
 		</div>
 		<ul id="dash" style="position: absolute; left: 160px;"></ul>
+		<ul id="editor" style="position: absolute; left: 160px;"></ul>
 		<div id="cy" style="visibility: hidden; background-color:AliceBlue; height: 94%; width: 87%; position: absolute; left: 160px; top: 50px;"></div>
 	</body>
 </html>
