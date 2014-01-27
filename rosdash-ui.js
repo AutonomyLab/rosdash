@@ -774,7 +774,7 @@ ROSDASH.resetPanelToolbar = function ()
 	//ROSDASH.toolbar.addButton("download", ++ count, "download", "text_document.gif", "text_document.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
-	ROSDASH.toolbar.addButton("json", ++ count, "json editor", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("json", ++ count, "json", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
@@ -804,7 +804,7 @@ ROSDASH.resetEditorToolbar = function ()
 	//ROSDASH.toolbar.addButton("download", ++ count, "download", "text_document.gif", "text_document.gif");
 	ROSDASH.toolbar.addButton("panel", ++ count, "dashboard", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
-	ROSDASH.toolbar.addButton("json", ++ count, "json editor", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("json", ++ count, "json", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
@@ -836,7 +836,7 @@ ROSDASH.resetDiagramToolbar = function ()
 	//ROSDASH.toolbar.addButton("download", ++ count, "download", "text_document.gif", "text_document.gif");
 	ROSDASH.toolbar.addButton("panel", ++ count, "dashboard", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
-	ROSDASH.toolbar.addButton("json", ++ count, "json editor", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("json", ++ count, "json", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
@@ -924,7 +924,7 @@ ROSDASH.onChange = function ()
 	{
 		return;
 	}
-	ROSDASH.toolbar.setItemText("json", '<font color="red">unsaved</font>');
+	ROSDASH.toolbar.setItemText("json", '<font color="red">json</font>');
 }
 ROSDASH.ee.addListener("change", ROSDASH.onChange);
 // when saves, notify user
