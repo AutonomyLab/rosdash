@@ -436,6 +436,7 @@ ROSDASH.startDiagram = function (canvas)
 		ready: function ()
 		{
 			window.cy = this;
+			console.debug(1)
 		}
 	});
 }
@@ -1231,6 +1232,7 @@ ROSDASH.getWidgetEditableProperty = function (id)
 // modify the content of a widget directly
 ROSDASH.updateWidgetContent = function (id, content)
 {
+	console.debug(id, content)
 	$("#dash").sDashboard("setContentById", id, content);
 }
 ROSDASH.findWidget = function (id)
@@ -2328,6 +2330,7 @@ ROSDASH.initDiagramConnection = function (id)
 // traverse the diagram to obtain the connection relations
 ROSDASH.traverseDiagram = function ()
 {
+	ROSDASH.diagram = ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data;
 	// for each edge
 	for (var i in ROSDASH.diagram.edge)
 	{
@@ -2687,6 +2690,7 @@ ROSDASH.initWidgets = function ()
 			}
 		}
 	}
+	ROSDASH.runStatus = "initialized";
 }
 ROSDASH.callWidgetInit = function (id)
 {
@@ -2699,6 +2703,7 @@ ROSDASH.callWidgetInit = function (id)
 	}
 }
 
+ROSDASH.runStatus = "uninitialized";
 ROSDASH.doneCount = 0;
 // cycles executed in ROSDASH
 ROSDASH.cycle = -1;
@@ -2707,6 +2712,7 @@ ROSDASH.runWidgets = function ()
 	// count how many cycles executed
 	++ ROSDASH.cycle;
 	ROSDASH.ee.emitEvent("cycleBegin");
+	ROSDASH.runStatus = "running";
 	ROSDASH.doneCount = 0;
 	var last_count = -1;
 	// if ROSDASH.doneCount does not change, the diagram execution ends

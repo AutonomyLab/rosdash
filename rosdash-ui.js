@@ -728,6 +728,17 @@ ROSDASH.initToolbar = function ()
 		case "docs":
 			ROSDASH.showPage(ROSDASH.dashboardConf.view_type, id);
 			break;
+		case "run":
+			if ("uninitialized" == ROSDASH.runStatus)
+			{
+				ROSDASH.traverseDiagram();
+			} else if ("paused" == ROSDASH.runStatus)
+			{
+				//
+			}
+			break;
+		case "stop":
+			break;
 		default:
 			console.error("unknown button in toolbar: ", id);
 			break;
@@ -772,10 +783,15 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
 	//ROSDASH.toolbar.addButton("download", ++ count, "download", "text_document.gif", "text_document.gif");
+	ROSDASH.toolbar.addButton("dashboard", ++ count, "dashboard", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("json", ++ count, "json", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addButton("run", ++ count, "run", "settings.gif", "settings.gif");
+	ROSDASH.toolbar.addButton("stop", ++ count, "stop", "settings.gif", "settings.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
 	//ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
@@ -803,6 +819,7 @@ ROSDASH.resetEditorToolbar = function ()
 
 	//ROSDASH.toolbar.addButton("download", ++ count, "download", "text_document.gif", "text_document.gif");
 	ROSDASH.toolbar.addButton("panel", ++ count, "dashboard", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("json", ++ count, "json", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
@@ -836,6 +853,7 @@ ROSDASH.resetDiagramToolbar = function ()
 	//ROSDASH.toolbar.addButton("download", ++ count, "download", "text_document.gif", "text_document.gif");
 	ROSDASH.toolbar.addButton("panel", ++ count, "dashboard", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("json", ++ count, "json", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
@@ -871,6 +889,7 @@ ROSDASH.resetJsonToolbar = function ()
 	ROSDASH.toolbar.addButton("panel", ++ count, "dashboard", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("json", ++ count, "json", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
