@@ -633,7 +633,7 @@ ROSDASH.initToolbar = function ()
 		// connect with ROS
 		case "connect":
 			//ROSDASH.connectROS(ROSDASH.toolbar.getValue("input"));
-			window.open('panel.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + ROSDASH.dashboardConf.panel_name + '&host=' + ROSDASH.toolbar.getValue("input") + '&port=9090', "_blank");
+			window.open('index.html?owner=' + ROSDASH.dashboardConf.name + '&panel=' + ROSDASH.dashboardConf.panel_name + '&host=' + ROSDASH.toolbar.getValue("input") + '&port=9090', "_blank");
 			break;
 		// find a widget or block
 		case "find":

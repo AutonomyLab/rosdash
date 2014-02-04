@@ -910,15 +910,16 @@ ROSDASH.waitJson = function ()
 // functions called after jsons are ready
 ROSDASH.jsonReadyFunc = function ()
 {
-		// parse msgs after loading json
-		ROSDASH.loadMsgDef();
-		// load widgets and blocks
-		ROSDASH.loadWidgetDef();
-		// show panel
-		ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
-		// run diagram at the same time
-		ROSDASH.runDiagram(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
-		ROSDASH.ee.emitEvent("editorReady");
+	ROSDASH.connectROS(ROSDASH.dashboardConf.ros_host, ROSDASH.dashboardConf.ros_port);
+	// parse msgs after loading json
+	ROSDASH.loadMsgDef();
+	// load widgets and blocks
+	ROSDASH.loadWidgetDef();
+	// show panel
+	ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
+	// run diagram at the same time
+	ROSDASH.runDiagram(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
+	ROSDASH.ee.emitEvent("editorReady");
 	// depend on the page view type
 	/*switch (ROSDASH.dashboardConf.view_type)
 	{
@@ -1232,7 +1233,6 @@ ROSDASH.getWidgetEditableProperty = function (id)
 // modify the content of a widget directly
 ROSDASH.updateWidgetContent = function (id, content)
 {
-	console.debug(id, content)
 	$("#dash").sDashboard("setContentById", id, content);
 }
 ROSDASH.findWidget = function (id)
@@ -2847,6 +2847,7 @@ ROSDASH.connectROS = function (host, port)
 		}, 200);
 		return;
 	}
+	// create a ROS
 	ROSDASH.ros = new ROSLIB.Ros();
 	ROSDASH.ros.on('error', function(error) {
 		console.error("ROS connection error", host, port, error);
@@ -2854,7 +2855,7 @@ ROSDASH.connectROS = function (host, port)
 	});
 	ROSDASH.ros.on('connection', function() {
 		ROSDASH.rosConnected = true;
-		console.log('ROS connection made: ', host + ":" + port);
+		console.log('ROS connection made', host + ":" + port);
 		ROSDASH.setRosValue(host, port);
 		ROSDASH.getROSNames(ROSDASH.ros);
 		// wait until all widgets are ready
@@ -2866,11 +2867,12 @@ ROSDASH.connectROS = function (host, port)
 	});
 	ROSDASH.ros.on('close', function() {
 		ROSDASH.rosConnected = false;
-		console.log('ROS connection closed: ', host + ":" + port);
+		console.log('ROS connection closed', host + ":" + port);
 		ROSDASH.ros = undefined;
 		// emit event for ros connected
 		ROSDASH.ee.emitEvent('rosClosed');
 	});
+	// connect ROS
 	ROSDASH.ros.connect('ws://' + host + ':' + port);
 }
 // ROS item list for sidebar
@@ -2882,16 +2884,16 @@ ROSDASH.rosNames = {
 // get existing ROS names from roslibjs
 ROSDASH.getROSNames = function (ros)
 {
-	ROSDASH.ros.getTopics(function (topics)
+	ros.getTopics(function (topics)
 	{
 		// deep copy
 		ROSDASH.rosNames.topic["_"] = $.extend(true, [], topics);
 	});
-	ROSDASH.ros.getServices(function (services)
+	ros.getServices(function (services)
 	{
 		ROSDASH.rosNames.service["_"] = $.extend(true, [], services);
 	});
-	ROSDASH.ros.getParams(function (params)
+	ros.getParams(function (params)
 	{
 		ROSDASH.rosNames.param["_"] = $.extend(true, [], params);
 	});
