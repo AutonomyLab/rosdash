@@ -731,7 +731,8 @@ ROSDASH.initToolbar = function ()
 		case "run":
 			if ("uninitialized" == ROSDASH.runStatus)
 			{
-				ROSDASH.traverseDiagram();
+				//ROSDASH.parseDiagram(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
+				ROSDASH.parseDiagram( ROSDASH.getPanelJson() );
 			} else if ("paused" == ROSDASH.runStatus)
 			{
 				//
