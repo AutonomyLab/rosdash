@@ -287,7 +287,6 @@ ROSDASH.Vumeter.prototype.init = function ()
 		// update vumeter periodically
 	    setInterval(function()
 	    {
-			console.debug(that.left_val, that.right_val)
 	        chart.series[0].points[0].update(that.left_val, false);
 	        chart.series[1].points[0].update(that.right_val, false);
 	        chart.redraw();
@@ -330,6 +329,7 @@ ROSDASH.ToggleButton = function (block)
 }
 ROSDASH.ToggleButton.prototype.addWidget = function (widget)
 {
+	console.debug(widget)
 	widget.widgetContent = '<input id="' + this.canvas_id + '" type="checkbox" checked />';
 	return widget;
 }
@@ -998,7 +998,6 @@ ROSDASH.Param.prototype.run = function (input)
 }
 
 
-
 //////////////////////////////////// networks
 
 
@@ -1095,42 +1094,6 @@ ROSDASH.cyNetwork.prototype.init = function ()
 ROSDASH.cyNetwork.prototype.run = function (input)
 {
 	return {o0: this.cy};
-}
-
-// rosdash diagram by cytoscape.js
-//@bug too many bugs
-ROSDASH.cyDiagram = function (block)
-{
-	this.block = block;
-	this.canvas = "cy";
-	this.duplicate = false;
-	this.cy;
-	this.init_success = false;
-}
-ROSDASH.cyDiagram.prototype.addWidget = function (widget)
-{
-	if ($("#" + this.canvas).length <= 0)
-	{
-		widget.widgetContent = '<div id="' + this.canvas + '" style="width:100%; height:100%;"></div>';
-	} else
-	{
-		this.duplicate = true;
-	}
-	return widget;
-}
-ROSDASH.cyDiagram.prototype.init = function ()
-{
-	if ($("#" + this.canvas).length <= 0)
-	{
-		return false;
-	}
-	if (this.duplicate || this.init_success)
-	{
-		return;
-	}
-	ROSDASH.startDiagram(this.canvas);
-	this.init_success = true;
-	return true;
 }
 
 // network by arbor.js
@@ -3180,7 +3143,7 @@ ROSDASH.userWelcome.prototype.init = function (input)
 				}
 				reader.readAsText(file);	
 			} else {
-				console.debug("File not supported", file, e);
+				console.error("File not supported", file, e);
 			}
 		});
 		if ("Guest" != ROSDASH.userConf.name)

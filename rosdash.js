@@ -1097,9 +1097,10 @@ ROSDASH.setWidgetContent = function (widget)
 		widget.widgetContent = "";
 		break;
 	}
+	
 	// set default title
 	widget.widgetTitle = widget.widgetType + " " + widget.number;
-	// if widget instantiated. if editor, addWidget is not executed
+	// if widget instantiated
 	if (undefined !== ROSDASH.connection[widget.widgetId] && undefined !== ROSDASH.connection[widget.widgetId].instance)
 	{
 		// set default title from config
