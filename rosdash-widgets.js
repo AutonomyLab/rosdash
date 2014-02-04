@@ -1,4 +1,476 @@
-//@note input.length does not work
+//////////////////////////////////// output
+
+
+// A text box.
+ROSDASH.Text = function (block)
+{
+	this.block = block;
+}
+ROSDASH.Text.prototype.addWidget = function (widget)
+{
+	// set title and content by config
+	if (undefined !== this.block.config.title)
+	{
+		widget.widgetTitle = this.block.config.title;
+	}
+	if (undefined !== this.block.config.content)
+	{
+		widget.widgetTitle = this.block.config.content;
+	}
+	return widget;
+}
+//@input	content
+//@output	none
+ROSDASH.Text.prototype.run = function (input)
+{
+	// if json, transform into string
+	if (typeof input[0] == "object" || typeof input[0] == "array")
+	{
+		input[0] = JSON.stringify(input[0]);
+	}
+	// update content by input
+	ROSDASH.updateWidgetContent(this.block.id, input[0]);
+	return;
+}
+
+// A text box with speaking library.
+ROSDASH.Speech = function (block)
+{
+	this.block = block;
+	this.canvas_id = this.block.id;
+	this.content = this.block.config.content || "";
+}
+ROSDASH.Speech.prototype.addWidget = function (widget)
+{
+	//@todo add a button for speak
+	widget.widgetTitle += ' <input type="button" id="' + this.canvas_id + '" value="speak" /><span id="audio"></span>';
+	widget.widgetContent = this.content;
+	return widget;
+}
+ROSDASH.Speech.prototype.init = function ()
+{
+	// if button does not exist
+	if ($("#" + this.canvas_id).length <= 0)
+	{
+		return false;
+	}
+	var that = this;
+	// append the callback function to button
+	$("#" + this.canvas_id).click(function ()
+	{
+		// speak by speak.js
+		speak(that.content);
+	});
+	return true;
+}
+//@input	the content to speak
+//@output	none
+ROSDASH.Speech.prototype.run = function (input)
+{
+	// transform into string
+	if (typeof input[0] == "object" || typeof input[0] == "array")
+	{
+		this.content = JSON.stringify(input[0]);
+		var substrings = string.split(this.content);
+		// if the input has only one element with key as "data" (i.e. rostype == "String")
+		if (substrings.length == 2 && ("data" in input[0]))
+		{
+			this.content = JSON.stringify(input[0].data);
+		}
+	} else
+	{
+		this.content = input[0];
+	}
+	// if new message comes, speak
+	//speak(this.content);
+	ROSDASH.updateWidgetContent(this.block.id, this.content);
+	return;
+}
+
+// Table
+ROSDASH.Table = function (block)
+{
+	this.block = block;
+	this.titles = this.block.config.table_titles || [""];
+}
+ROSDASH.Table.prototype.addWidget = function (widget)
+{
+	widget.widgetContent = {
+		"aaData" : [[]],
+		"aoColumns" : [],
+		"iDisplayLength": 25,
+		"aLengthMenu": [[1, 25, 50, -1], [1, 25, 50, "All"]],
+		"bPaginate": true,
+		"bAutoWidth": false
+	};
+	for (var i in this.titles)
+	{
+		widget.widgetContent.aoColumns.push({sTitle : this.titles[i]});
+		widget.widgetContent.aaData[0].push("");
+	}
+	return widget;
+}
+//@input	contents
+//@output	none
+ROSDASH.Table.prototype.run = function (input)
+{
+	// if not a matrix, transform into matrix
+	if (typeof input[0] != "array" && typeof input[0] != "object")
+	{
+		var tmp = input[0];
+		input[0] = new Array();
+		input[0].push(new Array());
+		input[0][0].push(tmp);
+	}
+	// for content
+	var aaData = new Array();
+	for (var i in input[0])
+	{
+		var tmp = new Array();
+		for (var j in input[0][i])
+		{
+			// handle special cases
+			if (typeof input[0][i][j] == "number")
+			{
+				tmp.push("" + input[0][i][j]);
+			} else if (undefined === input[0][i][j])
+			{
+				tmp.push("");
+			} else
+			{
+				tmp.push(input[0][i][j]);
+			}
+		}
+		// make content long enough
+		while (tmp.length < this.titles.length)
+		{
+			tmp.push("");
+		}
+		aaData.push(tmp);
+	}
+	// if empty
+	if (aaData.length == 0)
+	{
+		var tmp = new Array();
+		for (var j = 0; j < this.titles.length; ++ j)
+		{
+			tmp.push("");
+		}
+		aaData.push(tmp);
+	}
+	// make content long enough
+	if (aaData[0].length < this.titles.length)
+	{
+		for (var j = aaData[0].length; j < this.titles.length; ++ j)
+		{
+			aaData[0].push("");
+		}
+	}
+	$("#dash").sDashboard("refreshTableById", this.block.id, aaData);
+}
+
+// V U meter
+//@todo input and output
+ROSDASH.Vumeter = function (block)
+{
+	this.block = block;
+	this.canvas_id = this.block.id;
+	// the default config for vumeter
+	this.config = (("config" in this.block) && ("vumeter" in this.block.config)) ? this.block.config.vumeter : {
+	    chart: {
+	        type: 'gauge',
+	        plotBorderWidth: 1,
+	        plotBackgroundColor: {
+	        	linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+	        	stops: [
+	        		[0, '#FFF4C6'],
+	        		[0.3, '#FFFFFF'],
+	        		[1, '#FFF4C6']
+	        	]
+	        },
+	        plotBackgroundImage: null,
+	        height: 200
+	    },
+	    title: {
+	        text: 'VU meter'
+	    },
+	    pane: [{
+	        startAngle: -45,
+	        endAngle: 45,
+	        background: null,
+	        center: ['25%', '145%'],
+	        size: 300
+	    }, {
+	    	startAngle: -45,
+	    	endAngle: 45,
+	    	background: null,
+	        center: ['75%', '145%'],
+	        size: 300
+	    }],
+	    yAxis: [{
+	        min: 0,
+	        max: 1,
+	        minorTickPosition: 'outside',
+	        tickPosition: 'outside',
+	        labels: {
+	        	rotation: 'auto',
+	        	distance: 20
+	        },
+	        plotBands: [{
+	        	from: 0,
+	        	to: 6,
+	        	color: '#C02316',
+	        	innerRadius: '100%',
+	        	outerRadius: '105%'
+	        }],
+	        pane: 0,
+	        title: {
+	        	text: 'VU<br/><span style="font-size:8px">Channel A</span>',
+	        	y: -40
+	        }
+	    }, {
+	        min: 0,
+	        max: 1000,
+	        minorTickPosition: 'outside',
+	        tickPosition: 'outside',
+	        labels: {
+	        	rotation: 'auto',
+	        	distance: 20
+	        },
+	        plotBands: [{
+	        	from: 0,
+	        	to: 6,
+	        	color: '#C02316',
+	        	innerRadius: '100%',
+	        	outerRadius: '105%'
+	        }],
+	        pane: 1,
+	        title: {
+	        	text: 'VU<br/><span style="font-size:8px">Channel B</span>',
+	        	y: -40
+	        }
+	    }],
+	    plotOptions: {
+	    	gauge: {
+	    		dataLabels: {
+	    			enabled: false
+	    		},
+	    		dial: {
+	    			radius: '100%'
+	    		}
+	    	}
+	    },
+	    series: [{
+	        data: [-20],
+	        yAxis: 0
+	    }, {
+	        data: [-20],
+	        yAxis: 1
+	    }]
+	};
+	this.meter = undefined;
+	this.left_val = this.block.config.left || 0;
+	this.right_val = this.block.config.right || 0;
+}
+ROSDASH.Vumeter.prototype.addWidget = function (widget)
+{
+	widget.widgetContent = '<div id="' + this.canvas_id + '" style="width:80%; height:80%; margin: 0 auto;"></div>';
+	return widget;
+}
+ROSDASH.Vumeter.prototype.init = function ()
+{
+	var that = this;
+	this.meter = $('#' + this.canvas_id).highcharts(that.config,
+	// Let the music play
+	function (chart)
+	{
+		// update vumeter periodically
+	    setInterval(function()
+	    {
+			console.debug(that.left_val, that.right_val)
+	        chart.series[0].points[0].update(that.left_val, false);
+	        chart.series[1].points[0].update(that.right_val, false);
+	        chart.redraw();
+	    }, 500);
+	});
+	return true;
+}
+//@input	left value, and right value
+//@output	meter object
+ROSDASH.Vumeter.prototype.run = function (input)
+{
+	this.left_val = parseFloat(input[0]) || this.left_val;
+	this.right_val = parseFloat(input[1]) || this.right_val;
+	return {o0 : this.meter};
+}
+
+
+//////////////////////////////////// input
+
+
+// toggle button (don't use the name of switch because it is used)
+//@todo an array of buttons
+ROSDASH.ToggleButton = function (block)
+{
+	this.block = block;
+	this.canvas_id = "togglebutton_" + this.block.id;
+	this.button_id = "togglebutton2_" + this.block.id;
+	this.value = true;
+	// if multiple toggle buttons
+	if (("config" in this.block) && ("button_num" in this.block.config))
+	{
+		this.button_id = new Array();
+		this.value = new Array();
+		for (var i = 0; i < this.block.config.button_num; ++ i)
+		{
+			this.button_id.push("togglebutton2_" + this.block.id + "_" + i);
+			this.value.push(true);
+		}
+	}
+}
+ROSDASH.ToggleButton.prototype.addWidget = function (widget)
+{
+	widget.widgetContent = '<input id="' + this.canvas_id + '" type="checkbox" checked />';
+	return widget;
+}
+ROSDASH.ToggleButton.prototype.init = function ()
+{
+	var that = this;
+	// if a single button
+	if (typeof this.button_id != "array")
+	{
+		$('#' + this.canvas_id).wrap('<div id="' + this.button_id + '" class="switch" data-on-label="YES" data-off-label="NO" />').parent().bootstrapSwitch();
+		$('#' + this.button_id).on('switch-change', function (e, data) {
+			that.value = data.value;
+		});
+		//$('#toggle-state-switch').bootstrapSwitch('toggleState');
+		//$('#toggle-state-switch').bootstrapSwitch('setState', false); // true || false
+	} else // if multiple buttons
+	{
+		for (var i in this.button_id)
+		{
+			$('#' + this.canvas_id).wrap('<div id="' + this.button_id[i] + '" class="switch" data-on-label="YES" data-off-label="NO" />').parent().bootstrapSwitch();
+			$('#' + this.button_id[i]).on('switch-change', function (e, data) {
+				//@bug [i] does not work?
+				that.value[i] = data.value;
+			});
+		}
+	}
+	return true;
+
+}
+//@input	none
+//@output	the value of button or value list of buttons
+ROSDASH.ToggleButton.prototype.run = function (input)
+{
+	return {o0: this.value};
+}
+
+// a virtual joystick, support tablet
+ROSDASH.VirtualJoystick = function (block)
+{
+	this.block = block;
+	this.canvas_id = "VirtualJoystick-" + this.block.id;
+	this.joy_obj;
+	this.unlock = false;
+	this.joy = {
+		header : 
+		{
+			seq : 0,
+			stamp : 
+			{
+				sec : parseInt(new Date().getTime() / 1000),
+				nsec : parseInt(new Date().getTime() % 1000 * 1000000)
+			},
+			frame_id : ""
+		},
+		axes : [0, 0, 0, 0, 0, 0],
+		buttons : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	};
+	this.prev_joy;
+}
+ROSDASH.VirtualJoystick.prototype.addWidget = function (widget)
+{
+	widget.widgetTitle = this.block.id + ' <input type="button" id="' + this.canvas_id + '-lock" value="unlock" />';
+	widget.widgetContent = '<div id="' + this.canvas_id + '" style="width:100%; height:100%; -webkit-user-select: none; -moz-user-select: none;"></div>';
+	return widget;
+}
+ROSDASH.VirtualJoystick.prototype.init = function ()
+{
+	var that = this;
+	// click to change lock or unlock
+	$("#" + that.canvas_id + "-lock").click(function ()
+	{
+		if ("lock" == $("#" + that.canvas_id + "-lock").val())
+		{
+			that.unlock = false;
+			$("#" + that.canvas_id + "-lock").val("click to unlock");
+		} else
+		{
+			that.unlock = true;
+			$("#" + that.canvas_id + "-lock").val("click to lock");
+		}
+	});
+	//console.log("touchscreen for VirtualJoystick is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
+	this.joy_obj = new VirtualJoystick({
+		container		: document.getElementById(this.canvas_id),
+		mouseSupport	: true
+	});
+	return true;
+}
+//@input	none
+//@output	joy msg, VirtualJoystick object
+ROSDASH.VirtualJoystick.prototype.run = function (input)
+{
+	this.joy = {
+		header : 
+		{
+			seq : this.joy.header.seq + 1,
+			stamp : 
+			{
+				sec : parseInt(new Date().getTime() / 1000),
+				nsec : parseInt(new Date().getTime() % 1000 * 1000000)
+			},
+			frame_id : ""
+		},
+		axes : [Number(this.joy_obj.left() - this.joy_obj.right()), Number(this.joy_obj.up() - this.joy_obj.down()), 0, 0, 0, 0],
+		buttons : [Number(this.unlock), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	};
+	// check if joy is changed
+	if (undefined !== this.prev_joy)
+	{
+		var flag = false;
+		for (var i in this.joy.axes)
+		{
+			if (this.joy.axes[i] != this.prev_joy.axes[i])
+			{
+				flag = true;
+				break;
+			}
+		}
+		for (var i in this.joy.buttons)
+		{
+			if (this.joy.buttons[i] != this.prev_joy.buttons[i])
+			{
+				flag = true;
+				break;
+			}
+		}
+		if (! flag)
+		{
+			return {
+				o0: undefined,
+				o1: this.joy_obj
+			};
+		}
+	}
+	// deep copy
+	this.prev_joy = $.extend(true, [], this.joy);
+	return {
+		o0: this.joy,
+		o1: this.joy_obj
+	};
+}
 
 
 //////////////////////////////////// datatypes
@@ -525,482 +997,6 @@ ROSDASH.Param.prototype.run = function (input)
 	return {o0: that.output};
 }
 
-
-//////////////////////////////////// input
-
-
-// toggle button (don't use the name of switch because it is used)
-//@todo an array of buttons
-ROSDASH.ToggleButton = function (block)
-{
-	this.block = block;
-	this.canvas_id = "togglebutton_" + this.block.id;
-	this.button_id = "togglebutton2_" + this.block.id;
-	this.value = true;
-	// if multiple toggle buttons
-	if (("config" in this.block) && ("button_num" in this.block.config))
-	{
-		this.button_id = new Array();
-		this.value = new Array();
-		for (var i = 0; i < this.block.config.button_num; ++ i)
-		{
-			this.button_id.push("togglebutton2_" + this.block.id + "_" + i);
-			this.value.push(true);
-		}
-	}
-}
-ROSDASH.ToggleButton.prototype.addWidget = function (widget)
-{
-	widget.widgetContent = '<input id="' + this.canvas_id + '" type="checkbox" checked />';
-	return widget;
-}
-ROSDASH.ToggleButton.prototype.init = function ()
-{
-	var that = this;
-	// if a single button
-	if (typeof this.button_id != "array")
-	{
-		$('#' + this.canvas_id).wrap('<div id="' + this.button_id + '" class="switch" data-on-label="YES" data-off-label="NO" />').parent().bootstrapSwitch();
-		$('#' + this.button_id).on('switch-change', function (e, data) {
-			that.value = data.value;
-		});
-		//$('#toggle-state-switch').bootstrapSwitch('toggleState');
-		//$('#toggle-state-switch').bootstrapSwitch('setState', false); // true || false
-	} else // if multiple buttons
-	{
-		for (var i in this.button_id)
-		{
-			$('#' + this.canvas_id).wrap('<div id="' + this.button_id[i] + '" class="switch" data-on-label="YES" data-off-label="NO" />').parent().bootstrapSwitch();
-			$('#' + this.button_id[i]).on('switch-change', function (e, data) {
-				//@bug [i] does not work?
-				that.value[i] = data.value;
-			});
-		}
-	}
-	return true;
-
-}
-//@input	none
-//@output	the value of button or value list of buttons
-ROSDASH.ToggleButton.prototype.run = function (input)
-{
-	return {o0: this.value};
-}
-
-// a virtual joystick, support tablet
-ROSDASH.VirtualJoystick = function (block)
-{
-	this.block = block;
-	this.canvas_id = "VirtualJoystick-" + this.block.id;
-	this.joy_obj;
-	this.unlock = false;
-	this.joy = {
-		header : 
-		{
-			seq : 0,
-			stamp : 
-			{
-				sec : parseInt(new Date().getTime() / 1000),
-				nsec : parseInt(new Date().getTime() % 1000 * 1000000)
-			},
-			frame_id : ""
-		},
-		axes : [0, 0, 0, 0, 0, 0],
-		buttons : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-	};
-	this.prev_joy;
-}
-ROSDASH.VirtualJoystick.prototype.addWidget = function (widget)
-{
-	widget.widgetTitle = this.block.id + ' <input type="button" id="' + this.canvas_id + '-lock" value="unlock" />';
-	widget.widgetContent = '<div id="' + this.canvas_id + '" style="width:100%; height:100%; -webkit-user-select: none; -moz-user-select: none;"></div>';
-	return widget;
-}
-ROSDASH.VirtualJoystick.prototype.init = function ()
-{
-	var that = this;
-	// click to change lock or unlock
-	$("#" + that.canvas_id + "-lock").click(function ()
-	{
-		if ("lock" == $("#" + that.canvas_id + "-lock").val())
-		{
-			that.unlock = false;
-			$("#" + that.canvas_id + "-lock").val("click to unlock");
-		} else
-		{
-			that.unlock = true;
-			$("#" + that.canvas_id + "-lock").val("click to lock");
-		}
-	});
-	//console.log("touchscreen for VirtualJoystick is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
-	this.joy_obj = new VirtualJoystick({
-		container		: document.getElementById(this.canvas_id),
-		mouseSupport	: true
-	});
-	return true;
-}
-//@input	none
-//@output	joy msg, VirtualJoystick object
-ROSDASH.VirtualJoystick.prototype.run = function (input)
-{
-	this.joy = {
-		header : 
-		{
-			seq : this.joy.header.seq + 1,
-			stamp : 
-			{
-				sec : parseInt(new Date().getTime() / 1000),
-				nsec : parseInt(new Date().getTime() % 1000 * 1000000)
-			},
-			frame_id : ""
-		},
-		axes : [Number(this.joy_obj.left() - this.joy_obj.right()), Number(this.joy_obj.up() - this.joy_obj.down()), 0, 0, 0, 0],
-		buttons : [Number(this.unlock), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-	};
-	// check if joy is changed
-	if (undefined !== this.prev_joy)
-	{
-		var flag = false;
-		for (var i in this.joy.axes)
-		{
-			if (this.joy.axes[i] != this.prev_joy.axes[i])
-			{
-				flag = true;
-				break;
-			}
-		}
-		for (var i in this.joy.buttons)
-		{
-			if (this.joy.buttons[i] != this.prev_joy.buttons[i])
-			{
-				flag = true;
-				break;
-			}
-		}
-		if (! flag)
-		{
-			return {
-				o0: undefined,
-				o1: this.joy_obj
-			};
-		}
-	}
-	// deep copy
-	this.prev_joy = $.extend(true, [], this.joy);
-	return {
-		o0: this.joy,
-		o1: this.joy_obj
-	};
-}
-
-
-//////////////////////////////////// basic output
-
-
-// A text box.
-ROSDASH.Text = function (block)
-{
-	this.block = block;
-}
-ROSDASH.Text.prototype.addWidget = function (widget)
-{
-	if (undefined !== this.block.config && undefined !== this.block.config.title)
-	{
-		widget.widgetTitle = this.block.config.title;
-	}
-	widget.widgetContent = "";
-	return widget;
-}
-//@input	content
-//@output	none
-ROSDASH.Text.prototype.run = function (input)
-{
-	// if json, transform into string
-	if (typeof input[0] == "object" || typeof input[0] == "array")
-	{
-		input[0] = JSON.stringify(input[0]);
-	}
-	ROSDASH.updateWidgetContent(this.block.id, input[0]);
-}
-
-// A text box with speaking library.
-ROSDASH.Speech = function (block)
-{
-	this.block = block;
-	this.canvas_id = "Speech-" + this.block.id;
-	this.content = "";
-}
-ROSDASH.Speech.prototype.addWidget = function (widget)
-{
-	// add a button for speak
-	widget.widgetTitle += ' <input type="button" id="' + this.canvas_id + '" value="speak" /><span id="audio"></span>';
-	widget.widgetContent = this.content;
-	return widget;
-}
-ROSDASH.Speech.prototype.init = function ()
-{
-	var that = this;
-	if ($("#" + this.canvas_id).length <= 0)
-	{
-		return false;
-	}
-	// append the callback function to button
-	$("#" + this.canvas_id).click(function ()
-	{
-		// speak by speak.js
-		speak(that.content);
-	});
-	return true;
-}
-//@input	the content to speak
-//@output	none
-ROSDASH.Speech.prototype.run = function (input)
-{
-	if (typeof input[0] == "object" || typeof input[0] == "array")
-	{
-		if ("data" in input[0])
-		{
-			this.content = JSON.stringify(input[0].data);
-		} else
-		{
-			this.content = JSON.stringify(input[0]);
-		}
-	} else
-	{
-		this.content = input[0];
-	}
-	// if new message comes, speak
-	//speak(this.content);
-	ROSDASH.updateWidgetContent(this.block.id, this.content);
-}
-
-// table
-ROSDASH.Table = function (block)
-{
-	this.block = block;
-	this.titles = (undefined !== this.block.config.table_titles) ? this.block.config.table_titles : [""];
-}
-ROSDASH.Table.prototype.addWidget = function (widget)
-{
-	widget.widgetContent = {
-		"aaData" : [[]],
-		"aoColumns" : [],
-		"iDisplayLength": 25,
-		"aLengthMenu": [[1, 25, 50, -1], [1, 25, 50, "All"]],
-		"bPaginate": true,
-		"bAutoWidth": false
-	};
-	for (var i in this.titles)
-	{
-		widget.widgetContent.aoColumns.push({sTitle : this.titles[i]});
-		widget.widgetContent.aaData[0].push("");
-	}
-	return widget;
-}
-//@input	contents
-//@output	none
-ROSDASH.Table.prototype.run = function (input)
-{
-	// if not a matrix, transform into matrix
-	if (typeof input[0] != "array" && typeof input[0] != "object")
-	{
-		var tmp = input[0];
-		input[0] = new Array();
-		input[0].push(new Array());
-		input[0][0].push(tmp);
-	}
-	// for content
-	var aaData = new Array();
-	for (var i in input[0])
-	{
-		var tmp = new Array();
-		for (var j in input[0][i])
-		{
-			// handle special cases
-			if (typeof input[0][i][j] == "number")
-			{
-				tmp.push("" + input[0][i][j]);
-			} else if (undefined === input[0][i][j])
-			{
-				tmp.push("");
-			} else
-			{
-				tmp.push(input[0][i][j]);
-			}
-		}
-		// make content long enough
-		while (tmp.length < this.titles.length)
-		{
-			tmp.push("");
-		}
-		aaData.push(tmp);
-	}
-	// if empty
-	if (aaData.length == 0)
-	{
-		var tmp = new Array();
-		for (var j = 0; j < this.titles.length; ++ j)
-		{
-			tmp.push("");
-		}
-		aaData.push(tmp);
-	}
-	// make content long enough
-	if (aaData[0].length < this.titles.length)
-	{
-		for (var j = aaData[0].length; j < this.titles.length; ++ j)
-		{
-			aaData[0].push("");
-		}
-	}
-	$("#dash").sDashboard("refreshTableById", this.block.id, aaData);
-}
-
-// V U meter
-//@todo input and output
-ROSDASH.Vumeter = function (block)
-{
-	this.block = block;
-	this.canvas_id = "vumeter_" + this.block.id;
-	this.config = (("config" in this.block) && ("vumeter" in this.block.config)) ? this.block.config.vumeter : {
-	    chart: {
-	        type: 'gauge',
-	        plotBorderWidth: 1,
-	        plotBackgroundColor: {
-	        	linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-	        	stops: [
-	        		[0, '#FFF4C6'],
-	        		[0.3, '#FFFFFF'],
-	        		[1, '#FFF4C6']
-	        	]
-	        },
-	        plotBackgroundImage: null,
-	        height: 200
-	    },
-	    title: {
-	        text: 'VU meter'
-	    },
-	    pane: [{
-	        startAngle: -45,
-	        endAngle: 45,
-	        background: null,
-	        center: ['25%', '145%'],
-	        size: 300
-	    }, {
-	    	startAngle: -45,
-	    	endAngle: 45,
-	    	background: null,
-	        center: ['75%', '145%'],
-	        size: 300
-	    }],
-	    yAxis: [{
-	        min: 0,
-	        max: 1,
-	        minorTickPosition: 'outside',
-	        tickPosition: 'outside',
-	        labels: {
-	        	rotation: 'auto',
-	        	distance: 20
-	        },
-	        plotBands: [{
-	        	from: 0,
-	        	to: 6,
-	        	color: '#C02316',
-	        	innerRadius: '100%',
-	        	outerRadius: '105%'
-	        }],
-	        pane: 0,
-	        title: {
-	        	text: 'VU<br/><span style="font-size:8px">Channel A</span>',
-	        	y: -40
-	        }
-	    }, {
-	        min: 0,
-	        max: 1000,
-	        minorTickPosition: 'outside',
-	        tickPosition: 'outside',
-	        labels: {
-	        	rotation: 'auto',
-	        	distance: 20
-	        },
-	        plotBands: [{
-	        	from: 0,
-	        	to: 6,
-	        	color: '#C02316',
-	        	innerRadius: '100%',
-	        	outerRadius: '105%'
-	        }],
-	        pane: 1,
-	        title: {
-	        	text: 'VU<br/><span style="font-size:8px">Channel B</span>',
-	        	y: -40
-	        }
-	    }],
-	    plotOptions: {
-	    	gauge: {
-	    		dataLabels: {
-	    			enabled: false
-	    		},
-	    		dial: {
-	    			radius: '100%'
-	    		}
-	    	}
-	    },
-	    series: [{
-	        data: [-20],
-	        yAxis: 0
-	    }, {
-	        data: [-20],
-	        yAxis: 1
-	    }]
-	};
-	this.update = function (){};
-	this.meter = undefined;
-	this.left_val = 0;
-	this.right_val = 0;
-}
-ROSDASH.Vumeter.prototype.addWidget = function (widget)
-{
-	widget.widgetContent = '<div id="' + this.canvas_id + '" style="width:80%; height:80%; margin: 0 auto;"></div>';
-	return widget;
-}
-ROSDASH.Vumeter.prototype.init = function ()
-{
-	var that = this;
-	this.meter = $('#' + this.canvas_id).highcharts(this.config,
-	// Let the music play
-	function (chart)
-	{
-	    setInterval(function()
-	    {
-	        var left = chart.series[0].points[0],
-	            right = chart.series[1].points[0],
-	            leftVal, 
-	            inc = (Math.random() - 0.5) * 3;
-	
-	        leftVal =  left.y + inc;
-	        rightVal = leftVal + inc / 3;
-	        if (leftVal < -20 || leftVal > 6) {
-	            leftVal = left.y - inc;
-	        }
-	        if (rightVal < -20 || rightVal > 6) {
-	            rightVal = leftVal;
-	        }
-	        left.update(that.left_val, false);
-	        right.update(that.right_val, false);
-	        chart.redraw();
-	    }, 500);
-	});
-	return true;
-}
-//@input	none
-//@output	meter object
-ROSDASH.Vumeter.prototype.run = function (input)
-{
-	this.left_val = input[0];
-	this.right_val = input[1];
-	return {o0 : this.meter};
-}
 
 
 //////////////////////////////////// networks

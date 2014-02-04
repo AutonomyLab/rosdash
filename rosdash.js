@@ -48,12 +48,16 @@ $(document).ready(function() {
 
 
 // load the entire dashboard
-ROSDASH.loadDash = function (name)
+ROSDASH.startDash = function ()
 {
 	ROSDASH.initJson();
 	ROSDASH.initToolbar("toolbar");
 	ROSDASH.initSidebar("sidebar");
-
+	ROSDASH.initDash();
+}
+// initialize an empty dashboard
+ROSDASH.initDash = function ()
+{
 	// create empty dashboard
 	$("#dash").sDashboard({
 		dashboardData : [],
@@ -1192,7 +1196,6 @@ ROSDASH.findWidget = function (id)
 		console.log("cannot find ", id);
 	}
 }
-
 
 
 ///////////////////////////////////// blocks in diagram
