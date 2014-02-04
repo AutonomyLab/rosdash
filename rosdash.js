@@ -51,17 +51,31 @@ $(document).ready(function() {
 ROSDASH.loadDash = function (name)
 {
 	ROSDASH.initJson();
-	//@bug load panel from json file
-	ROSDASH.loadJson('data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json");
-	// load diagram
-	ROSDASH.loadJson('data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-diagram.json");
-	ROSDASH.waitJson();
-	ROSDASH.initToolbar();
-	ROSDASH.initSidebar();
-	ROSDASH.setDashboardName(undefined, name);
-	ROSDASH.startPanel("dash", name);
-	ROSDASH.startEditor("editor", name);
-	ROSDASH.startDiagram("cy", name);
+	ROSDASH.initToolbar("toolbar");
+	ROSDASH.initSidebar("sidebar");
+
+	// create empty dashboard
+	$("#dash").sDashboard({
+		dashboardData : [],
+		disableSelection : ROSDASH.dashConf.disable_selection
+	});
+	ROSDASH.dashBindEvent("dash");
+	// create empty dashboard
+	$("#editor").sDashboard({
+		dashboardData : [],
+		disableSelection : ROSDASH.dashConf.disable_selection
+	});
+	ROSDASH.dashBindEvent("editor");
+	// create an empty cytoscape diagram
+	$('#cy').cytoscape({
+		showOverlay: false,
+		style: ROSDASH.defaultStyle,
+		elements: {nodes: new Array(), edges: new Array()},
+		ready: function ()
+		{
+			window.cy = this;
+		}
+	});
 }
 // show page or not
 ROSDASH.showPage = function (from, to)
@@ -132,13 +146,13 @@ ROSDASH.showPage = function (from, to)
 		break;
 	}
 	// switch to new view type
-	ROSDASH.dashboardConf.view_type = to;
+	ROSDASH.dashConf.view_type = to;
 }
 
 // create a json representing a dashboard
-ROSDASH.getPanelJson = function ()
+ROSDASH.getDashJson = function ()
 {
-	var json = ROSDASH.dashboardConf;
+	var json = ROSDASH.dashConf;
 	json.version = ROSDASH.version;
 	json.date = new Date().toString();
 	json.widgets = ROSDASH.widgets;
@@ -165,26 +179,26 @@ ROSDASH.getPanelJson = function ()
 	}
 	return json;
 }
-// download the panel json in a new window
-ROSDASH.downloadPanel = function ()
+// download the dashboard json in a new window
+ROSDASH.downloadDash = function ()
 {
-	window.open('data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(ROSDASH.getPanelJson())), 'Download');
+	window.open('data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(ROSDASH.getDashJson())), 'Download');
 }
 
 // dashboard configuration
-ROSDASH.dashboardConf = {
+ROSDASH.dashConf = {
 	// basic
 	name: "index",
 	discrip: "",
-	panel_name: "index",
 	view_type: "editor",
 
 	// ros
-	ros_host: "",
-	ros_port: "",
+	host: "",
+	port: "",
 
-	// files
-	panel_names: [],
+	// dependencies
+	require: [],
+	//@deprecated
 	js: [],
 	css: [],
 	json: [],
@@ -197,101 +211,67 @@ ROSDASH.dashboardConf = {
 	header_height: 16,
 	content_height: 180
 };
-ROSDASH.checkDashboardConfValid = function ()
+// check if dashboard config is valid or not
+ROSDASH.checkDashConfValid = function ()
 {
-	if (ROSDASH.dashboardConf.run_msec < 1)
+	if (ROSDASH.dashConf.run_msec < 1)
 	{
-		console.warning("run_msec is too low: ", ROSDASH.dashboardConf.run_msec);
-		ROSDASH.dashboardConf.run_msec = 100;
+		console.warning("run_msec is too low: ", ROSDASH.dashConf.run_msec);
+		ROSDASH.dashConf.run_msec = 100;
 	}
-	if (undefined === ROSDASH.dashboardConf.ros_port || "" == ROSDASH.dashboardConf.ros_port || " " == ROSDASH.dashboardConf.ros_port)
+	if (undefined === ROSDASH.dashConf.port || "" == ROSDASH.dashConf.port || " " == ROSDASH.dashConf.port)
 	{
-		ROSDASH.dashboardConf.ros_port = "9090";
+		ROSDASH.dashConf.port = "9090";
 	}
 }
-// set dashboard name
-ROSDASH.setDashboardName = function (owner, dashboard_name)
-{
-	if (undefined !== owner && "" != owner)
-	{
-		ROSDASH.dashboardConf.name = owner;
-	}
-	if (undefined !== dashboard_name && "" != dashboard_name)
-	{
-		ROSDASH.dashboardConf.panel_name = dashboard_name;
-	}
-}
+//@deprecated
 ROSDASH.loadOwnerJson = false;
+//@deprecated
 ROSDASH.setDashboardConf = function (conf)
 {
 	for (var i in conf)
 	{
-		if (i in ROSDASH.dashboardConf)
+		if (i in ROSDASH.dashConf)
 		{
-			if ("version" == i && ROSDASH.dashboardConf.version != conf.version)
+			if ("version" == i && ROSDASH.dashConf.version != conf.version)
 			{
-				console.error("configure version conflicts", conf.version, ROSDASH.dashboardConf.version);
+				console.error("configure version conflicts", conf.version, ROSDASH.dashConf.version);
 				continue;
 			}
-			if ("name" == i && ROSDASH.dashboardConf.name != conf.name)
-			{
-				console.error("configure user name conflicts", conf.name);
-				continue;
-			}
-			if ("panel_name" == i && ROSDASH.dashboardConf.panel_name != conf.panel_name)
+			if ("panel_name" == i && ROSDASH.dashConf.name != conf.panel_name)
 			{
 				continue;
 			}
-			if ("view_type" == i && ROSDASH.dashboardConf.view_type != conf.view_type)
+			if ("view_type" == i && ROSDASH.dashConf.view_type != conf.view_type)
 			{
 				continue;
 			}
-			ROSDASH.dashboardConf[i] = conf[i];
+			ROSDASH.dashConf[i] = conf[i];
 		}
 	}
-	ROSDASH.checkDashboardConfValid();
+	ROSDASH.checkDashConfValid();
 	// load json specified by user config
-	for (var i in ROSDASH.dashboardConf.json)
+	for (var i in ROSDASH.dashConf.json)
 	{
-		if (undefined === ROSDASH.dashboardConf.json[i] || "" == ROSDASH.dashboardConf.json[i] || " " == ROSDASH.dashboardConf.json[i])
+		if (undefined === ROSDASH.dashConf.json[i] || "" == ROSDASH.dashConf.json[i] || " " == ROSDASH.dashConf.json[i])
 		{
 			continue;
 		}
-		ROSDASH.loadJson(ROSDASH.dashboardConf.json[i]);
+		ROSDASH.loadJson(ROSDASH.dashConf.json[i]);
 	}
 	ROSDASH.loadOwnerJson = true;
 }
-// if connected ROS, set the ROS names. called when ROS connection made
+//@bug if connected ROS, set the ROS names. called when ROS connection made
 ROSDASH.setRosValue = function (host, port)
 {
-	ROSDASH.dashboardConf.ros_host = host;
-	ROSDASH.dashboardConf.ros_port = port;
+	ROSDASH.dashConf.host = host;
+	ROSDASH.dashConf.port = port;
 	ROSDASH.addToolbarRosValue();
 }
 
 
 ///////////////////////////////////// panel
 
-
-// the main function for panel
-ROSDASH.startPanel = function (canvas)
-{
-	// create empty dashboard
-	$("#" + canvas).sDashboard({
-		dashboardData : [],
-		disableSelection : ROSDASH.dashboardConf.disable_selection
-	});
-	ROSDASH.dashBindEvent(canvas);
-}
-// start to execute widgets
-ROSDASH.exePanel = function ()
-{
-	ROSDASH.ee.emitEvent("panelReady");
-	ROSDASH.ee.emitEvent("initBegin");
-	ROSDASH.initWidgets();
-	ROSDASH.ee.emitEvent("executionBegin");
-	ROSDASH.runWidgets();
-}
 
 // load widgets from json
 ROSDASH.loadPanel = function (json)
@@ -325,6 +305,16 @@ ROSDASH.loadPanel = function (json)
 		-- count;
 	}
 }
+// start to execute widgets
+ROSDASH.runPanel = function ()
+{
+	ROSDASH.ee.emitEvent("panelReady");
+	ROSDASH.ee.emitEvent("initBegin");
+	ROSDASH.initWidgets();
+	ROSDASH.ee.emitEvent("runBegin");
+	ROSDASH.runWidgets();
+}
+
 // bind callback functions
 ROSDASH.dashBindEvent = function (canvas)
 {
@@ -343,11 +333,6 @@ ROSDASH.dashBindEvent = function (canvas)
 	$("#" + canvas).bind("sdashboardwidgetset", ROSDASH.widgetSetCallback);
 	$("#" + canvas).bind("sdashboardheaderset", ROSDASH.headerSetCallback);
 }
-
-
-///////////////////////////////////// dashboard callback
-
-
 ROSDASH.widgetMaxCallback = function (e, data)
 {}
 ROSDASH.widgetAddCallback = function (e, data)
@@ -356,21 +341,6 @@ ROSDASH.widgetSetCallback = function (e, data)
 {}
 ROSDASH.headerSetCallback = function (e, data)
 {}
-
-
-///////////////////////////////////// editor
-
-
-// the main function for panel editor
-ROSDASH.startEditor = function (canvas)
-{
-	// create empty dashboard
-	$("#" + canvas).sDashboard({
-		dashboardData : [],
-		disableSelection : ROSDASH.dashboardConf.disable_selection
-	});
-	ROSDASH.dashBindEvent(canvas);
-}
 
 
 ///////////////////////////////////// diagram
@@ -426,21 +396,6 @@ ROSDASH.defaultStyle = ("cytoscape" in window) ? cytoscape.stylesheet()
 		'border-width': 0,
 	})
 : undefined;
-// main function for diagram
-ROSDASH.startDiagram = function (canvas)
-{
-	// create an empty cytoscape diagram
-	$('#' + canvas).cytoscape({
-		showOverlay: false,
-		style: ROSDASH.defaultStyle,
-		elements: {nodes: new Array(), edges: new Array()},
-		ready: function ()
-		{
-			window.cy = this;
-			console.debug(1)
-		}
-	});
-}
 // load diagram from json
 ROSDASH.loadDiagram = function (json)
 {
@@ -471,7 +426,7 @@ ROSDASH.loadDiagram = function (json)
 	window.cy.fit();
 }
 // run diagram after loading json
-ROSDASH.runDiagram = function (data)
+ROSDASH.startDiagram = function (data)
 {
 	ROSDASH.loadDiagram(data);
 	// set callback functions
@@ -531,7 +486,7 @@ ROSDASH.startJsonEditor = function (src)
 }
 ROSDASH.runJsonEditor = function (json)
 {
-	ROSDASH.jsonEditorJson = ROSDASH.getPanelJson();
+	ROSDASH.jsonEditorJson = ROSDASH.getDashJson();
 	$('#jsontext').val(JSON.stringify(ROSDASH.jsonEditorJson));
     $('#jsoneditor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
 			ROSDASH.jsonEditorJson  = data;
@@ -544,7 +499,7 @@ ROSDASH.runJsonEditor = function (json)
 
 
 // json file names for blocks
-ROSDASH.blockFiles = ["widgets.json"];
+ROSDASH.blockFiles = ["blocks.json"];
 // block definitions
 ROSDASH.blockDef = new Object();
 // block lists for sidebar
@@ -571,13 +526,13 @@ ROSDASH.loadWidgetDef = function ()
 		ROSDASH.loadWidgetDefSub(data);
 	}
 	// for each json file by user
-	for (var i in ROSDASH.dashboardConf.json)
+	for (var i in ROSDASH.dashConf.json)
 	{
-		if (undefined === ROSDASH.dashboardConf.json[i] || "" == ROSDASH.dashboardConf.json[i] || " " == ROSDASH.dashboardConf.json[i])
+		if (undefined === ROSDASH.dashConf.json[i] || "" == ROSDASH.dashConf.json[i] || " " == ROSDASH.dashConf.json[i])
 		{
 			continue;
 		}
-		var data = ROSDASH.jsonLoadList[ROSDASH.dashboardConf.json[i]].data.widgets;
+		var data = ROSDASH.jsonLoadList[ROSDASH.dashConf.json[i]].data.widgets;
 		ROSDASH.loadWidgetDefSub(data);
 	}
 }
@@ -814,6 +769,9 @@ ROSDASH.initJson = function ()
 {
 	ROSDASH.loadMsgJson();
 	ROSDASH.loadWidgetJson();
+	// load the frontpage from json file
+	ROSDASH.loadJson('data/index/index-panel.json');
+	ROSDASH.waitJson();
 }
 // uniform function to load json and register them
 ROSDASH.loadJson = function (file)
@@ -867,10 +825,10 @@ ROSDASH.jsonReady = false;
 ROSDASH.waitJson = function ()
 {
 	//@deprecated if owner conf is loaded, load specified jsons. must be executed before examine jsonLoadList
-	var conf_path = "data/" + ROSDASH.dashboardConf.name + "/conf.json";
+	var conf_path = "data/" + ROSDASH.dashConf.name + "/conf.json";
 	if (! ROSDASH.loadOwnerJson && (conf_path in ROSDASH.jsonLoadList) && 2 == ROSDASH.jsonLoadList[conf_path].status)
 	{
-		ROSDASH.setDashboardConf(ROSDASH.jsonLoadList[conf_path].data);
+		//ROSDASH.setDashboardConf(ROSDASH.jsonLoadList[conf_path].data);
 	}
 	// if loading finishes
 	var flag = true;
@@ -911,28 +869,16 @@ ROSDASH.waitJson = function ()
 // functions called after jsons are ready
 ROSDASH.jsonReadyFunc = function ()
 {
-	ROSDASH.connectROS(ROSDASH.dashboardConf.ros_host, ROSDASH.dashboardConf.ros_port);
+	ROSDASH.connectROS(ROSDASH.dashConf.host, ROSDASH.dashConf.port);
 	// parse msgs after loading json
 	ROSDASH.loadMsgDef();
 	// load widgets and blocks
 	ROSDASH.loadWidgetDef();
 	// show panel
-	ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
+	ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/index/index-panel.json'].data);
 	// run diagram at the same time
-	ROSDASH.runDiagram(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
+	ROSDASH.startDiagram(ROSDASH.jsonLoadList['data/index/index-panel.json'].data);
 	ROSDASH.ee.emitEvent("editorReady");
-	// depend on the page view type
-	/*switch (ROSDASH.dashboardConf.view_type)
-	{
-	case "json":
-		ROSDASH.jsonEditorLoadSuccess = true;
-		// run jsoneditor
-		ROSDASH.runJsonEditor(ROSDASH.jsonLoadList[ROSDASH.jsonEditorSrc].data);
-		ROSDASH.ee.emitEvent("jsonEditorReady");
-		break;
-	default:
-		break;
-	}*/
 }
 
 // save data to json file in server. @note PHP will ignore empty json part
@@ -1049,10 +995,10 @@ ROSDASH.addWidgetByType = function (name)
 		widgetContent : undefined,
 		// set the position of new widget as 0
 		pos : 0,
-		width: ("width" in ROSDASH.blockDef[name]) ? ROSDASH.blockDef[name].width : ROSDASH.dashboardConf.widget_width,
-		height: ("height" in ROSDASH.blockDef[name]) ? ROSDASH.blockDef[name].height : ROSDASH.dashboardConf.widget_height,
-		header_height: ROSDASH.dashboardConf.header_height,
-		content_height: ROSDASH.dashboardConf.content_height,
+		width: ("width" in ROSDASH.blockDef[name]) ? ROSDASH.blockDef[name].width : ROSDASH.dashConf.widget_width,
+		height: ("height" in ROSDASH.blockDef[name]) ? ROSDASH.blockDef[name].height : ROSDASH.dashConf.widget_height,
+		header_height: ROSDASH.dashConf.header_height,
+		content_height: ROSDASH.dashConf.content_height,
 		config: ROSDASH.blockDef[name].config
 	};
 	// move other widgets backward by one
@@ -2496,8 +2442,8 @@ ROSDASH.waitLoadJs = function ()
 	{
 		// successfully loaded
 		ROSDASH.instantiateWidgets();
-		ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/' + ROSDASH.dashboardConf.name + "/" + ROSDASH.dashboardConf.panel_name + "-panel.json"].data);
-		ROSDASH.exePanel();
+		ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/index/index-panel.json'].data);
+		ROSDASH.runPanel();
 	}
 }
 // load css file required by widgets
@@ -2807,7 +2753,7 @@ ROSDASH.runWidgets = function ()
 	}
 	ROSDASH.ee.emitEvent("cycleEnd");
 	// sleep for a while and start next cycle
-	setTimeout(ROSDASH.runWidgets, ROSDASH.dashboardConf.run_msec);
+	setTimeout(ROSDASH.runWidgets, ROSDASH.dashConf.run_msec);
 }
 
 
