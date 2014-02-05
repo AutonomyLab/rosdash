@@ -698,7 +698,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// download json
 		case "download":
-			ROSDASH.downloadDash();
+			ROSDASH.downloadJson(ROSDASH.getDashJson());
 			break;
 		case "upload":
 			break;
@@ -939,4 +939,4 @@ ROSDASH.onSave = function ()
 	}
 	ROSDASH.toolbar.setItemText("saving", 'saved');
 }
-ROSDASH.ee.addListener("saved", ROSDASH.onSave);
+ROSDASH.ee.addListener("saveJson", ROSDASH.onSave);
