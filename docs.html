@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>ROSDASH Documentation</title>
+	</head>
+	<body style="background-color:AliceBlue;">
+		<div align="center" style="align:center; background-color:blue; height:10%;">
+			<h1><a href="http://localhost/rosdash-devel/docs/">ROSDASH Documentation</a></h1>
+		</div>
+			<div>
+				<div align="center" style="align:center; width:15%; height:100%; background-color:MediumTurquoise; position:fixed;">
+					<h3><a href="#">ROSDASH Docs</a></h3>
+					<h4><a href="#introduction">Introduction</a></h4>
+					<h4><a href="#usage">Usage</a></h4>
+					<h4><a href="#examples">Examples</a></h4>
+					<h4><a href="#widget">Widget Development</a></h4>
+					<h4><a href="#dependencies">Dependencies</a></h4>
+					<h4><a href="#license">License</a></h4>
+					<h4><a href="#authors">Authors</a></h4>
+					<h4><a href="#acknowledgement">Acknowledgement</a></h4>
+					<h4><a href="#todo">Todo List</a></h4>
+				</div>
+				<div style="width:80%; height:100%; position:absolute; left:20%;">
+					<h3 align="center" id="introduction">Introduction</h3>
+					<p>Welcome, roboticists and ROS users!</p>
+					<p>Here is a demostration and debug platform for ROS, which is easy to use and simple to extend.</p>
+					<ul>
+						<li>Simply open your browser to visualize your robots</li>
+						<li>Connect with ROS and communicate with your robots</li>
+						<li>Multiple widgets to choose, i.e. plotting tools, Google maps, 3D visualization, etc</li>
+						<li>Drag and drop to create a dashboard</li>
+						<li>Develop the dashboard with fancy Javascript</li>
+						<li>Embrace the wonderful world of HTML5</li>
+					</ul>
+
+					<h3 align="center" id="usage">Usage</h3>
+					<p>In ROSDASH, there are three pages for a dashboard: panel, editor, and diagram.</p>
+					<ul>
+						<li>Panel: it communicates with ROS and your robots, and visualize data from your robots.</li>
+						<li>Editor: you can edit your panel page here, i.e. change the order or size of widgets.</li>
+						<li>Diagram: blocks and connections between them representing the message relations between.</li>
+					</ul>
+					<p>Steps to use the panel and connect with robots:</p>
+					<ul>
+						<li>Run roscore and rosbridge in the command line;</li>
+						<li>Open the dashboard page in your browser, and specify the ip address of the rosbridge;</li>
+						<li>Open the panel page;</li>
+						<li>Enjoy it!</li>
+					</ul>
+					<p>How to edit the panel page:</p>
+					<ul>
+						<li>Open the corresponding editor page;</li>
+						<li>Click on Widget button on the sidebar, and choose a widget to add;</li>
+						<li>Click on a widget, and modify the height and width on the sidebar;</li>
+						<li>Press save button.</li>
+					</ul>
+					<p>How to use the diagram page:</p>
+					<ul>
+						<li>Open the corresponding diagram page;</li>
+						<li>Click on "ROS items" button on the sidebar, and choose a topic, service, or param to add. The topics, services, and params represent messages from your ROS system;</li>
+						<li>Click on "blocks" button on the sidebar, and choose a block to add. Most of the blocks represent widgets on the panel page;</li>
+						<li>Click on the pins on those blocks, and put a line between them, which represents send the message from ROS to widget;</li>
+						<li>Press save button.</li>
+					</ul>
+					<p>A list of all widgets available is as follows:</p>
+					<ul>
+						<li><em>toggleButton</em>: ;</li>
+						<li><em>joystick</em>: ;</li>
+						<li><em>text</em>: ;</li>
+						<li><em>speech</em>: ;</li>
+						<li><em>table</em>: ;</li>
+						<li><em>chart</em>: ;</li>
+						<li><em>cyNetwork</em>: ;</li>
+						<li><em>arborNetwork</em>: ;</li>
+						<li><em>draculaNetwork</em>: ;</li>
+						<li><em>UserCamera</em>: ;</li>
+						<li><em>HeadTracker</em>: ;</li>
+						<li><em>HandTracker</em>: ;</li>
+						<li><em>turtlesim</em>: ;</li>
+						<li><em>ros2d</em>: ;</li>
+						<li><em>ros3d</em>: ;</li>
+						<li><em>pr2urdf</em>: ;</li>
+						<li><em>gmap</em>: ;</li>
+						<li><em>OpenLayersMap</em>: ;</li>
+						<li><em>flot</em>: ;</li>
+						<li><em>vumeter</em>: ;</li>
+						<li><em>jsonEditor</em>: ;</li>
+						<li><em>jsonVis</em>: ;</li>
+						<li><em>youtube</em>: ;</li>
+						<li><em>slide</em>: ;</li>
+						<li><em>FathomSlide</em>: ;</li>
+					</ul>
+					<p>A list of all blocks available is as follows:</p>
+					<ul>
+						<li>
+							<em>datatypes</em>: ;
+							<ul>
+								<li><em>multiArray</em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>arithmetics</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>array</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>functional flow</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>ROS</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>input</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>output</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>network</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>database</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>drawing</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>multimedia</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>roslibjs</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>maps</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>plot</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>robot</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>simulator</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>user</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+						<li>
+							<em>others</em>: ;
+							<ul>
+								<li><em></em>: ;</li>
+							</ul>
+						</li>
+					</ul>
+
+					<h3 align="center" id="examples">Examples</h3>
+
+					<h3 align="center" id="widget">Widget Development</h3>
+					<p>The programming language for the widget development is Javascript. Usually, I design a widget as a class, and put callback functions inside.</p>
+					<p>The events for callback functions are as follows:</p>
+					<ul>
+						<li><em>addWidget</em>: when a widget is added to HTML. We usually append the canvas tags (i.e. &lt; div &gt;, &lt; canvas &gt;, etc.) to the dashboard;</li>
+						<li><em>init</em>: when a widget is initialized. It is envoked after the webpage is created and before the widget is executed. You can do some initialization stuff here;</li>
+						<li><em>runOnce</em>: it is envoked in the first cycle of execution and for only once;</li>
+						<li><em>run</em>: it is envoked in the each cycle of execution;</li>
+						<li><em>other events</em>: i.e. when rosbridge is connected, when the webpage completes, etc.</li>
+					</ul>
+					<p>The information and data for callback functions to use are as follows:</p>
+					<ul>
+						<li><em>ROSDASH.userConf</em>: the information of the user (the person who is using the dashboard);</li>
+						<li><em>ROSDASH.dashConf</em>: the information of the dashboard in use;</li>
+						<li><em>ROSDASH.ros</em>: the instance of rosbridge connection;</li>
+						<li><em>ROSDASH.rosConnected</em>: if rosbridge is connected or not;</li>
+						<li><em>ROSDASH.rosNames</em>: names of ros topics, services, and params;</li>
+						<li><em>ROSDASH.msgs</em>: definitions of ros msgs;</li>
+						<li><em>ROSDASH.blockDef</em>: definitions of widgets;</li>
+						<li><em>ROSDASH.blocks</em>: information of blocks in the diagram;</li>
+						<li><em>ROSDASH.widgets</em>: information of widgets in the panel;</li>
+						<li><em>ROSDASH.requireLoadList</em>: required files, i.e. js files, css files, etc;</li>
+						<li><em>ROSDASH.updateWidgetContent</em>: modify the content of a widget directly.</li>
+					</ul>
+
+					<h3 align="center" id="dependencies">Dependencies</h3>
+					<ul>
+						<li><em>dracula</em></li>
+						<li><em>mjpegcanvasjs</em></li>
+						<li><em>Highcharts</em></li>
+						<li><em>JSONSelect</em></li>
+						<li><em>jquery-ui-1.10.3</em></li>
+						<li><em>taffydb</em></li>
+						<li><em>keyboardteleopjs</em></li>
+						<li><em>underscore</em></li>
+						<li><em>jsDraw2DX</em></li>
+						<li><em>bootstrap-switch</em></li>
+						<li><em>ros3djs</em></li>
+						<li><em>speak.js</em></li>
+						<li><em>roslibjs</em></li>
+						<li><em>js-handtracking-read-only</em></li>
+						<li><em>d3</em></li>
+						<li><em>predis</em></li>
+						<li><em>dhtmlxSuite</em></li>
+						<li><em>ros2djs</em></li>
+						<li><em>turtlesimjs</em></li>
+						<li><em>DataTables</em></li>
+						<li><em>cytoscape.js-2.0.2</em></li>
+						<li><em>FlexiJsonEditor</em></li>
+						<li><em>jquery-2.0.3.min.js</em></li>
+						<li><em>sDashboard</em></li>
+						<li><em>fathom</em></li>
+						<li><em>EaselJS</em></li>
+						<li><em>flot</em></li>
+						<li><em>arbor</em></li>
+						<li><em>openlayers</em></li>
+						<li><em>nav2djs</em></li>
+						<li><em>EventEmitter</em></li>
+						<li><em>headtrackr</em></li>
+						<li><em>bootstrap</em></li>
+						<li><em>js-aruco-read-only</em></li>
+						<li><em>virtualjoystick.js</em></li>
+					</ul>
+
+					<h3 align="center" id="license">License</h3>
+					<p>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</p>
+
+					<h3 align="center" id="authors">Authors</h3>
+					<ul>
+						<li>Fei Zhan</li>
+					</ul>
+
+					<h3 align="center" id="acknowledgement">Acknowledgement</h3>
+					<p>Thanks to the support of Prof Richard Vaughan and Autonomy Lab.</p>
+					<p>The logo of ROSDASH is from the logo of Autonomy Lab.</p>
+
+					<h3 align="center" id="todo">Todo List</h3>
+					<ul>
+						<li>Undo, redo;<span style="float:right;">Priority 1</span></li>
+						<li>Logout;<span style="float:right;">Priority 8</span></li>
+						<li>Change widget input and output into better format;<span style="float:right;">Priority 10</span></li>
+						<li>msg type relations;<span style="float:right;">Priority 2</span></li>
+						<li>New block position (follow mouse?);<span style="float:right;">Priority 6</span></li>
+						<li>New pin position;<span style="float:right;">Priority 4</span></li>
+						<li>Add a new pin;<span style="float:right;">Priority 4</span></li>
+						<li>Connect blocks by popups;<span style="float:right;">Priority 6</span></li>
+						<li>Clean up the APIs for widgets;<span style="float:right;">Priority 4</span></li>
+						<li>Design a uniform representation for network diagram;<span style="float:right;">Priority 3</span></li>
+						<li>Design a uniform representation for plotting;<span style="float:right;">Priority 3</span></li>
+					</ul>
+				</div>
+			</div>
+	</body>
+</html>

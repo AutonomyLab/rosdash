@@ -53,19 +53,11 @@ ROSDASH.startDash = function ()
 	ROSDASH.initJson();
 	ROSDASH.initToolbar("toolbar");
 	ROSDASH.initSidebar("sidebar");
-	ROSDASH.initDash();
+	ROSDASH.loadDash();
 }
 // initialize an empty dashboard
-ROSDASH.initDash = function ()
+ROSDASH.loadDash = function ()
 {
-	$("#dash").empty();
-	// create empty dashboard
-	$("#dash").sDashboard({
-		dashboardData : [],
-		disableSelection : ROSDASH.dashConf.disable_selection
-	});
-	ROSDASH.dashBindEvent("dash");
-
 	$("#editor").empty();
 	// create empty dashboard editor
 	$("#editor").sDashboard({
@@ -155,9 +147,10 @@ ROSDASH.showPage = function (from, to)
 		break;
 	}
 	// switch to new view type
-	ROSDASH.dashConf.view_type = to;
+	ROSDASH.dashConf.view = to;
 }
 
+ROSDASH.dashChanged = false;
 // create a json representing a dashboard
 ROSDASH.getDashJson = function ()
 {
@@ -194,7 +187,7 @@ ROSDASH.dashConf = {
 	// basic
 	name: "index",
 	discrip: "",
-	view_type: "editor",
+	view: "editor",
 
 	// ros
 	host: "",
@@ -310,7 +303,6 @@ ROSDASH.loadEditor = function (json)
 		-- count;
 	}
 }
-
 // bind callback functions
 ROSDASH.dashBindEvent = function (canvas)
 {
@@ -343,17 +335,21 @@ ROSDASH.headerSetCallback = function (e, data)
 
 
 // load widgets from json
-ROSDASH.loadPanel = function (json)
+ROSDASH.loadPanel = function (widgets)
 {
-	// remove previous widgets
-	for (var i in ROSDASH.widgets)
-	{
-		ROSDASH.removeWidget(i);
-	}
-	if (null === json)
+	if (undefined === widgets)
 	{
 		return;
 	}
+	$("#dash").empty();
+	// create empty dashboard
+	$("#dash").sDashboard({
+		dashboardData : [],
+		disableSelection : ROSDASH.dashConf.disable_selection
+	});
+	ROSDASH.dashBindEvent("dash");
+
+	var json = $.extend(true, [], widgets);
 	var count = 0;
 	for (var i in json)
 	{
@@ -373,7 +369,15 @@ ROSDASH.loadPanel = function (json)
 				max_num = i;
 			}
 		}
-		ROSDASH.addWidget(json[max_num]);
+		// add widget content
+		try
+		{
+			json[max_num] = ROSDASH.setWidgetContent(json[max_num]);
+			$("#dash").sDashboard("addWidget", json[max_num]);
+		} catch (err)
+		{
+			console.error("add widget content error", err.message, err.stack);
+		}
 		delete json[max_num];
 		-- count;
 	}
@@ -445,6 +449,14 @@ ROSDASH.defaultStyle = ("cytoscape" in window) ? cytoscape.stylesheet()
 // load diagram from json
 ROSDASH.loadDiagram = function (json)
 {
+	// if canvas is not loaded
+	if ($("#cy").length <= 0 || undefined === window.cy)
+	{
+		setTimeout(function () {
+			ROSDASH.loadDiagram(json);
+		}, 300);
+		return;
+	}
 	// load blocks
 	for (var i in json.block)
 	{
@@ -649,7 +661,7 @@ ROSDASH.checkBlockTypeValid = function (name)
 }
 
 
-///////////////////////////////////// msg type definitions
+/////////////////////////////////////@todo msg type definitions
 
 
 // file path list for msg jsons
@@ -798,7 +810,7 @@ ROSDASH.checkMsgTypeValid = function (name)
 
 
 ///////////////////////////////////// load json
-
+//@todo separate?
 
 // the data list from json files
 ROSDASH.jsonLoadList = new Object();
@@ -915,12 +927,12 @@ ROSDASH.transformRawJson = function (json)
 		} else if ("false" == json[i])
 		{
 			json[i] = false;
-		} else if ("undefined" == json[i])
+		} else if ("null" == json[i])
 		{
 			json[i] = null;
 		} else if ("undefined" == json[i])
 		{
-			json[i] = null;
+			json[i] = undefined;
 		} else if (typeof json[i] == "object" || typeof json[i] == "array")
 		{
 			json[i] = ROSDASH.transformRawJson(json[i]);
@@ -957,10 +969,117 @@ ROSDASH.saveJson = function (data, filename)
 		}
 	});
 }
-// callback for uploading json file
+//@todo callback for uploading json file
 ROSDASH.uploadJson = function (file)
 {
 	console.log("uploadJson", file);
+}
+
+
+///////////////////////////////////// widget dependency
+
+
+// a list of dependencies, i.e. js, css, json, etc.
+ROSDASH.loadList = new Object();
+// check all statically loaded scripts
+ROSDASH.checkScripts = function ()
+{
+	$("script").each(function (key, value) {
+		ROSDASH.loadList[$(this).attr("src")] = 2;
+	});
+}
+ROSDASH.ee.addListener("pageReady", ROSDASH.checkScripts);
+
+// load required files, i.e. js, css, etc.
+ROSDASH.loadRequired = function (i)
+{
+	// load required js
+	if (undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type] && undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
+	{
+		for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
+		{
+			try {
+				ROSDASH.loadJs(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]);
+			} catch (err)
+			{
+				ROSDASH.connection[i].error = true;
+				console.error("loading js required by widget error:", ROSDASH.connection[i].block.type, ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j], err.message, err.stack);
+			}
+		}
+	}
+	// load required css
+	if (ROSDASH.blockDef[ROSDASH.connection[i].block.type] && undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type].css)
+	{
+		for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].css)
+		{
+			try {
+				ROSDASH.loadCss(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]);
+			} catch (err)
+			{
+				ROSDASH.connection[i].error = true;
+				console.error("loading css required by widget error:", ROSDASH.connection[i].block.type, ROSDASH.blockDef[ROSDASH.connection[i].block.type].css[j], err.message, err.stack);
+			}
+		}
+	}
+}
+// load js file required by widgets
+ROSDASH.loadJs = function (file)
+{
+	if (undefined === file || "" == file)
+	{
+		return;
+	}
+	if (undefined === ROSDASH.loadList[file])
+	{
+		ROSDASH.loadList[file] = 0;
+	}
+	// do not load again
+	if (ROSDASH.loadList[file] >= 2)
+	{
+		return;
+	}
+	$.getScript(file, function (data, status, jqxhr) {
+		console.log("load", file);
+		ROSDASH.loadList[file] = 1;
+	}).fail(function (jqxhr, settings, exception)
+	{
+		ROSDASH.loadList[file] = -10;
+		console.warn("fail to load js", file, jqxhr, settings, exception);
+	}).always(function() {
+		++ ROSDASH.loadList[file];
+	});
+}
+// wait for loading js
+ROSDASH.waitLoadJs = function ()
+{
+	var flag = true;
+	for (var i in ROSDASH.loadList)
+	{
+		// if not loaded
+		if (ROSDASH.loadList[i] < 2)
+		{
+			ROSDASH.loadJs(i);
+			flag = false;
+		}
+	}
+	if (! flag)
+	{
+		// wait for loading again
+		console.log("wait for loading js");
+		setTimeout(ROSDASH.waitLoadJs, 300);
+	} else
+	{
+		// successfully loaded
+		ROSDASH.instantiateWidgets();
+		ROSDASH.runPanel();
+	}
+}
+// load css file required by widgets
+ROSDASH.loadCss = function (file)
+{
+	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
+	//@todo
+	console.log("css load", file);
 }
 
 
@@ -1025,6 +1144,7 @@ ROSDASH.addWidgetByType = function (name)
 {
 	if (! ROSDASH.checkBlockTypeValid(name))
 	{
+		console.error("widget invalid", name);
 		return;
 	}
 	// set a new count number. don't use getWidgetNum because there is no widget object
@@ -1060,9 +1180,10 @@ ROSDASH.addWidgetByType = function (name)
 		++ ROSDASH.widgets[i].pos;
 	}
 	ROSDASH.addWidget(widget);
+	//@todo add to diagram
 	if (! (widget.widgetId in ROSDASH.blocks))
 	{
-		console.debug(widget.widgetId)
+		console.debug("add to diagram", widget.widgetId)
 		//ROSDASH.addBlockByType(name);
 	}
 	ROSDASH.ee.emitEvent('change');
@@ -1073,25 +1194,23 @@ ROSDASH.addWidget = function (def)
 	// if duplicate widget id
 	if (def.widgetId in ROSDASH.widgets)
 	{
-		console.error("widget id duplicate: " + def.widgetId);
+		console.error("widget id duplicate: ", def.widgetId);
 		// show the effect
 		$("#" + canvas).sDashboard("addWidget", def);
 		return;
 	}
 	def = ROSDASH.getWidgetNum(def);
-	// save the definition of this widget
-	ROSDASH.widgets[def.widgetId] = def;
-	var widget = def;
-	widget = ROSDASH.setWidgetContent(widget);
-	if (undefined === widget)
+	if (undefined === def)
 	{
 		return;
 	}
-	$("#dash").sDashboard("addWidget", widget);
-	$("#editor").sDashboard("addWidget", widget);
+	// save the definition of this widget
+	ROSDASH.widgets[def.widgetId] = def;
+	$("#editor").sDashboard("addWidget", def);
 	ROSDASH.ee.emitEvent('addWidget');
 }
 // set the value of widget content
+//@todo for panel
 ROSDASH.setWidgetContent = function (widget)
 {
 	//@deprecated set default value of content into example data from sDashboard
@@ -1175,6 +1294,7 @@ ROSDASH.setWidgetContent = function (widget)
 	return widget;
 }
 
+// remove a widget
 ROSDASH.removeWidget = function (id)
 {
 	var pos = ROSDASH.widgets[id].pos;
@@ -1341,6 +1461,7 @@ ROSDASH.addRosItem = function (rosname, type)
 ROSDASH.addBlockByType = function (type)
 {
 	var id = ROSDASH.addBlock({type: type});
+	// add a corresponding widget
 	if (undefined !== id && (type in ROSDASH.blockDef) && ("has_panel" in ROSDASH.blockDef[type]) && ROSDASH.blockDef[type].has_panel && ! (id in ROSDASH.widgets))
 	{
 		ROSDASH.addWidgetByType(type);
@@ -2286,7 +2407,7 @@ ROSDASH.addBlockComment = function (content)
 
 // connection relationship for diagram
 ROSDASH.connection = new Object();
-// traverse the diagram to obtain the connection relations
+// parse the diagram to obtain the connection relations
 ROSDASH.parseDiagram = function (diagram)
 {
 	// parse block config into true value
@@ -2396,115 +2517,6 @@ ROSDASH.instantiateWidgets = function ()
 			ROSDASH.connection[i].error = true;
 		}
 	}
-}
-
-
-///////////////////////////////////// widget dependency
-
-
-// a list of dependencies, i.e. js, css, etc.
-ROSDASH.requireLoadList = new Object();
-// check all statically loaded scripts
-ROSDASH.checkScripts = function ()
-{
-	$("script").each(function (key, value) {
-		ROSDASH.requireLoadList[$(this).attr("src")] = 2;
-	});
-}
-ROSDASH.ee.addListener("pageReady", ROSDASH.checkScripts);
-
-// load required files, i.e. js, css, etc.
-ROSDASH.loadRequired = function (i)
-{
-	// load required js
-	if (undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type] && undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
-	{
-		for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
-		{
-			try {
-				ROSDASH.loadJs(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]);
-			} catch (err)
-			{
-				ROSDASH.connection[i].error = true;
-				console.error("loading js required by widget error:", ROSDASH.connection[i].block.type, ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j], err.message, err.stack);
-			}
-		}
-	}
-	// load required css
-	if (ROSDASH.blockDef[ROSDASH.connection[i].block.type] && undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type].css)
-	{
-		for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].css)
-		{
-			try {
-				ROSDASH.loadCss(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]);
-			} catch (err)
-			{
-				ROSDASH.connection[i].error = true;
-				console.error("loading css required by widget error:", ROSDASH.connection[i].block.type, ROSDASH.blockDef[ROSDASH.connection[i].block.type].css[j], err.message, err.stack);
-			}
-		}
-	}
-}
-// load js file required by widgets
-ROSDASH.loadJs = function (file)
-{
-	if (undefined === file || "" == file)
-	{
-		return;
-	}
-	if (undefined === ROSDASH.requireLoadList[file])
-	{
-		ROSDASH.requireLoadList[file] = 0;
-	}
-	// do not load again
-	if (ROSDASH.requireLoadList[file] >= 2)
-	{
-		console.warning("duplicate load", file)
-		return;
-	}
-	$.getScript(file, function (data, status, jqxhr) {
-		console.log("load js", file);
-		ROSDASH.requireLoadList[file] = 1;
-	}).fail(function (jqxhr, settings, exception)
-	{
-		ROSDASH.requireLoadList[file] = -10;
-		console.warn("fail to load js", file, jqxhr, settings, exception);
-	}).always(function() {
-		++ ROSDASH.requireLoadList[file];
-	});
-}
-// wait for loading js
-ROSDASH.waitLoadJs = function ()
-{
-	var flag = true;
-	for (var i in ROSDASH.requireLoadList)
-	{
-		// if not loaded
-		if (ROSDASH.requireLoadList[i] < 2)
-		{
-			ROSDASH.loadJs(i);
-			flag = false;
-		}
-	}
-	if (! flag)
-	{
-		// wait for loading again
-		console.log("wait for loading js");
-		setTimeout(ROSDASH.waitLoadJs, 300);
-	} else
-	{
-		// successfully loaded
-		ROSDASH.instantiateWidgets();
-		ROSDASH.loadPanel(ROSDASH.jsonLoadList['data/index/index-panel.json'].data.widgets);
-		ROSDASH.runPanel();
-	}
-}
-// load css file required by widgets
-ROSDASH.loadCss = function (file)
-{
-	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
-	//@todo
-	console.log("css load", file);
 }
 
 
@@ -2642,11 +2654,11 @@ ROSDASH.initWidgets = function ()
 			var flag = false;
 			for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
 			{
-				if ( ROSDASH.requireLoadList[ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]] < 0 )
+				if ( ROSDASH.loadList[ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]] < 0 )
 				{
 					//ROSDASH.connection[i].error = true;
 				}
-				if ( ROSDASH.requireLoadList[ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]] < 2 )
+				if ( ROSDASH.loadList[ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]] < 2 )
 				{
 					flag = true;
 					break;
