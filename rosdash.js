@@ -97,54 +97,67 @@ ROSDASH.showPage = function (from, to)
 		$("#canvas").css("left", "0px");
 		$("#sidebar").css("visibility", "hidden");
 	}
+	var from_canvas;
 	// remove the original page
 	switch (from)
 	{
 	case "panel":
-		$("#dash").css("visibility", "hidden");
+		from_canvas = "dash";
 		break;
 	case "editor":
-		$("#editor").css("visibility", "hidden");
+		from_canvas = "editor";
 		break;
 	case "diagram":
-		$("#cy").css("visibility", "hidden");
+		from_canvas = "cy";
 		break;
 	case "json":
-		$("#json").css("visibility", "hidden");
+		from_canvas = "json";
 		break;
 	case "docs":
-		$("#docs").css("visibility", "hidden");
+		from_canvas = "docs";
 		break;
 	default:
 		break;
 	}
+	if (undefined !== from_canvas)
+	{
+		$("#" + from_canvas).css("visibility", "hidden");
+		$("#" + from_canvas).slideUp("slow");
+	}
+	var to_canvas;
 	// show the new page
 	switch (to)
 	{
 	case "panel":
-		$("#dash").css("visibility", "inherit");
+		to_canvas = "dash";
 		ROSDASH.resetPanelToolbar();
 		break;
 	case "editor":
-		$("#editor").css("visibility", "inherit");
+		to_canvas = "editor";
 		ROSDASH.resetEditorToolbar();
 		break;
 	case "diagram":
-		$("#cy").css("visibility", "inherit");
+		to_canvas = "cy";
 		ROSDASH.resetDiagramToolbar();
 		break;
 	case "json":
-		$("#json").css("visibility", "inherit");
+		to_canvas = "json";
 		ROSDASH.resetJsonToolbar();
 		ROSDASH.loadJsonEditor(ROSDASH.getDashJson());
 		break;
 	case "docs":
-		$("#docs").css("visibility", "inherit");
+		to_canvas = "docs";
 		ROSDASH.resetJsonToolbar();
 		break;
 	default:
+		to_canvas = undefined;
 		console.error("show wrong page", from, to);
 		break;
+	}
+	if (undefined !== to_canvas)
+	{
+		$("#" + to_canvas).css("visibility", "inherit");
+		$("#" + to_canvas).slideDown("slow");
 	}
 	// switch to new view type
 	ROSDASH.dashConf.view = to;
@@ -661,7 +674,7 @@ ROSDASH.checkBlockTypeValid = function (name)
 }
 
 
-/////////////////////////////////////@todo msg type definitions
+///////////////////////////////////// msg type definitions
 
 
 // file path list for msg jsons
@@ -810,7 +823,7 @@ ROSDASH.checkMsgTypeValid = function (name)
 
 
 ///////////////////////////////////// load json
-//@todo separate?
+
 
 // the data list from json files
 ROSDASH.jsonLoadList = new Object();
@@ -900,7 +913,6 @@ ROSDASH.waitJson = function ()
 	}
 }
 // functions called after jsons are ready
-//@todo move to each json
 ROSDASH.jsonReadyFunc = function ()
 {
 	ROSDASH.connectROS(ROSDASH.dashConf.host, ROSDASH.dashConf.port);
@@ -909,9 +921,9 @@ ROSDASH.jsonReadyFunc = function ()
 	// load widgets and blocks
 	ROSDASH.loadWidgetDef();
 	// show panel
-	ROSDASH.loadEditor(ROSDASH.jsonLoadList['data/index/index-panel.json'].data.widgets);
+	ROSDASH.loadEditor(/*new Object()); */ROSDASH.jsonLoadList['data/index/index-panel.json'].data.widgets);
 	// run diagram at the same time
-	ROSDASH.loadDiagram(ROSDASH.jsonLoadList['data/index/index-panel.json'].data);
+	ROSDASH.loadDiagram(/*new Object()); */ROSDASH.jsonLoadList['data/index/index-panel.json'].data);
 	ROSDASH.ee.emitEvent("editorReady");
 }
 
@@ -1049,6 +1061,13 @@ ROSDASH.loadJs = function (file)
 		++ ROSDASH.loadList[file];
 	});
 }
+// load css file
+ROSDASH.loadCss = function (file)
+{
+	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
+	console.log("load", file);
+}
+
 // wait for loading js
 ROSDASH.waitLoadJs = function ()
 {
@@ -1073,13 +1092,6 @@ ROSDASH.waitLoadJs = function ()
 		ROSDASH.instantiateWidgets();
 		ROSDASH.runPanel();
 	}
-}
-// load css file required by widgets
-ROSDASH.loadCss = function (file)
-{
-	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
-	//@todo
-	console.log("css load", file);
 }
 
 
@@ -1210,7 +1222,6 @@ ROSDASH.addWidget = function (def)
 	ROSDASH.ee.emitEvent('addWidget');
 }
 // set the value of widget content
-//@todo for panel
 ROSDASH.setWidgetContent = function (widget)
 {
 	//@deprecated set default value of content into example data from sDashboard
@@ -1818,7 +1829,6 @@ ROSDASH.changePin = function (id, pin_type, action)
 		break;
 	}
 }
-//@note undone
 ROSDASH.addPin = function (block, type, num)
 {
 	var pin = block[type][num];
@@ -2769,7 +2779,7 @@ ROSDASH.runWidgets = function ()
 					// get the corresponding order of this input
 					var count = parseInt(j.substring(1));
 					// save this input by deep copy
-					//@bug should not _.clone();
+					//@bug should not _.clone(), should be specified in config
 					input[count] = ROSDASH.connection[ROSDASH.connection[i].parent[j]].output[ROSDASH.connection[i].type[j]];
 				}
 			}

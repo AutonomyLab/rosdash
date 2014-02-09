@@ -329,7 +329,6 @@ ROSDASH.ToggleButton = function (block)
 }
 ROSDASH.ToggleButton.prototype.addWidget = function (widget)
 {
-	console.debug(widget)
 	widget.widgetContent = '<input id="' + this.canvas_id + '" type="checkbox" checked />';
 	return widget;
 }

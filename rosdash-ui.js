@@ -152,7 +152,6 @@ ROSDASH.initForm = function (canvas, view)
 		// add a new ros item
 		case "addROSitem":
 			ROSDASH.formList = ROSDASH.rosNames;
-			//@bug ROSDASH.formItemType2 is needed to choose ros item
 			ROSDASH.formItemType = "addRosItem";
 			ROSDASH.showItemsInForm({
 				type: "button",
@@ -203,8 +202,7 @@ ROSDASH.initForm = function (canvas, view)
 				name: "config",
 				width: ROSDASH.formConfig.main
 			});
-			//@bug
-			ROSDASH.jsonFormType = "dashboardConf";
+			ROSDASH.jsonFormType = "dashConf";
 			ROSDASH.loadJsonForm(ROSDASH.dashConf);
 			break;
 		// add comment block
@@ -668,9 +666,9 @@ ROSDASH.initToolbar = function (canvas)
 		// go to owner's page
 		case "owner":
 			break;
-		//@bug connect with ROS
+		// connect with ROS
 		case "connect":
-			//ROSDASH.connectROS(ROSDASH.toolbar.getValue("input"));
+			ROSDASH.connectROS(ROSDASH.toolbar.getValue("input"));
 			//window.open('index.html?owner=' + ROSDASH.dashConf.name + '&panel=' + ROSDASH.dashConf.name + '&host=' + ROSDASH.toolbar.getValue("input") + '&port=9090', "_blank");
 			break;
 		// find a widget or block
@@ -816,11 +814,11 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
+	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
 	ROSDASH.toolbar.addButton("run", ++ count, "run", "settings.gif", "settings.gif");
 	ROSDASH.toolbar.addButton("stop", ++ count, "stop", "settings.gif", "settings.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
 	ROSDASH.toolbar.addButton("zindex", ++ count, "overlay", "settings.gif", "settings.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 }
@@ -884,7 +882,6 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	//@bug the toolbar is too long
 	ROSDASH.toolbar.addInput("input", ++ count, "", 30);
 	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
 	ROSDASH.toolbar.addButton("remove", ++ count, "remove", "remove-icon.gif", "remove-icon.gif");
@@ -935,7 +932,6 @@ ROSDASH.addToolbarUserName = function ()
 	var user_text = ROSDASH.userConf.name;
 	if ("Guest" != ROSDASH.userConf.name)
 	{
-		//@todo logout
 		//user_text = '<a href="panel.html?owner=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>(<a href="panel.html?status=logout">logout</a>)';
 	}
 	// add to toolbar
