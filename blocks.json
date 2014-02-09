@@ -561,19 +561,6 @@
 			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
 		]
 	}, {
-		"type": "cyDiagram",
-		"descrip": "rosdash diagram by cytoscape.js",
-		"category": [
-			"network"
-		],
-		"class_name": "ROSDASH.cyDiagram",
-		"has_panel": "true",
-		"input": [],
-		"output": [],
-		"js": [
-			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
-		]
-	}, {
 		"type": "arborNetwork",
 		"descrip": "network by arbor.js",
 		"category": [

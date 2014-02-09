@@ -17,7 +17,7 @@ ROSDASH.formConfig = {
 	item: 150,
 	config: 120,
 };
-// the main form for each page
+// the main form for each view
 ROSDASH.formMain = {
 	editor : [
 		{
@@ -743,25 +743,32 @@ ROSDASH.initToolbar = function (canvas)
 		// switch the corresponding page
 		case "dashboard":
 		case "panel":
-			ROSDASH.showPage(ROSDASH.dashConf.view, "panel");
-			ROSDASH.loadPanel(ROSDASH.widgets);
+			ROSDASH.showView(ROSDASH.dashConf.view, "panel");
+			ROSDASH.parseDiagram( ROSDASH.getDashJson() );
 			break;
 		case "diagram":
 		case "editor":
 		case "json":
 		case "docs":
-			ROSDASH.showPage(ROSDASH.dashConf.view, id);
+			ROSDASH.showView(ROSDASH.dashConf.view, id);
 			break;
 		case "run":
-			if ("uninitialized" == ROSDASH.runStatus)
+			switch (ROSDASH.runStatus)
 			{
-				ROSDASH.parseDiagram( ROSDASH.getDashJson() );
-			} else if ("paused" == ROSDASH.runStatus)
-			{
-				//
+			case "uninitialized":
+				ROSDASH.runPanel();
+				break;
+			case "pause":
+			case "paused":
+				ROSDASH.runWidgets();
+				break;
 			}
 			break;
+		case "pause":
+			ROSDASH.runStatus = "pause";
+			break;
 		case "stop":
+			ROSDASH.runStatus = "stop";
 			break;
 		default:
 			console.error("unknown button in toolbar", id);
@@ -816,7 +823,7 @@ ROSDASH.resetPanelToolbar = function ()
 
 	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
 	ROSDASH.toolbar.addButton("run", ++ count, "run", "settings.gif", "settings.gif");
-	ROSDASH.toolbar.addButton("stop", ++ count, "stop", "settings.gif", "settings.gif");
+	ROSDASH.toolbar.addButton("pause", ++ count, "pause", "settings.gif", "settings.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
 	ROSDASH.toolbar.addButton("zindex", ++ count, "overlay", "settings.gif", "settings.gif");

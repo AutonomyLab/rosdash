@@ -1005,10 +1005,11 @@ ROSDASH.Param.prototype.run = function (input)
 ROSDASH.cyNetwork = function (block)
 {
 	this.block = block;
-	this.canvas = "cyNetwork-" + this.block.id;
+	this.canvas = "content-" + this.block.id;
 	this.cy;
 	var that = this;
-	this.options = ("config" in this.block && "option" in this.block.config) ? this.block.config.option : {
+	// default options
+	this.options = ("option" in this.block.config) ? this.block.config.option : {
     showOverlay: false,
     minZoom: 0.5,
     maxZoom: 2,
@@ -1085,6 +1086,7 @@ ROSDASH.cyNetwork.prototype.init = function ()
 	{
 		return false;
 	}
+	// initialize a cy network
 	$('#' + this.canvas).cytoscape(this.options);
 	return true;
 }
@@ -1099,7 +1101,7 @@ ROSDASH.cyNetwork.prototype.run = function (input)
 ROSDASH.arborNetwork = function (block)
 {
 	this.block = block;
-	this.canvas = "arborNetwork_" + this.block.id;
+	this.canvas = this.block.id;
 	this.network;
 }
 ROSDASH.arborNetwork.prototype.addWidget = function (widget)
@@ -1113,6 +1115,7 @@ ROSDASH.arborNetwork.prototype.init = function ()
 	{
 		return false;
 	}
+	// init a network
 	this.network = this.arborInit(this.canvas);
 	return true;
 }

@@ -78,10 +78,10 @@ ROSDASH.loadDash = function ()
 		}
 	});
 }
-// show page or not
-ROSDASH.showPage = function (from, to)
+// show view or not
+ROSDASH.showView = function (from, to)
 {
-	// if the same page
+	// if the same view
 	if (to == from)
 	{
 		return;
@@ -98,7 +98,7 @@ ROSDASH.showPage = function (from, to)
 		$("#sidebar").css("visibility", "hidden");
 	}
 	var from_canvas;
-	// remove the original page
+	// remove the original view
 	switch (from)
 	{
 	case "panel":
@@ -125,7 +125,7 @@ ROSDASH.showPage = function (from, to)
 		$("#" + from_canvas).slideUp("slow");
 	}
 	var to_canvas;
-	// show the new page
+	// show the new view
 	switch (to)
 	{
 	case "panel":
@@ -151,7 +151,7 @@ ROSDASH.showPage = function (from, to)
 		break;
 	default:
 		to_canvas = undefined;
-		console.error("show wrong page", from, to);
+		console.error("show wrong view", from, to);
 		break;
 	}
 	if (undefined !== to_canvas)
@@ -161,6 +161,7 @@ ROSDASH.showPage = function (from, to)
 	}
 	// switch to new view type
 	ROSDASH.dashConf.view = to;
+	ROSDASH.initForm();
 }
 
 ROSDASH.dashChanged = false;
@@ -283,7 +284,7 @@ ROSDASH.setRosValue = function (host, port)
 // load widgets from json
 ROSDASH.loadEditor = function (json)
 {
-	// remove previous widgets
+	//@bug remove previous widgets
 	for (var i in ROSDASH.widgets)
 	{
 		ROSDASH.removeWidget(i);
@@ -470,6 +471,9 @@ ROSDASH.loadDiagram = function (json)
 		}, 300);
 		return;
 	}
+	// remove previous data
+	window.cy.remove(window.cy.elements("node"));
+	window.cy.remove(window.cy.elements("edge"));
 	// load blocks
 	for (var i in json.block)
 	{
@@ -532,15 +536,25 @@ ROSDASH.loadJsonEditor = function (src)
     $('#jsontext').change(function() {
         var val = $('#jsontext').val();
         if (val) {
-            try { ROSDASH.jsonEditorJson = JSON.parse(val); }
-            catch (e) { alert('Error in parsing json. ' + e); }
-        } else {
-			console.error("invalid json", val);
-        }
-        $('#jsoneditor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
+            try {
+				ROSDASH.jsonEditorJson = JSON.parse(val);
+			}
+            catch (e) {
+				console.error('Error in parsing json. ', e);
+			return;
+			}
+			// update jsoneditor
+			$('#jsoneditor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
 				ROSDASH.jsonEditorJson = data;
 				$('#jsontext').val(JSON.stringify(json));
 			}, propertyclick: null });
+			// reload everything
+			ROSDASH.loadDiagram(ROSDASH.jsonEditorJson);
+			ROSDASH.loadEditor(ROSDASH.jsonEditorJson.widgets);
+        } else {
+			console.error("invalid json", val);
+			return;
+        }
     });
     // callback for expander button
     $('#expander').click(function() {
@@ -552,9 +566,13 @@ ROSDASH.loadJsonEditor = function (src)
 	// set json to jsoneditor and text
 	$('#jsontext').val(JSON.stringify(ROSDASH.jsonEditorJson));
     $('#jsoneditor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
-			ROSDASH.jsonEditorJson  = data;
-			$('#jsontext').val(JSON.stringify(json));
-		}, propertyclick: null });
+		ROSDASH.jsonEditorJson  = data;
+		// update jsontext
+		$('#jsontext').val(JSON.stringify(json));
+		// reload everything
+		ROSDASH.loadEditor(data.widgets);
+		ROSDASH.loadDiagram(data);
+	}, propertyclick: null });
 }
 
 
@@ -827,13 +845,14 @@ ROSDASH.checkMsgTypeValid = function (name)
 
 // the data list from json files
 ROSDASH.jsonLoadList = new Object();
+ROSDASH.frontpageJson = 'data/network.json';
 // init loading msg type and widget definitions from json files
 ROSDASH.initJson = function ()
 {
 	ROSDASH.loadMsgJson();
 	ROSDASH.loadBlockFiles(ROSDASH.blockFiles);
 	// load the frontpage from json file
-	ROSDASH.loadJson('data/index/index-panel.json');
+	ROSDASH.loadJson(ROSDASH.frontpageJson);
 	ROSDASH.waitJson();
 }
 // uniform function to load json and register them
@@ -921,9 +940,9 @@ ROSDASH.jsonReadyFunc = function ()
 	// load widgets and blocks
 	ROSDASH.loadWidgetDef();
 	// show panel
-	ROSDASH.loadEditor(/*new Object()); */ROSDASH.jsonLoadList['data/index/index-panel.json'].data.widgets);
+	ROSDASH.loadEditor(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data.widgets);
 	// run diagram at the same time
-	ROSDASH.loadDiagram(/*new Object()); */ROSDASH.jsonLoadList['data/index/index-panel.json'].data);
+	ROSDASH.loadDiagram(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data);
 	ROSDASH.ee.emitEvent("editorReady");
 }
 
@@ -1090,7 +1109,7 @@ ROSDASH.waitLoadJs = function ()
 	{
 		// successfully loaded
 		ROSDASH.instantiateWidgets();
-		ROSDASH.runPanel();
+		ROSDASH.loadPanel(ROSDASH.widgets);
 	}
 }
 
@@ -1276,7 +1295,7 @@ ROSDASH.setWidgetContent = function (widget)
 		widget.widgetContent = "";
 		break;
 	}
-	
+
 	// set default title
 	widget.widgetTitle = widget.widgetType + " " + widget.number;
 	// if widget instantiated
@@ -2827,8 +2846,17 @@ ROSDASH.runWidgets = function ()
 		}
 	}
 	ROSDASH.ee.emitEvent("cycleEnd");
-	// sleep for a while and start next cycle
-	setTimeout(ROSDASH.runWidgets, ROSDASH.dashConf.run_msec);
+	switch (ROSDASH.runStatus)
+	{
+	case "pause":
+	case "stop":
+		// don't run
+		break;
+	default:
+		// sleep for a while and start next cycle
+		setTimeout(ROSDASH.runWidgets, ROSDASH.dashConf.run_msec);
+		break;
+	}
 }
 
 
