@@ -157,7 +157,7 @@ ROSDASH.showView = function (from, to)
 	if (undefined !== to_canvas)
 	{
 		$("#" + to_canvas).css("visibility", "inherit");
-		$("#" + to_canvas).slideDown("slow");
+		$("#" + to_canvas).fadeIn("slow");
 	}
 	// switch to new view type
 	ROSDASH.dashConf.view = to;
@@ -464,7 +464,7 @@ ROSDASH.defaultStyle = ("cytoscape" in window) ? cytoscape.stylesheet()
 ROSDASH.loadDiagram = function (json)
 {
 	// if canvas is not loaded
-	if ($("#cy").length <= 0 || undefined === window.cy)
+	if ($("#cy").length <= 0 || undefined === window.cy || typeof window.cy.fit != "function")
 	{
 		setTimeout(function () {
 			ROSDASH.loadDiagram(json);
@@ -472,8 +472,17 @@ ROSDASH.loadDiagram = function (json)
 		return;
 	}
 	// remove previous data
-	window.cy.remove(window.cy.elements("node"));
-	window.cy.remove(window.cy.elements("edge"));
+	try {
+		window.cy.remove(window.cy.elements("node"));
+		window.cy.remove(window.cy.elements("edge"));
+	} catch (error)
+	{
+		console.error("cy not ready", window.cy, error);
+		setTimeout(function () {
+			ROSDASH.loadDiagram(json);
+		}, 300);
+		return;
+	}
 	// load blocks
 	for (var i in json.block)
 	{
@@ -845,7 +854,7 @@ ROSDASH.checkMsgTypeValid = function (name)
 
 // the data list from json files
 ROSDASH.jsonLoadList = new Object();
-ROSDASH.frontpageJson = 'data/network.json';
+ROSDASH.frontpageJson = 'data/multimedia.json';
 // init loading msg type and widget definitions from json files
 ROSDASH.initJson = function ()
 {
@@ -1296,8 +1305,6 @@ ROSDASH.setWidgetContent = function (widget)
 		break;
 	}
 
-	// set default title
-	widget.widgetTitle = widget.widgetType + " " + widget.number;
 	// if widget instantiated
 	if (undefined !== ROSDASH.connection[widget.widgetId] && undefined !== ROSDASH.connection[widget.widgetId].instance)
 	{
@@ -1494,7 +1501,7 @@ ROSDASH.addBlockByType = function (type)
 	// add a corresponding widget
 	if (undefined !== id && (type in ROSDASH.blockDef) && ("has_panel" in ROSDASH.blockDef[type]) && ROSDASH.blockDef[type].has_panel && ! (id in ROSDASH.widgets))
 	{
-		ROSDASH.addWidgetByType(type);
+		//ROSDASH.addWidgetByType(type);
 	}
 	return id;
 }
@@ -1634,10 +1641,14 @@ ROSDASH.initBlockConf = function (block)
 			block.config = ROSDASH.transformRawJson(ROSDASH.blockDef[block.type].config);
 		} else
 		{
-			block.config = {
-				title: "",
-				cacheable: false
-			};
+			block.config = new Object();
+		}
+		// compulsory config
+		block.config.cacheable = block.config.cacheable || false;
+		// for a widget
+		if (true == ROSDASH.blockDef[block.type].has_panel)
+		{
+			block.config.title = block.config.title || block.name;
 		}
 	} else
 	{

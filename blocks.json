@@ -431,7 +431,7 @@
 		"has_panel": "true",
 		"class_name": "ROSDASH.Text",
 		"config": {
-			"title": "false",
+			"title": "",
 			"cacheable": "false"
 		},
 		"input": [

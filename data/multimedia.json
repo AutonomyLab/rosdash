@@ -1,0 +1,12 @@
+{"name":"index","discrip":"","view":"editor","host":"","port":"","require":[],"js":[],"css":[],"json":[],"disable_selection":true,"run_msec":200,"widget_width":400,"widget_height":230,"header_height":16,"content_height":180,"date":"Mon Feb 10 2014 10:45:40 GMT-0800 (PST)","widgets":{"UserCamera-0":{"widgetTitle":"UserCamera 0","widgetId":"UserCamera-0","number":0,"widgetType":"UserCamera","pos":4,"width":400,"height":230,"header_height":16,"content_height":180},"HeadTracker-0":{"widgetTitle":"HeadTracker 0","widgetId":"HeadTracker-0","number":0,"widgetType":"HeadTracker","pos":3,"width":400,"height":230,"header_height":16,"content_height":180},"HandTracker-0":{"widgetTitle":"HandTracker 0","widgetId":"HandTracker-0","number":0,"widgetType":"HandTracker","pos":2,"width":400,"height":230,"header_height":16,"content_height":180},
+
+"text-0":{"widgetTitle":"text 0","widgetId":"text-0","number":0,"widgetType":"text","pos":1,"width":400,"height":230,"header_height":16,"content_height":180,"config":{"title":"","cacheable":false}},
+
+"text-1":{"widgetTitle":"text 1","widgetId":"text-1","number":1,"widgetType":"text","pos":0,"width":400,"height":230,"header_height":16,"content_height":180,"config":{"title":"","cacheable":false}}
+
+},
+"block":{"UserCamera-0":{"type":"UserCamera","list_name":"UserCamera","input":[],"output":[{"datatype":"Object","name":"video"}],"config":{"cacheable":false},"x":384,"y":14,"number":0,"id":"UserCamera-0","name":"UserCamera 0"},"HeadTracker-0":{"type":"HeadTracker","list_name":"HeadTracker","input":[],"output":[{"datatype":"Object","name":"pos"}],"config":{"cacheable":false},"x":381,"y":103,"number":0,"id":"HeadTracker-0","name":"HeadTracker 0"},
+
+"HandTracker-0":{"type":"HandTracker","list_name":"HandTracker","input":[],"output":[],"config":{"cacheable":false},"x":383.51843172501816,"y":188.4447048249456,"number":0,"id":"HandTracker-0","name":"HandTracker 0"},
+
+"text-0":{"type":"text","list_name":"text","input":[{"datatype":"String","name":"content"}],"output":[],"config":{"title":"","cacheable":false},"x":964.2041453865149,"y":16.70274897519947,"number":0,"id":"text-0","name":"text 0"},"text-1":{"type":"text","list_name":"text","input":[{"datatype":"String","name":"content"}],"output":[],"config":{"title":"","cacheable":false},"x":967.241008836551,"y":101.73492557621495,"number":1,"id":"text-1","name":"text 1"}},"edge":[{"source":"UserCamera-0-o0","target":"text-0-i0"},{"source":"HeadTracker-0-o0","target":"text-1-i0"}]}

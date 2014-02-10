@@ -26,7 +26,16 @@ ROSDASH.Text.prototype.run = function (input)
 	// if json, transform into string
 	if (typeof input[0] == "object" || typeof input[0] == "array")
 	{
+		try {
 		input[0] = JSON.stringify(input[0]);
+		} catch (error)
+		{
+			input[0] = "Error: " + error.message;
+			// update content by input
+			ROSDASH.updateWidgetContent(this.block.id, input[0]);
+			console.error(error);
+			return;
+		}
 	}
 	// update content by input
 	ROSDASH.updateWidgetContent(this.block.id, input[0]);
@@ -1101,7 +1110,7 @@ ROSDASH.cyNetwork.prototype.run = function (input)
 ROSDASH.arborNetwork = function (block)
 {
 	this.block = block;
-	this.canvas = this.block.id;
+	this.canvas = "content-" + this.block.id;
 	this.network;
 }
 ROSDASH.arborNetwork.prototype.addWidget = function (widget)
@@ -1259,7 +1268,7 @@ ROSDASH.arborNetwork.prototype.arborInit = function (canvas)
 ROSDASH.draculaNetwork = function (block)
 {
 	this.block = block;
-	this.canvas = "draculaNetwork_" + this.block.id;
+	this.canvas = "content-" + this.block.id;
 	this.network = undefined;
 }
 ROSDASH.draculaNetwork.prototype.addWidget = function (widget)
@@ -1478,6 +1487,10 @@ ROSDASH.DbQuery.prototype.run = function (input)
 			that.output = new Array();
 			that.output.push(r);
 		});
+		if (that.output.length == 0)
+		{
+			that.output = "cannot find " + JSON.stringify(input[0]);
+		}
 		break;
 	case "redis":
 		var key = input[1];
@@ -1667,7 +1680,7 @@ ROSDASH.Painter.prototype.run = function (input)
 ROSDASH.UserCamera = function (block)
 {
 	this.block = block;
-	this.canvas_id = "UserCamera-" + this.block.id;
+	this.canvas_id = "content-" + this.block.id;
 	this.video;
 	this.canvas;
 	this.context;
@@ -1792,7 +1805,7 @@ ROSDASH.UserCamera.prototype.run = function (input)
 ROSDASH.HeadTracker = function (block)
 {
 	this.block = block;
-	this.canvas = "HeadTracker-" + this.block.id;
+	this.canvas = "content-" + this.block.id;
 	this.pos = new Object();
 }
 ROSDASH.HeadTracker.prototype.addWidget = function (widget)
@@ -1893,7 +1906,7 @@ ROSDASH.HeadTracker.prototype.run = function (input)
 ROSDASH.HandTracker = function (block)
 {
 	this.block = block;
-	this.canvas = "HandTracker-" + this.block.id;
+	this.canvas = "content-" + this.block.id;
 }
 ROSDASH.HandTracker.prototype.addWidget = function (widget)
 {
