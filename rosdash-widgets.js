@@ -1,3 +1,5 @@
+ROSDASH = ROSDASH || new Object();
+
 //////////////////////////////////// output
 
 

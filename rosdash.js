@@ -55,7 +55,7 @@ ROSDASH.startDash = function ()
 	ROSDASH.initSidebar("sidebar");
 	ROSDASH.loadDash();
 }
-// initialize an empty dashboard
+// load an empty dashboard
 ROSDASH.loadDash = function ()
 {
 	$("#editor").empty();
@@ -121,8 +121,10 @@ ROSDASH.showView = function (from, to)
 	}
 	if (undefined !== from_canvas)
 	{
+		// hide it
 		$("#" + from_canvas).css("visibility", "hidden");
-		$("#" + from_canvas).slideUp("slow");
+		// fade out
+		$("#" + from_canvas).fadeOut("slow");
 	}
 	var to_canvas;
 	// show the new view
@@ -156,14 +158,18 @@ ROSDASH.showView = function (from, to)
 	}
 	if (undefined !== to_canvas)
 	{
+		// show it
 		$("#" + to_canvas).css("visibility", "inherit");
+		// fade in
 		$("#" + to_canvas).fadeIn("slow");
 	}
 	// switch to new view type
 	ROSDASH.dashConf.view = to;
+	// init sidebar form
 	ROSDASH.initForm();
 }
 
+// if dashboard has been changed
 ROSDASH.dashChanged = false;
 // create a json representing a dashboard
 ROSDASH.getDashJson = function ()
@@ -171,8 +177,11 @@ ROSDASH.getDashJson = function ()
 	var json = ROSDASH.dashConf;
 	json.version = ROSDASH.version;
 	json.date = new Date().toString();
+	// panel widgets
 	json.widgets = ROSDASH.widgets;
+	// diagram blocks
 	json.block = new Object();
+	// diagram edges
 	json.edge = new Array();
 	if ("cy" in window)
 	{
@@ -222,6 +231,7 @@ ROSDASH.dashConf = {
 	header_height: 16,
 	content_height: 180
 };
+// if started loading json files specified by dash file
 ROSDASH.loadDashJson = false;
 // set config, and load required json
 ROSDASH.setDashConf = function (conf)
@@ -244,7 +254,7 @@ ROSDASH.setDashConf = function (conf)
 			ROSDASH.dashConf[i] = conf[i];
 		}
 	}
-	ROSDASH.checkDashConfValid();
+	ROSDASH.checkDashConfValid(ROSDASH.dashConf);
 	// load json specified by dash config
 	for (var i in ROSDASH.dashConf.json)
 	{
@@ -257,24 +267,19 @@ ROSDASH.setDashConf = function (conf)
 	ROSDASH.loadDashJson = true;
 }
 // check if dashboard config is valid or not
-ROSDASH.checkDashConfValid = function ()
+ROSDASH.checkDashConfValid = function (conf)
 {
-	if (ROSDASH.dashConf.run_msec < 1)
+	// run speed too fast
+	if (conf.run_msec < 1)
 	{
-		console.warning("run_msec is too low: ", ROSDASH.dashConf.run_msec);
-		ROSDASH.dashConf.run_msec = 100;
+		console.warning("run_msec is too low: ", conf.run_msec);
+		conf.run_msec = 100;
 	}
-	if (undefined === ROSDASH.dashConf.port || "" == ROSDASH.dashConf.port || " " == ROSDASH.dashConf.port)
+	// set default port
+	if (undefined === conf.port || "" == conf.port || " " == conf.port)
 	{
-		ROSDASH.dashConf.port = "9090";
+		conf.port = "9090";
 	}
-}
-// if connected ROS, set the ROS names. called when ROS connection made
-ROSDASH.setRosValue = function (host, port)
-{
-	ROSDASH.dashConf.host = host;
-	ROSDASH.dashConf.port = port;
-	ROSDASH.addToolbarRosValue();
 }
 
 
@@ -355,14 +360,15 @@ ROSDASH.loadPanel = function (widgets)
 	{
 		return;
 	}
+	// create an empty panel
 	$("#dash").empty();
-	// create empty dashboard
 	$("#dash").sDashboard({
 		dashboardData : [],
 		disableSelection : ROSDASH.dashConf.disable_selection
 	});
 	ROSDASH.dashBindEvent("dash");
 
+	// copy them
 	var json = $.extend(true, [], widgets);
 	var count = 0;
 	for (var i in json)
@@ -395,11 +401,11 @@ ROSDASH.loadPanel = function (widgets)
 		delete json[max_num];
 		-- count;
 	}
+	ROSDASH.ee.emitEvent("panelReady");
 }
 // start to run widgets
 ROSDASH.runPanel = function ()
 {
-	ROSDASH.ee.emitEvent("panelReady");
 	ROSDASH.ee.emitEvent("initBegin");
 	ROSDASH.initWidgets();
 	ROSDASH.ee.emitEvent("runBegin");
@@ -541,37 +547,43 @@ ROSDASH.jsonEditorJson = {
 // load it
 ROSDASH.loadJsonEditor = function (src)
 {
+	ROSDASH.jsonEditorJson = src;
 	// callback for json text
-    $('#jsontext').change(function() {
+    $('#jsontext').change(function () {
         var val = $('#jsontext').val();
-        if (val) {
+        if (val)
+        {
             try {
 				ROSDASH.jsonEditorJson = JSON.parse(val);
 			}
             catch (e) {
-				console.error('Error in parsing json. ', e);
-			return;
+				console.error('Error in parsing json', e);
+				return;
 			}
 			// update jsoneditor
 			$('#jsoneditor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
-				ROSDASH.jsonEditorJson = data;
+				ROSDASH.jsonEditorJson  = data;
+				// update jsontext
 				$('#jsontext').val(JSON.stringify(json));
+				// reload everything
+				ROSDASH.loadEditor(data.widgets);
+				ROSDASH.loadDiagram(data);
 			}, propertyclick: null });
 			// reload everything
-			ROSDASH.loadDiagram(ROSDASH.jsonEditorJson);
 			ROSDASH.loadEditor(ROSDASH.jsonEditorJson.widgets);
-        } else {
+			ROSDASH.loadDiagram(ROSDASH.jsonEditorJson);
+        } else
+        {
 			console.error("invalid json", val);
 			return;
         }
     });
     // callback for expander button
-    $('#expander').click(function() {
+    $('#expander').click(function () {
         var editor = $('#jsoneditor');
         editor.toggleClass('expanded');
         $(this).text(editor.hasClass('expanded') ? 'Collapse' : 'Expand all');
     });
-	ROSDASH.jsonEditorJson = src;
 	// set json to jsoneditor and text
 	$('#jsontext').val(JSON.stringify(ROSDASH.jsonEditorJson));
     $('#jsoneditor').jsonEditor(ROSDASH.jsonEditorJson, { change: function (data) {
@@ -585,7 +597,7 @@ ROSDASH.loadJsonEditor = function (src)
 }
 
 
-///////////////////////////////////// block definitions
+///////////////////////////////////// block definitions@here
 
 
 // json file names for blocks
@@ -854,7 +866,7 @@ ROSDASH.checkMsgTypeValid = function (name)
 
 // the data list from json files
 ROSDASH.jsonLoadList = new Object();
-ROSDASH.frontpageJson = 'data/multimedia.json';
+ROSDASH.frontpageJson = 'data/output.json';
 // init loading msg type and widget definitions from json files
 ROSDASH.initJson = function ()
 {
@@ -2911,7 +2923,7 @@ ROSDASH.connectROS = function (host, port)
 	ROSDASH.ros.on('connection', function() {
 		ROSDASH.rosConnected = true;
 		console.log('ROS connection made', host + ":" + port);
-		ROSDASH.setRosValue(host, port);
+		ROSDASH.addToolbarRosValue();
 		ROSDASH.getROSNames(ROSDASH.ros);
 		// wait until all widgets are ready
 		if (ROSDASH.cycle >= 0)

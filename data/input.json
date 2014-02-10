@@ -1,0 +1,22 @@
+{"name":"index","discrip":"","view":"diagram","host":"","port":"","require":[],"js":[],"css":[],"json":[],"disable_selection":true,"run_msec":200,"widget_width":400,"widget_height":230,"header_height":16,"content_height":180,"date":"Mon Feb 10 2014 13:12:49 GMT-0800 (PST)",
+
+"widgets":{
+
+"toggleButton-0":{"widgetTitle":"toggleButton 0","widgetId":"toggleButton-0","number":0,"widgetType":"toggleButton","pos":3,"width":400,"height":230,"header_height":16,"content_height":180},
+
+"joystick-0":{"widgetTitle":"joystick 0","widgetId":"joystick-0","number":0,"widgetType":"joystick","pos":2,"width":400,"height":230,"header_height":16,"content_height":180},
+
+"text-0":{"widgetTitle":"text 0","widgetId":"text-0","number":0,"widgetType":"text","pos":1,"width":400,"height":230,"header_height":16,"content_height":180,"config":{"title":"","cacheable":false}},
+
+"text-1":{"widgetTitle":"text 1","widgetId":"text-1","number":1,"widgetType":"text","pos":0,"width":400,"height":230,"header_height":16,"content_height":180,"config":{"title":"","cacheable":false}}
+},
+"block":{
+"toggleButton-0":{"type":"toggleButton","list_name":"toggleButton","input":[],"output":[{"datatype":"Bool","name":"output"}],"config":{"cacheable":false},"x":468,"y":243,"number":0,"id":"toggleButton-0","name":"toggleButton 0"},
+
+"joystick-0":{"type":"joystick","list_name":"joystick","input":[],"output":[{"datatype":"Object","name":"joystickOutput"}],"config":{"cacheable":false},"x":468,"y":124,"number":0,"id":"joystick-0","name":"joystick 0"},
+
+"text-0":{"type":"text","list_name":"text","input":[{"datatype":"String","name":"content"}],"output":[],"config":{"title":"","cacheable":false},"x":759,"y":122,"number":0,"id":"text-0","name":"text 0"},
+
+"text-1":{"type":"text","list_name":"text","input":[{"datatype":"String","name":"content"}],"output":[],"config":{"title":"","cacheable":false},"x":758,"y":243,"number":3,"id":"text-1","name":"text 1"}
+},
+"edge":[{"source":"joystick-0-o0","target":"text-0-i0"},{"source":"toggleButton-0-o0","target":"text-1-i0"}]}
