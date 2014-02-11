@@ -262,7 +262,10 @@ ROSDASH.setDashConf = function (conf)
 		{
 			continue;
 		}
-		ROSDASH.loadJson(ROSDASH.dashConf.json[i]);
+		ROSDASH.loadJson(ROSDASH.dashConf.json[i], function (json)
+		{
+			ROSDASH.loadWidgetDef(json.widgets);
+		});
 	}
 	ROSDASH.loadDashJson = true;
 }
@@ -615,30 +618,14 @@ ROSDASH.loadBlockFiles = function (files)
 	// load from widget definition json
 	for (var i in files)
 	{
-		ROSDASH.loadJson(files[i]);
-	}
-}
-// load widget definitions
-ROSDASH.loadWidgetDef = function ()
-{
-	// for each json file
-	for (var i in ROSDASH.blockFiles)
-	{
-		var data = ROSDASH.jsonLoadList[ROSDASH.blockFiles[i]].data.widgets;
-		ROSDASH.loadWidgetDefSub(data);
-	}
-	// for each json file by dash config
-	for (var i in ROSDASH.dashConf.json)
-	{
-		if (undefined === ROSDASH.dashConf.json[i] || "" == ROSDASH.dashConf.json[i] || " " == ROSDASH.dashConf.json[i])
+		ROSDASH.loadJson(files[i], function (json)
 		{
-			continue;
-		}
-		var data = ROSDASH.jsonLoadList[ROSDASH.dashConf.json[i]].data.widgets;
-		ROSDASH.loadWidgetDefSub(data);
+			ROSDASH.loadWidgetDef(json.widgets);
+		});
 	}
 }
-ROSDASH.loadWidgetDefSub = function (data)
+// load widgets from json
+ROSDASH.loadWidgetDef = function (data)
 {
 	// for each widget json
 	for (var k in data)
@@ -873,37 +860,15 @@ ROSDASH.initJson = function ()
 	ROSDASH.loadMsgJson();
 	ROSDASH.loadBlockFiles(ROSDASH.blockFiles);
 	// load the frontpage from json file
-	ROSDASH.loadJson(ROSDASH.frontpageJson);
-	ROSDASH.waitJson();
-}
-// uniform function to load json and register them
-ROSDASH.loadJson = function (file, func)
-{
-	// init status
-	if (! (file in ROSDASH.jsonLoadList))
+	ROSDASH.loadJson(ROSDASH.frontpageJson, function (json)
 	{
-		ROSDASH.jsonLoadList[file] = new Object();
-		ROSDASH.jsonLoadList[file].status = 0;
-	}
-	$.getJSON(file, function (data, status, xhr)
-	{
-		ROSDASH.jsonLoadList[file].data = data;
-		// if successful, status = 1 + 1
-		ROSDASH.jsonLoadList[file].status = 1;
-		console.log("load json", file);
-		if (typeof(func) == "function")
-		{
-			func(data);
-		}
-	})
-	.fail(function (jqXHR, textStatus) {
-		console.error("load json file", file, "failed", jqXHR, textStatus);
-		ROSDASH.jsonLoadList[file].status = -10;
-	})
-	.always(function () {
-		// if not successful, status = 1
-		++ ROSDASH.jsonLoadList[file].status;
+		ROSDASH.connectROS(ROSDASH.dashConf.host, ROSDASH.dashConf.port);
+		// load panel
+		ROSDASH.loadEditor(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data.widgets);
+		// load diagram
+		ROSDASH.loadDiagram(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data);
 	});
+	ROSDASH.waitJson();
 }
 
 // status if all json loading are ready
@@ -955,20 +920,187 @@ ROSDASH.waitJson = function ()
 // functions called after jsons are ready
 ROSDASH.jsonReadyFunc = function ()
 {
-	ROSDASH.connectROS(ROSDASH.dashConf.host, ROSDASH.dashConf.port);
 	// parse msgs after loading json
 	ROSDASH.loadMsgDef();
-	// load widgets and blocks
-	ROSDASH.loadWidgetDef();
-	// show panel
-	ROSDASH.loadEditor(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data.widgets);
-	// run diagram at the same time
-	ROSDASH.loadDiagram(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data);
-	ROSDASH.ee.emitEvent("editorReady");
+}
+
+
+///////////////////////////////////// widget requirements
+
+
+// a list of requirements, i.e. js, css, json, etc.
+ROSDASH.loadList = new Object();
+// check all statically loaded scripts
+ROSDASH.checkScripts = function ()
+{
+	$("script").each(function (key, value) {
+		var src = $(this).attr("src");
+		ROSDASH.loadList[src] = new Object();
+		ROSDASH.loadList[src].data = value;
+		ROSDASH.loadList[src].status = 2;
+	});
+}
+ROSDASH.ee.addListener("pageReady", ROSDASH.checkScripts);
+
+// load required files, i.e. js, css, etc.
+ROSDASH.loadRequired = function (i)
+{
+	// load required js
+	if (undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type] && undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
+	{
+		for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
+		{
+			try {
+				ROSDASH.loadJs(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]);
+			} catch (err)
+			{
+				ROSDASH.connection[i].error = true;
+				console.error("loading js required by widget error:", ROSDASH.connection[i].block.type, ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j], err.message, err.stack);
+			}
+		}
+	}
+	// load required css
+	if (ROSDASH.blockDef[ROSDASH.connection[i].block.type] && undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type].css)
+	{
+		for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].css)
+		{
+			try {
+				ROSDASH.loadCss(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]);
+			} catch (err)
+			{
+				ROSDASH.connection[i].error = true;
+				console.error("loading css required by widget error:", ROSDASH.connection[i].block.type, ROSDASH.blockDef[ROSDASH.connection[i].block.type].css[j], err.message, err.stack);
+			}
+		}
+	}
+}
+// wait for loading js
+ROSDASH.waitLoadJs = function ()
+{
+	var flag = true;
+	for (var i in ROSDASH.loadList)
+	{
+		// if not loaded
+		if (ROSDASH.loadList[i] < 2)
+		{
+			ROSDASH.loadJs(i);
+			flag = false;
+		}
+	}
+	if (! flag)
+	{
+		// wait for loading again
+		console.log("wait for loading js");
+		setTimeout(ROSDASH.waitLoadJs, 300);
+	} else
+	{
+		// successfully loaded
+		ROSDASH.instantiateWidgets();
+		ROSDASH.loadPanel(ROSDASH.widgets);
+	}
+}
+
+// load json and register them
+ROSDASH.loadJson = function (file, func)
+{
+	if (undefined === file || "" == file)
+	{
+		return;
+	}
+	// init status
+	if (! (file in ROSDASH.jsonLoadList))
+	{
+		ROSDASH.jsonLoadList[file] = new Object();
+		ROSDASH.jsonLoadList[file].status = 0;
+	}
+	if (undefined === ROSDASH.jsonLoadList[file].status)
+	{
+		ROSDASH.jsonLoadList[file].status = 0;
+	}
+	// do not load again
+	if (ROSDASH.jsonLoadList[file].status >= 2)
+	{
+		return;
+	}
+	$.getJSON(file, function (data, status, xhr)
+	{
+		ROSDASH.jsonLoadList[file].data = data;
+		// if successful, status = 1 + 1
+		ROSDASH.jsonLoadList[file].status = 1;
+		console.log("load", file);
+		if (typeof(func) == "function")
+		{
+			return func(data);
+		}
+	})
+	.fail(function (jqXHR, textStatus) {
+		console.error("fail to load", file, jqXHR, textStatus);
+		ROSDASH.jsonLoadList[file].status = -10;
+	})
+	.always(function () {
+		// if not successful, status = 1
+		++ ROSDASH.jsonLoadList[file].status;
+	});
+}
+// load js file required by widgets
+ROSDASH.loadJs = function (file, func)
+{
+	if (undefined === file || "" == file)
+	{
+		return;
+	}
+	if (undefined === ROSDASH.loadList[file])
+	{
+		ROSDASH.loadList[file] = new Object();
+	}
+	if (undefined === ROSDASH.loadList[file].status)
+	{
+		ROSDASH.loadList[file].status = 0;
+	}
+	// do not load again
+	if (ROSDASH.loadList[file].status >= 2)
+	{
+		return;
+	}
+	$.getScript(file, function (data, status, jqxhr)
+	{
+		ROSDASH.loadList[file].data = data;
+		ROSDASH.loadList[file].status = 1;
+		console.log("load", file);
+		if (typeof(func) == "function")
+		{
+			return func(data);
+		}
+	}).fail(function (jqxhr, settings, exception)
+	{
+		ROSDASH.loadList[file].status = -10;
+		console.warn("fail to load", file, jqxhr, settings, exception);
+	}).always(function() {
+		++ ROSDASH.loadList[file].status;
+	});
+}
+// load css file
+ROSDASH.loadCss = function (file)
+{
+	if (undefined === file || "" == file)
+	{
+		return;
+	}
+	if (undefined === ROSDASH.loadList[file])
+	{
+		ROSDASH.loadList[file] = new Object();
+	}
+	if (undefined === ROSDASH.loadList[file].status)
+	{
+		ROSDASH.loadList[file].status = 0;
+	}
+	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
+	ROSDASH.loadList[file].data = file;
+	ROSDASH.loadList[file].status = 2;
+	console.log("load", file);
 }
 
 // transform from raw json into real json, i.e. "true" => true
-//@note check number or not?
 ROSDASH.transformRawJson = function (json)
 {
 	for (var i in json)
@@ -1021,117 +1153,10 @@ ROSDASH.saveJson = function (data, filename)
 		}
 	});
 }
-//@todo callback for uploading json file
+// callback for uploading json file
 ROSDASH.uploadJson = function (file)
 {
 	console.log("uploadJson", file);
-}
-
-
-///////////////////////////////////// widget dependency
-
-
-// a list of dependencies, i.e. js, css, json, etc.
-ROSDASH.loadList = new Object();
-// check all statically loaded scripts
-ROSDASH.checkScripts = function ()
-{
-	$("script").each(function (key, value) {
-		ROSDASH.loadList[$(this).attr("src")] = 2;
-	});
-}
-ROSDASH.ee.addListener("pageReady", ROSDASH.checkScripts);
-
-// load required files, i.e. js, css, etc.
-ROSDASH.loadRequired = function (i)
-{
-	// load required js
-	if (undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type] && undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
-	{
-		for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
-		{
-			try {
-				ROSDASH.loadJs(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]);
-			} catch (err)
-			{
-				ROSDASH.connection[i].error = true;
-				console.error("loading js required by widget error:", ROSDASH.connection[i].block.type, ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j], err.message, err.stack);
-			}
-		}
-	}
-	// load required css
-	if (ROSDASH.blockDef[ROSDASH.connection[i].block.type] && undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type].css)
-	{
-		for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].css)
-		{
-			try {
-				ROSDASH.loadCss(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]);
-			} catch (err)
-			{
-				ROSDASH.connection[i].error = true;
-				console.error("loading css required by widget error:", ROSDASH.connection[i].block.type, ROSDASH.blockDef[ROSDASH.connection[i].block.type].css[j], err.message, err.stack);
-			}
-		}
-	}
-}
-// load js file required by widgets
-ROSDASH.loadJs = function (file)
-{
-	if (undefined === file || "" == file)
-	{
-		return;
-	}
-	if (undefined === ROSDASH.loadList[file])
-	{
-		ROSDASH.loadList[file] = 0;
-	}
-	// do not load again
-	if (ROSDASH.loadList[file] >= 2)
-	{
-		return;
-	}
-	$.getScript(file, function (data, status, jqxhr) {
-		console.log("load", file);
-		ROSDASH.loadList[file] = 1;
-	}).fail(function (jqxhr, settings, exception)
-	{
-		ROSDASH.loadList[file] = -10;
-		console.warn("fail to load js", file, jqxhr, settings, exception);
-	}).always(function() {
-		++ ROSDASH.loadList[file];
-	});
-}
-// load css file
-ROSDASH.loadCss = function (file)
-{
-	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
-	console.log("load", file);
-}
-
-// wait for loading js
-ROSDASH.waitLoadJs = function ()
-{
-	var flag = true;
-	for (var i in ROSDASH.loadList)
-	{
-		// if not loaded
-		if (ROSDASH.loadList[i] < 2)
-		{
-			ROSDASH.loadJs(i);
-			flag = false;
-		}
-	}
-	if (! flag)
-	{
-		// wait for loading again
-		console.log("wait for loading js");
-		setTimeout(ROSDASH.waitLoadJs, 300);
-	} else
-	{
-		// successfully loaded
-		ROSDASH.instantiateWidgets();
-		ROSDASH.loadPanel(ROSDASH.widgets);
-	}
 }
 
 
