@@ -882,7 +882,7 @@ ROSDASH.waitJson = function ()
 	{
 		ROSDASH.setDashConf(ROSDASH.jsonLoadList[conf_path].data);
 	}
-	// if loading finishes
+	// if loading finishes or not
 	var flag = true;
 	for (var i in ROSDASH.jsonLoadList)
 	{
@@ -898,7 +898,7 @@ ROSDASH.waitJson = function ()
 			// if returned but not succeed, read again
 			if (1 == ROSDASH.jsonLoadList[i].status)
 			{
-				console.warn("load json file again", i);
+				console.warn("load file again", i);
 				ROSDASH.loadJson(i);
 			}
 			break;
@@ -914,14 +914,9 @@ ROSDASH.waitJson = function ()
 		// emit a event for json ready
 		ROSDASH.ee.emitEvent("jsonReady");
 		ROSDASH.jsonReady = true;
-		ROSDASH.jsonReadyFunc();
+		// parse msgs after loading json
+		ROSDASH.loadMsgDef();
 	}
-}
-// functions called after jsons are ready
-ROSDASH.jsonReadyFunc = function ()
-{
-	// parse msgs after loading json
-	ROSDASH.loadMsgDef();
 }
 
 
@@ -937,6 +932,7 @@ ROSDASH.checkScripts = function ()
 		var src = $(this).attr("src");
 		ROSDASH.loadList[src] = new Object();
 		ROSDASH.loadList[src].data = value;
+		ROSDASH.loadList[src].type = undefined;
 		ROSDASH.loadList[src].status = 2;
 	});
 }
@@ -977,11 +973,12 @@ ROSDASH.loadRequired = function (i)
 // wait for loading js
 ROSDASH.waitLoadJs = function ()
 {
+	// if loading finishes or not
 	var flag = true;
 	for (var i in ROSDASH.loadList)
 	{
 		// if not loaded
-		if (ROSDASH.loadList[i] < 2)
+		if (ROSDASH.loadList[i].status < 2 && ROSDASH.loadList[i].status != 0)
 		{
 			ROSDASH.loadJs(i);
 			flag = false;
@@ -1011,11 +1008,11 @@ ROSDASH.loadJson = function (file, func)
 	if (! (file in ROSDASH.jsonLoadList))
 	{
 		ROSDASH.jsonLoadList[file] = new Object();
-		ROSDASH.jsonLoadList[file].status = 0;
 	}
 	if (undefined === ROSDASH.jsonLoadList[file].status)
 	{
 		ROSDASH.jsonLoadList[file].status = 0;
+		ROSDASH.jsonLoadList[file].type = "json";
 	}
 	// do not load again
 	if (ROSDASH.jsonLoadList[file].status >= 2)
@@ -1056,6 +1053,7 @@ ROSDASH.loadJs = function (file, func)
 	if (undefined === ROSDASH.loadList[file].status)
 	{
 		ROSDASH.loadList[file].status = 0;
+		ROSDASH.loadList[file].type = "js";
 	}
 	// do not load again
 	if (ROSDASH.loadList[file].status >= 2)
@@ -1096,6 +1094,7 @@ ROSDASH.loadCss = function (file)
 	}
 	$('head').append('<link rel="stylesheet" href="' + file + '" type="text/css" />');
 	ROSDASH.loadList[file].data = file;
+	ROSDASH.loadList[file].type = "css";
 	ROSDASH.loadList[file].status = 2;
 	console.log("load", file);
 }
@@ -1165,57 +1164,6 @@ ROSDASH.uploadJson = function (file)
 
 // a list of widgets in the panel
 ROSDASH.widgets = new Object();
-// set the widget number
-ROSDASH.getWidgetNum = function (def)
-{
-	// if the ROSDASH.blockDef of def.widgetType does not exist - for constant
-	if (undefined === ROSDASH.blockDef[def.widgetType])
-	{
-		ROSDASH.blockDef[def.widgetType] = new Object();
-		if (undefined === def.number)
-		{
-			// init to 0
-			ROSDASH.blockDef[def.widgetType].count = 0;
-			def.number = ROSDASH.blockDef[def.widgetType].count;
-		} else
-		{
-			ROSDASH.blockDef[def.widgetType].count = def.number;
-		}
-	}
-	else if (undefined === ROSDASH.blockDef[def.widgetType].count)
-	{
-		if (undefined === def.number)
-		{
-			// init to 0
-			ROSDASH.blockDef[def.widgetType].count = 0;
-			def.number = ROSDASH.blockDef[def.widgetType].count;
-		} else
-		{
-			ROSDASH.blockDef[def.widgetType].count = def.number;
-		}
-	} else if (undefined === def.number)
-	{
-		++ ROSDASH.blockDef[def.widgetType].count;
-		def.number = ROSDASH.blockDef[def.widgetType].count;
-	} else if (def.number > ROSDASH.blockDef[def.widgetType].count)
-	{
-			ROSDASH.blockDef[def.widgetType].count = def.number;
-	} else
-	{
-		// if widget number conflicts
-		for (var i in ROSDASH.widgets)
-		{
-			if (ROSDASH.widgets[i].widgetType == def.widgetType && ROSDASH.widgets[i].number == def.number)
-			{
-				console.error("widget number conflicted: " + def.widgetId);
-				// set a new widget number
-				++ ROSDASH.blockDef[def.widgetType].count;
-				def.number = ROSDASH.blockDef[def.widgetType].count;
-			}
-		}
-	}
-	return def;
-}
 // add a widget by type, usually a new widget
 ROSDASH.addWidgetByType = function (name)
 {
@@ -1366,6 +1314,57 @@ ROSDASH.setWidgetContent = function (widget)
 		}
 	}
 	return widget;
+}
+// set the widget number
+ROSDASH.getWidgetNum = function (def)
+{
+	// if the ROSDASH.blockDef of def.widgetType does not exist - for constant
+	if (undefined === ROSDASH.blockDef[def.widgetType])
+	{
+		ROSDASH.blockDef[def.widgetType] = new Object();
+		if (undefined === def.number)
+		{
+			// init to 0
+			ROSDASH.blockDef[def.widgetType].count = 0;
+			def.number = ROSDASH.blockDef[def.widgetType].count;
+		} else
+		{
+			ROSDASH.blockDef[def.widgetType].count = def.number;
+		}
+	}
+	else if (undefined === ROSDASH.blockDef[def.widgetType].count)
+	{
+		if (undefined === def.number)
+		{
+			// init to 0
+			ROSDASH.blockDef[def.widgetType].count = 0;
+			def.number = ROSDASH.blockDef[def.widgetType].count;
+		} else
+		{
+			ROSDASH.blockDef[def.widgetType].count = def.number;
+		}
+	} else if (undefined === def.number)
+	{
+		++ ROSDASH.blockDef[def.widgetType].count;
+		def.number = ROSDASH.blockDef[def.widgetType].count;
+	} else if (def.number > ROSDASH.blockDef[def.widgetType].count)
+	{
+			ROSDASH.blockDef[def.widgetType].count = def.number;
+	} else
+	{
+		// if widget number conflicts
+		for (var i in ROSDASH.widgets)
+		{
+			if (ROSDASH.widgets[i].widgetType == def.widgetType && ROSDASH.widgets[i].number == def.number)
+			{
+				console.error("widget number conflicted: " + def.widgetId);
+				// set a new widget number
+				++ ROSDASH.blockDef[def.widgetType].count;
+				def.number = ROSDASH.blockDef[def.widgetType].count;
+			}
+		}
+	}
+	return def;
 }
 
 // remove a widget
