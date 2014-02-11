@@ -472,7 +472,7 @@ ROSDASH.loadJsonForm = function (block)
 		{
 		case "panel":
 		case "editor":
-			json = block.config;
+			json = ROSDASH.blocks[block.widgetId].config;
 			break;
 		case "diagram":
 			json = block.config;
@@ -815,7 +815,7 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("dashboard", ++ count, "dashboard", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("panel", ++ count, "<strong>panel</strong>", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
 	var jsonicon = ROSDASH.dashChanged ? '<font color="red">json</font>' : "json";
@@ -850,8 +850,8 @@ ROSDASH.resetEditorToolbar = function ()
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("panel", ++ count, "dashboard", "copy.gif", "copy.gif");
-	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("editor", ++ count, "<strong>editor</strong>", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
 	var jsonicon = ROSDASH.dashChanged ? '<font color="red">json</font>' : "json";
 	ROSDASH.toolbar.addButton("json", ++ count, jsonicon, "copy.gif", "copy.gif");
@@ -868,7 +868,7 @@ ROSDASH.resetEditorToolbar = function ()
 // reset the items in the toolbar for diagram
 ROSDASH.resetDiagramToolbar = function ()
 {
-	ROSDASH.toolbar.forEachItem(function(itemId)
+	ROSDASH.toolbar.forEachItem(function (itemId)
 	{
 		ROSDASH.toolbar.removeItem(itemId);
 	});
@@ -883,9 +883,9 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("panel", ++ count, "dashboard", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
-	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("diagram", ++ count, "<strong>diagram</strong>", "copy.gif", "copy.gif");
 	var jsonicon = ROSDASH.dashChanged ? '<font color="red">json</font>' : "json";
 	ROSDASH.toolbar.addButton("json", ++ count, jsonicon, "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
@@ -918,15 +918,15 @@ ROSDASH.resetJsonToolbar = function ()
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("panel", ++ count, "dashboard", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
-	ROSDASH.toolbar.addButton("json", ++ count, "json", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("json", ++ count, "<strong>json</strong>", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
 	var jsonicon = ROSDASH.dashChanged ? '<font color="red">changed</font>' : "unchanged";
-	ROSDASH.toolbar.addText("json", ++ count, jsonicon);
+	ROSDASH.toolbar.addText("jsonchanged", ++ count, jsonicon);
 	ROSDASH.toolbar.addButton("download", ++ count, "download", "text_document.gif", "text_document.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 }

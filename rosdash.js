@@ -600,7 +600,7 @@ ROSDASH.loadJsonEditor = function (src)
 }
 
 
-///////////////////////////////////// block definitions@here
+///////////////////////////////////// block definitions
 
 
 // json file names for blocks
@@ -1165,6 +1165,7 @@ ROSDASH.uploadJson = function (file)
 // a list of widgets in the panel
 ROSDASH.widgets = new Object();
 // add a widget by type, usually a new widget
+//@todo addBlockByType
 ROSDASH.addWidgetByType = function (name)
 {
 	if (! ROSDASH.checkBlockTypeValid(name))
@@ -1231,6 +1232,12 @@ ROSDASH.addWidget = function (def)
 	}
 	// save the definition of this widget
 	ROSDASH.widgets[def.widgetId] = def;
+	if (undefined === ROSDASH.blocks[def.widgetId])
+	{
+		ROSDASH.blocks[def.widgetId] = new Object();
+	}
+	ROSDASH.blocks[def.widgetId].widget = def;
+	console.debug(	ROSDASH.blocks[def.widgetId])
 	$("#editor").sDashboard("addWidget", def);
 	ROSDASH.ee.emitEvent('addWidget');
 }
@@ -1343,7 +1350,8 @@ ROSDASH.getWidgetNum = function (def)
 		{
 			ROSDASH.blockDef[def.widgetType].count = def.number;
 		}
-	} else if (undefined === def.number)
+	}
+	else if (undefined === def.number)
 	{
 		++ ROSDASH.blockDef[def.widgetType].count;
 		def.number = ROSDASH.blockDef[def.widgetType].count;
@@ -1395,6 +1403,7 @@ ROSDASH.moveWidget = function (sorted)
 	}
 	ROSDASH.ee.emitEvent('change');
 }
+// the widget selected by clicking
 ROSDASH.selectedWidget;
 ROSDASH.selectWidgetCallback = function (e, data)
 {
@@ -1405,7 +1414,22 @@ ROSDASH.selectWidgetCallback = function (e, data)
 	ROSDASH.formClickBlock(ROSDASH.selectedWidget);
 	return w;
 }
+ROSDASH.findWidget = function (id)
+{
+	if (id in ROSDASH.widgets)
+	{
+		$("#dash").sDashboard("findWidget", id);
+	} else
+	{
+		console.log("cannot find", id);
+	}
+}
 
+// modify the content of a widget directly
+ROSDASH.updateWidgetContent = function (id, content)
+{
+	$("#dash").sDashboard("setContentById", id, content);
+}
 // get a editable subset property in widget to edit
 ROSDASH.getWidgetEditableProperty = function (id)
 {
@@ -1424,28 +1448,106 @@ ROSDASH.getWidgetEditableProperty = function (id)
 	return property;
 }
 
-// modify the content of a widget directly
-ROSDASH.updateWidgetContent = function (id, content)
-{
-	$("#dash").sDashboard("setContentById", id, content);
-}
-ROSDASH.findWidget = function (id)
-{
-	if (id in ROSDASH.widgets)
-	{
-		$("#dash").sDashboard("findWidget", id);
-	} else
-	{
-		console.log("cannot find ", id);
-	}
-}
-
 
 ///////////////////////////////////// blocks in diagram
 
 
-// a list of configurations for each block
+// a list of blocks in diagram
 ROSDASH.blocks = new Object();
+// add a new block by type
+ROSDASH.addBlockByType = function (type)
+{
+	var id = ROSDASH.addBlock({type: type});
+	// add a corresponding widget
+	if (undefined !== id && true == ROSDASH.blockDef[type].has_panel)
+	{
+		//@todo set number
+		//ROSDASH.addWidgetByType(type);
+	}
+	return id;
+}
+// add a block by config
+ROSDASH.addBlock = function (block)
+{
+	var block = ROSDASH.initBlockConf(block);
+	// if fail to init a block
+	if (undefined === block)
+	{
+		return undefined;
+	}
+	// determine the block number
+	block = ROSDASH.getBlockNum(block, block.list_name);
+	// set color by type
+	var color = "Aquamarine";
+	switch (block.type)
+	{
+	case "constant":
+		color = "Chartreuse";
+		break;
+	case "topic":
+	case "service":
+	case "param":
+		color = "Gold";
+		break;
+	default:
+		color = "Aquamarine";
+		break;
+	}
+	// get name for display
+	var display_name = ROSDASH.getDisplayName(block);
+	// add the body of the block
+	var body = window.cy.add({
+		group: "nodes",
+		data: {
+			id: block.id,
+			name: display_name,
+			faveColor: color,
+		},
+		position: { x: block.x, y: block.y },
+		classes: "body"
+	});
+	// add input pins
+	for (var i = 0; i < block.input.length; ++ i)
+	{
+		window.cy.add({
+			group: "nodes",
+			data: {
+				id: block.id + "-i" + i
+			},
+			position: { x: block.x + ROSDASH.INPUT_POS[block.input.length][i][0], y: block.y + ROSDASH.INPUT_POS[block.input.length][i][1] },
+			classes: "input",
+			locked: true
+		});
+	}
+	// add output pins
+	for (var i = 0; i < block.output.length; ++ i)
+	{
+		window.cy.add({
+			group: "nodes",
+			data: {
+				id: block.id + "-o" + i
+			},
+			position: { x: block.x + ROSDASH.OUTPUT_POS[block.output.length][i][0], y: block.y + ROSDASH.OUTPUT_POS[block.output.length][i][1] },
+			classes: "output",
+			locked: true
+		});
+	}
+	// save the information of the block into ROSDASH.blocks by id
+	ROSDASH.blocks[block.id] = block;
+	return block.id;
+}
+// add a new constant block based on type
+ROSDASH.addConstant = function (const_type)
+{
+	var value = ROSDASH.getMsgDefaultValue(const_type);
+	var block = {
+		type: "constant",
+		constant: true,
+		constname: const_type,
+		value: value
+	};
+	return ROSDASH.addBlock(block);
+}
 // add a new ros item block, not add one from init json file
 ROSDASH.addRosItem = function (rosname, type)
 {
@@ -1454,9 +1556,9 @@ ROSDASH.addRosItem = function (rosname, type)
 		type = "topic";
 	}
 	//@note maybe i should allow conflict?
-	if ("" == rosname || ROSDASH.checkRosConflict(rosname, type))
+	if (undefined === rosname || "" == rosname || ROSDASH.checkRosConflict(rosname, type))
 	{
-		console.error("ros item name is not valid: ", rosname);
+		console.error("ros item name is not valid", rosname);
 		return;
 	}
 	// set the new block location
@@ -1529,95 +1631,6 @@ ROSDASH.addRosItem = function (rosname, type)
 	ROSDASH.rosBlocks[type].push(rosname);
 	// return to facilitate "fit"
 	return id;
-}
-// add a new block based on type
-ROSDASH.addBlockByType = function (type)
-{
-	var id = ROSDASH.addBlock({type: type});
-	// add a corresponding widget
-	if (undefined !== id && (type in ROSDASH.blockDef) && ("has_panel" in ROSDASH.blockDef[type]) && ROSDASH.blockDef[type].has_panel && ! (id in ROSDASH.widgets))
-	{
-		//ROSDASH.addWidgetByType(type);
-	}
-	return id;
-}
-// add a new constant block based on type
-ROSDASH.addConstant = function (const_type)
-{
-	var value = ROSDASH.getMsgDefaultValue(const_type);
-	var block = {
-		type: "constant",
-		constant: true,
-		constname: const_type,
-		value: value
-	};
-	return ROSDASH.addBlock(block);
-}
-ROSDASH.addBlock = function (block)
-{
-	var block = ROSDASH.initBlockConf(block);
-	// if fail to init a block
-	if (undefined === block)
-	{
-		return undefined;
-	}
-	// determine the block number
-	block = ROSDASH.getBlockNum(block, block.list_name);
-	// set color by type
-	var color = "Aquamarine";
-	switch (block.type)
-	{
-	case "constant":
-		color = "Chartreuse";
-		break;
-	case "topic":
-	case "service":
-	case "param":
-		color = "Gold";
-		break;
-	}
-	// true name for display, compatible with old blocks
-	var true_name = ROSDASH.getDisplayName(block);
-	// add the body of the block
-	var body = window.cy.add({
-		group: "nodes",
-		data: {
-			id: block.id,
-			name: true_name, // block.name,
-			faveColor: color,
-		},
-		position: { x: block.x, y: block.y },
-		classes: "body"
-	});
-	// add input pins
-	for (var i = 0; i < block.input.length; ++ i)
-	{
-		window.cy.add({
-			group: "nodes",
-			data: {
-				id: block.id + "-i" + i
-			},
-			position: { x: block.x + ROSDASH.INPUT_POS[block.input.length][i][0], y: block.y + ROSDASH.INPUT_POS[block.input.length][i][1] },
-			classes: "input",
-			locked: true
-		});
-	}
-	// add output pins
-	for (var i = 0; i < block.output.length; ++ i)
-	{
-		window.cy.add({
-			group: "nodes",
-			data: {
-				id: block.id + "-o" + i
-			},
-			position: { x: block.x + ROSDASH.OUTPUT_POS[block.output.length][i][0], y: block.y + ROSDASH.OUTPUT_POS[block.output.length][i][1] },
-			classes: "output",
-			locked: true
-		});
-	}
-	// save the information of the block into ROSDASH.blocks by id
-	ROSDASH.blocks[block.id] = block;
-	return block.id;
 }
 
 //@todo generate the position for new blocks to be. maybe should follow the mouse
@@ -1769,7 +1782,7 @@ ROSDASH.getBlockNum = function (block, block_type)
 // get a suitable name displayed in diagram
 ROSDASH.getDisplayName = function (block)
 {
-	var true_name = block.name;
+	var display_name = block.name;
 	switch (block.type)
 	{
 	case "constant":
@@ -1777,10 +1790,10 @@ ROSDASH.getDisplayName = function (block)
 		{
 			if ("array" == typeof block.value || "object" == typeof block.value)
 			{
-				true_name = JSON.stringify(block.value);
+				display_name = JSON.stringify(block.value);
 			} else
 			{
-				true_name = block.value;
+				display_name = block.value;
 			}
 		}
 		break;
@@ -1789,15 +1802,15 @@ ROSDASH.getDisplayName = function (block)
 	case "param":
 		if (undefined !== block.rosname)
 		{
-			true_name = block.rosname;
+			display_name = block.rosname;
 		}
 		break;
 	}
-	if (16 < true_name.length)
+	if (16 < display_name.length)
 	{
-		true_name = true_name.substring(0, 16 - 3) + "...";
+		display_name = display_name.substring(0, 16 - 3) + "...";
 	}
-	return true_name;
+	return display_name;
 }
 
 
