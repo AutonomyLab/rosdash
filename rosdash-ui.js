@@ -186,7 +186,7 @@ ROSDASH.initForm = function (canvas, view)
 			{
 			case "panel":
 			case "editor":
-				ROSDASH.loadJsonForm(ROSDASH.widgets[ROSDASH.selectedWidget]);
+				ROSDASH.loadJsonForm(ROSDASH.blocks[ROSDASH.selectedWidget].widget);
 				break;
 			case "diagram":
 				ROSDASH.loadJsonForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
@@ -427,7 +427,7 @@ ROSDASH.formClickBlock = function (id)
 	{
 	case "panel":
 	case "editor":
-		show = ROSDASH.widgets[id];
+		show = ROSDASH.blocks[id].widget;
 		break;
 	case "diagram":
 		show = ROSDASH.blocks[id];
@@ -528,7 +528,7 @@ ROSDASH.updateJsonForm = function (data)
 			// save changed data to widget
 			for (var i in data)
 			{
-				ROSDASH.widgets[ROSDASH.selectedWidget][i] = data[i];
+				ROSDASH.blocks[ROSDASH.selectedWidget].widget[i] = data[i];
 			}
 			break;
 		case "diagram":
@@ -547,7 +547,7 @@ ROSDASH.updateJsonForm = function (data)
 		{
 		case "panel":
 		case "editor":
-			ROSDASH.widgets[ROSDASH.selectedWidget].config = data;
+			ROSDASH.blocks[ROSDASH.selectedWidget].widget.config = data;
 			break;
 		case "diagram":
 			ROSDASH.blocks[ROSDASH.selectedBlock].config = data;
@@ -555,7 +555,7 @@ ROSDASH.updateJsonForm = function (data)
 		}
 		break;
 	// save changed data to dashboardConf
-	case "dashboardConf":
+	case "dashConf":
 		ROSDASH.dashConf = data;
 		break;
 	default:
@@ -567,25 +567,26 @@ ROSDASH.updateJsonForm = function (data)
 // if change json form in panel or editor, show that immediately
 ROSDASH.callbackUpdatePanelForm = function (data)
 {
+	var widget = ROSDASH.blocks[ROSDASH.selectedWidget].widget;
 	// update widget title
-	if (("widgetTitle" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].widgetTitle != data.widgetTitle)
+	if (("widgetTitle" in data) && widget.widgetTitle != data.widgetTitle)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetHeader span.header").html(data.widgetTitle);
 	}
 	// update height or width
-	if (("width" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].width != data.width)
+	if (("width" in data) && widget.width != data.width)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget").width(parseFloat(data.width));
 	}
-	if (("height" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].height != data.height)
+	if (("height" in data) && widget.height != data.height)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget").height(parseFloat(data.height));
 	}
-	if (("content_height" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].content_height != data.content_height)
+	if (("content_height" in data) && widget.content_height != data.content_height)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetContent").height(parseFloat(data.height));
 	}
-	if (("header_height" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].header_height != data.header_height)
+	if (("header_height" in data) && widget.header_height != data.header_height)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetHeader").height(parseFloat(data.height));
 	}

@@ -863,10 +863,10 @@ ROSDASH.initJson = function ()
 	ROSDASH.loadJson(ROSDASH.frontpageJson, function (json)
 	{
 		ROSDASH.connectROS(ROSDASH.dashConf.host, ROSDASH.dashConf.port);
-		// load panel
-		ROSDASH.loadEditor(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data.widgets);
 		// load diagram
 		ROSDASH.loadDiagram(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data);
+		// load panel
+		ROSDASH.loadEditor(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data.widgets);
 	});
 	ROSDASH.waitJson();
 }
@@ -1165,20 +1165,23 @@ ROSDASH.uploadJson = function (file)
 // a list of widgets in the panel
 ROSDASH.widgets = new Object();
 // add a widget by type, usually a new widget
-//@todo addBlockByType
-ROSDASH.addWidgetByType = function (name)
+ROSDASH.addWidgetByType = function (name, num)
 {
 	if (! ROSDASH.checkBlockTypeValid(name))
 	{
 		console.error("widget invalid", name);
 		return;
 	}
-	// set a new count number. don't use getWidgetNum because there is no widget object
 	if (undefined === ROSDASH.blockDef[name])
 	{
 		ROSDASH.blockDef[name] = new Object();
-		ROSDASH.blockDef[name].count = 0;
 	}
+	// num is set by addBlockByType
+	if (undefined !== num)
+	{
+		ROSDASH.blockDef[name].count = num;
+	}
+	// set a new count number. don't use getWidgetNum because there is no widget object
 	else if (undefined === ROSDASH.blockDef[name].count)
 	{
 		ROSDASH.blockDef[name].count = 0;
@@ -1204,14 +1207,9 @@ ROSDASH.addWidgetByType = function (name)
 	for (var i in ROSDASH.widgets)
 	{
 		++ ROSDASH.widgets[i].pos;
+		++ ROSDASH.blocks[i].widget.pos;
 	}
 	ROSDASH.addWidget(widget);
-	//@todo add to diagram
-	if (! (widget.widgetId in ROSDASH.blocks))
-	{
-		console.debug("add to diagram", widget.widgetId)
-		//ROSDASH.addBlockByType(name);
-	}
 	ROSDASH.ee.emitEvent('change');
 }
 // add a widget, usually from json
@@ -1225,11 +1223,6 @@ ROSDASH.addWidget = function (def)
 		$("#" + canvas).sDashboard("addWidget", def);
 		return;
 	}
-	def = ROSDASH.getWidgetNum(def);
-	if (undefined === def)
-	{
-		return;
-	}
 	// save the definition of this widget
 	ROSDASH.widgets[def.widgetId] = def;
 	if (undefined === ROSDASH.blocks[def.widgetId])
@@ -1237,7 +1230,6 @@ ROSDASH.addWidget = function (def)
 		ROSDASH.blocks[def.widgetId] = new Object();
 	}
 	ROSDASH.blocks[def.widgetId].widget = def;
-	console.debug(	ROSDASH.blocks[def.widgetId])
 	$("#editor").sDashboard("addWidget", def);
 	ROSDASH.ee.emitEvent('addWidget');
 }
@@ -1361,9 +1353,13 @@ ROSDASH.getWidgetNum = function (def)
 	} else
 	{
 		// if widget number conflicts
-		for (var i in ROSDASH.widgets)
+		for (var i in ROSDASH.blocks)
 		{
-			if (ROSDASH.widgets[i].widgetType == def.widgetType && ROSDASH.widgets[i].number == def.number)
+			if (! ("widget" in ROSDASH.blocks[i]))
+			{
+				continue;
+			}
+			if (ROSDASH.blocks[i].widget.widgetType == def.widgetType && ROSDASH.blocks[i].widget.number == def.number)
 			{
 				console.error("widget number conflicted: " + def.widgetId);
 				// set a new widget number
@@ -1378,16 +1374,18 @@ ROSDASH.getWidgetNum = function (def)
 // remove a widget
 ROSDASH.removeWidget = function (id)
 {
-	var pos = ROSDASH.widgets[id].pos;
+	var pos = ROSDASH.blocks[i].widget.pos;
 	// move widgets behind it forward by one
 	for (var i in ROSDASH.widgets)
 	{
-		if (ROSDASH.widgets[i].pos > pos)
+		if (ROSDASH.blocks[i].widget.pos > pos)
 		{
 			-- ROSDASH.widgets[i].pos;
+			-- ROSDASH.blocks[i].widget.pos;
 		}
 	}
 	delete ROSDASH.widgets[id];
+	delete ROSDASH.blocks[id];
 	ROSDASH.ee.emitEvent('change');
 }
 // callback function of sDashboard widget move
@@ -1399,6 +1397,7 @@ ROSDASH.moveWidget = function (sorted)
 		if (sorted[i].widgetId in ROSDASH.widgets)
 		{
 			ROSDASH.widgets[sorted[i].widgetId].pos = i;
+			ROSDASH.blocks[sorted[i].widgetId].widget.pos = i;
 		}
 	}
 	ROSDASH.ee.emitEvent('change');
@@ -1408,7 +1407,7 @@ ROSDASH.selectedWidget;
 ROSDASH.selectWidgetCallback = function (e, data)
 {
 	ROSDASH.selectedWidget = data.selectedWidgetId;
-	var w = ROSDASH.widgets[ROSDASH.selectedWidget];
+	var w = ROSDASH.blocks[ROSDASH.selectedWidget].widget;
 	// a sidebar for widget json information
 	ROSDASH.jsonFormType = "property";
 	ROSDASH.formClickBlock(ROSDASH.selectedWidget);
@@ -1416,7 +1415,7 @@ ROSDASH.selectWidgetCallback = function (e, data)
 }
 ROSDASH.findWidget = function (id)
 {
-	if (id in ROSDASH.widgets)
+	if ((id in ROSDASH.blocks) && ("widget" in ROSDASH.blocks[id]))
 	{
 		$("#dash").sDashboard("findWidget", id);
 	} else
@@ -1433,11 +1432,11 @@ ROSDASH.updateWidgetContent = function (id, content)
 // get a editable subset property in widget to edit
 ROSDASH.getWidgetEditableProperty = function (id)
 {
-	if (! (id in ROSDASH.widgets))
+	if (! (id in ROSDASH.blocks))
 	{
 		return;
 	}
-	var widget = ROSDASH.widgets[id];
+	var widget = ROSDASH.blocks[id].widget;
 	var property = {
 		widgetTitle: widget.widgetTitle,
 		width: widget.width,
@@ -1459,10 +1458,9 @@ ROSDASH.addBlockByType = function (type)
 {
 	var id = ROSDASH.addBlock({type: type});
 	// add a corresponding widget
-	if (undefined !== id && true == ROSDASH.blockDef[type].has_panel)
+	if (undefined !== id && (true == ROSDASH.blockDef[type].has_panel || "true" == ROSDASH.blockDef[type].has_panel))
 	{
-		//@todo set number
-		//ROSDASH.addWidgetByType(type);
+		ROSDASH.addWidgetByType(type, ROSDASH.blocks[id].number);
 	}
 	return id;
 }
