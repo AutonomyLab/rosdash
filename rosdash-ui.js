@@ -165,7 +165,7 @@ ROSDASH.initForm = function (canvas, view)
 		// add a new widget
 		case "addwidget":
 			ROSDASH.formList = ROSDASH.widgetList;
-			ROSDASH.formItemType = "addWidgetByType";
+			ROSDASH.formItemType = "addBlockByType";
 			ROSDASH.showItemsInForm({
 				type: "button",
 				value: "Widgets",
