@@ -177,8 +177,6 @@ ROSDASH.getDashJson = function ()
 	var json = ROSDASH.dashConf;
 	json.version = ROSDASH.version;
 	json.date = new Date().toString();
-	// panel widgets
-	json.widgets = ROSDASH.widgets;
 	// diagram blocks
 	json.block = new Object();
 	// diagram edges
@@ -290,39 +288,35 @@ ROSDASH.checkDashConfValid = function (conf)
 
 
 // load widgets from json
-ROSDASH.loadEditor = function (json)
+ROSDASH.loadEditor = function (blocks)
 {
-	//@bug remove previous widgets
-	for (var i in ROSDASH.widgets)
-	{
-		ROSDASH.removeWidget(i);
-	}
-	if (null === json)
+	if (undefined === blocks)
 	{
 		return;
 	}
-	var count = 0;
-	for (var i in json)
+	// create an empty panel
+	$("#editor").empty();
+	$("#editor").sDashboard({
+		dashboardData : [],
+		disableSelection : ROSDASH.dashConf.disable_selection
+	});
+	ROSDASH.dashBindEvent("editor");
+
+	var widgets = new Array();
+	for (var i in blocks)
 	{
-		++ count;
-	}
-	while (count)
-	{
-		// find the max widget position and add it
-		var max = -1;
-		var max_num;
-		for (var i in json)
+		if ("widget" in blocks[i])
 		{
-			var pos = parseInt(json[i].pos);
-			if (pos > max)
-			{
-				max = pos;
-				max_num = i;
-			}
+			widgets[parseInt(blocks[i].widget.pos)] = blocks[i].widget;
 		}
-		ROSDASH.addWidget(json[max_num]);
-		delete json[max_num];
-		-- count;
+	}
+	for (var i = widgets.length - 1; i >= 0; -- i)
+	{
+		if (! (i in widgets))
+		{
+			continue;
+		}
+		ROSDASH.addWidget(widgets[i]);
 	}
 }
 // bind callback functions
@@ -357,9 +351,9 @@ ROSDASH.headerSetCallback = function (e, data)
 
 
 // load widgets from json
-ROSDASH.loadPanel = function (widgets)
+ROSDASH.loadPanel = function (blocks)
 {
-	if (undefined === widgets)
+	if (undefined === blocks)
 	{
 		return;
 	}
@@ -371,38 +365,29 @@ ROSDASH.loadPanel = function (widgets)
 	});
 	ROSDASH.dashBindEvent("dash");
 
-	// copy them
-	var json = $.extend(true, [], widgets);
-	var count = 0;
-	for (var i in json)
+	var widgets = new Array();
+	for (var i in blocks)
 	{
-		++ count;
-	}
-	while (count)
-	{
-		// find the max widget position and add it
-		var max = -1;
-		var max_num;
-		for (var i in json)
+		if ("widget" in blocks[i])
 		{
-			var pos = parseInt(json[i].pos);
-			if (pos > max)
-			{
-				max = pos;
-				max_num = i;
-			}
+			widgets[parseInt(blocks[i].widget.pos)] = blocks[i].widget;
+		}
+	}
+	for (var i = widgets.length - 1; i >= 0; -- i)
+	{
+		if (! (i in widgets))
+		{
+			continue;
 		}
 		// add widget content
 		try
 		{
-			json[max_num] = ROSDASH.setWidgetContent(json[max_num]);
-			$("#dash").sDashboard("addWidget", json[max_num]);
+			widgets[i] = ROSDASH.setWidgetContent(widgets[i]);
+			$("#dash").sDashboard("addWidget", widgets[i]);
 		} catch (err)
 		{
 			console.error("add widget content error", err.message, err.stack);
 		}
-		delete json[max_num];
-		-- count;
 	}
 	ROSDASH.ee.emitEvent("panelReady");
 }
@@ -569,11 +554,11 @@ ROSDASH.loadJsonEditor = function (src)
 				// update jsontext
 				$('#jsontext').val(JSON.stringify(json));
 				// reload everything
-				ROSDASH.loadEditor(data.widgets);
+				ROSDASH.loadEditor(data.block);
 				ROSDASH.loadDiagram(data);
 			}, propertyclick: null });
 			// reload everything
-			ROSDASH.loadEditor(ROSDASH.jsonEditorJson.widgets);
+			ROSDASH.loadEditor(ROSDASH.jsonEditorJson.block);
 			ROSDASH.loadDiagram(ROSDASH.jsonEditorJson);
         } else
         {
@@ -594,7 +579,7 @@ ROSDASH.loadJsonEditor = function (src)
 		// update jsontext
 		$('#jsontext').val(JSON.stringify(json));
 		// reload everything
-		ROSDASH.loadEditor(data.widgets);
+		ROSDASH.loadEditor(data.block);
 		ROSDASH.loadDiagram(data);
 	}, propertyclick: null });
 }
@@ -866,7 +851,7 @@ ROSDASH.initJson = function ()
 		// load diagram
 		ROSDASH.loadDiagram(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data);
 		// load panel
-		ROSDASH.loadEditor(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data.widgets);
+		ROSDASH.loadEditor(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data.block);
 	});
 	ROSDASH.waitJson();
 }
@@ -993,7 +978,7 @@ ROSDASH.waitLoadJs = function ()
 	{
 		// successfully loaded
 		ROSDASH.instantiateWidgets();
-		ROSDASH.loadPanel(ROSDASH.widgets);
+		ROSDASH.loadPanel(ROSDASH.blocks);
 	}
 }
 
@@ -1162,8 +1147,6 @@ ROSDASH.uploadJson = function (file)
 ///////////////////////////////////// widget actions (based on sDashboard)
 
 
-// a list of widgets in the panel
-ROSDASH.widgets = new Object();
 // add a widget by type, usually a new widget
 ROSDASH.addWidgetByType = function (name, num)
 {
@@ -1204,9 +1187,12 @@ ROSDASH.addWidgetByType = function (name, num)
 		config: ROSDASH.blockDef[name].config
 	};
 	// move other widgets backward by one
-	for (var i in ROSDASH.widgets)
+	for (var i in ROSDASH.blocks)
 	{
-		++ ROSDASH.widgets[i].pos;
+		if (! ("widget" in ROSDASH.blocks[i]))
+		{
+			continue;
+		}
 		++ ROSDASH.blocks[i].widget.pos;
 	}
 	ROSDASH.addWidget(widget);
@@ -1215,16 +1201,7 @@ ROSDASH.addWidgetByType = function (name, num)
 // add a widget, usually from json
 ROSDASH.addWidget = function (def)
 {
-	// if duplicate widget id
-	if (def.widgetId in ROSDASH.widgets)
-	{
-		console.error("widget id duplicate: ", def.widgetId);
-		// show the effect
-		$("#" + canvas).sDashboard("addWidget", def);
-		return;
-	}
 	// save the definition of this widget
-	ROSDASH.widgets[def.widgetId] = def;
 	if (undefined === ROSDASH.blocks[def.widgetId])
 	{
 		ROSDASH.blocks[def.widgetId] = new Object();
@@ -1374,17 +1351,15 @@ ROSDASH.getWidgetNum = function (def)
 // remove a widget
 ROSDASH.removeWidget = function (id)
 {
-	var pos = ROSDASH.blocks[i].widget.pos;
+	var pos = ROSDASH.blocks[id].widget.pos;
 	// move widgets behind it forward by one
-	for (var i in ROSDASH.widgets)
+	for (var i in ROSDASH.blocks)
 	{
-		if (ROSDASH.blocks[i].widget.pos > pos)
+		if (("widget" in ROSDASH.blocks[i]) && ROSDASH.blocks[i].widget.pos > pos)
 		{
-			-- ROSDASH.widgets[i].pos;
 			-- ROSDASH.blocks[i].widget.pos;
 		}
 	}
-	delete ROSDASH.widgets[id];
 	delete ROSDASH.blocks[id];
 	ROSDASH.ee.emitEvent('change');
 }
@@ -1394,9 +1369,8 @@ ROSDASH.moveWidget = function (sorted)
 	// update all new positions
 	for (var i in sorted)
 	{
-		if (sorted[i].widgetId in ROSDASH.widgets)
+		if (sorted[i].widgetId in ROSDASH.blocks)
 		{
-			ROSDASH.widgets[sorted[i].widgetId].pos = i;
 			ROSDASH.blocks[sorted[i].widgetId].widget.pos = i;
 		}
 	}
@@ -2533,7 +2507,7 @@ ROSDASH.parseDiagram = function (diagram)
 	{
 		if (undefined === ROSDASH.blockDef[diagram.block[i].type])
 		{
-			console.warn("invalid block", i);
+			console.warn("invalid block", i, diagram.block[i]);
 			continue;
 		}
 		// if it is not in the connection
