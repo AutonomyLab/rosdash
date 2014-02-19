@@ -82,6 +82,59 @@ ROSDASH.formMain = {
 			width: ROSDASH.formConfig.main
 		}
 	],
+	docs : [
+		{
+			type: "label",
+			label: "Documentation",
+			name: "dashdocs",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "button",
+			value: "Introduction",
+			name: "docs-introduction",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Usage",
+			name: "docs-usage",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Examples",
+			name: "docs-examples",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Advanced Usage",
+			name: "docs-widget",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Dependencies",
+			name: "docs-dependencies",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "License",
+			name: "docs-license",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Contributors",
+			name: "docs-authors",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Acknowledgement",
+			name: "docs-acknowledgement",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Acknowledgement",
+			name: "docs-todo",
+			width: ROSDASH.formConfig.item
+		}
+	],
 };
 // the form object
 ROSDASH.form;
@@ -118,9 +171,18 @@ ROSDASH.initForm = function (canvas, view)
 			return;
 		}
 		// if an item
-		if (id.substring(0, 5) == "item-")
+		else if (id.substring(0, 5) == "item-")
 		{
 			ROSDASH.formClickItem(id.substring(5));
+			return;
+		}
+		else if (id.substring(0, 5) == "docs-")
+		{
+			var anchor = id.substring(5);
+			$('html, body').animate({
+				scrollTop: $( "#introduction" ).offset().top
+				//scrollTop: $('[name="' + $.attr(this, 'href').substr(1) + '"]').offset().top
+			}, 500);
 			return;
 		}
 		switch (id)
@@ -801,7 +863,7 @@ ROSDASH.initToolbar = function (canvas)
 		ROSDASH.resetJsonToolbar();
 		break;
 	default:
-		console.error("unknown view type for toolbar", ROSDASH.dashConf.view);
+		ROSDASH.resetDefaultToolbar();
 		break;
 	}
 }
@@ -939,6 +1001,30 @@ ROSDASH.resetJsonToolbar = function ()
 	var jsonicon = ROSDASH.dashChanged ? '<font color="red">changed</font>' : "unchanged";
 	ROSDASH.toolbar.addText("jsonchanged", ++ count, jsonicon);
 	ROSDASH.toolbar.addButton("download", ++ count, "download", "text_document.gif", "text_document.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+}
+// json page toolbar
+ROSDASH.resetDefaultToolbar = function ()
+{
+	ROSDASH.toolbar.forEachItem(function(itemId)
+	{
+		ROSDASH.toolbar.removeItem(itemId);
+	});
+	var count = 0;
+	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "logo.jpg", "logo.jpg");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.dashConf.name);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	var ros_host = (undefined !== ROSDASH.dashConf.host && "" != ROSDASH.dashConf.host) ? ROSDASH.dashConf.host : "disconnected";
+	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("json", ++ count, "json", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 }
 

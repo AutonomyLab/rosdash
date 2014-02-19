@@ -87,7 +87,7 @@ ROSDASH.showView = function (from, to)
 		return;
 	}
 	// only editor and diagram have sidebar
-	if ("panel" == to || "editor" == to || "diagram" == to)
+	if ("panel" == to || "editor" == to || "diagram" == to || "docs" == to)
 	{
 		$("#canvas").css("left", "160px");
 		$("#sidebar").show("slide", { direction: "left" }, 500);
@@ -149,7 +149,7 @@ ROSDASH.showView = function (from, to)
 		break;
 	case "docs":
 		to_canvas = "docs";
-		ROSDASH.resetJsonToolbar();
+		ROSDASH.resetDefaultToolbar();
 		break;
 	default:
 		to_canvas = undefined;
