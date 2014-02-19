@@ -58,13 +58,13 @@ ROSDASH.startDash = function ()
 // load an empty dashboard
 ROSDASH.loadDash = function ()
 {
-	$("#editor").empty();
+	$("#panel").empty();
 	// create empty dashboard editor
-	$("#editor").sDashboard({
+	$("#panel").sDashboard({
 		dashboardData : [],
 		disableSelection : ROSDASH.dashConf.disable_selection
 	});
-	ROSDASH.dashBindEvent("editor");
+	ROSDASH.dashBindEvent("panel");
 
 	$("#cy").empty();
 	// create an empty cytoscape diagram
@@ -87,22 +87,22 @@ ROSDASH.showView = function (from, to)
 		return;
 	}
 	// only editor and diagram have sidebar
-	if ("editor" == to || "diagram" == to)
+	if ("panel" == to || "editor" == to || "diagram" == to)
 	{
 		$("#canvas").css("left", "160px");
-		$("#sidebar").css("visibility", "inherit");
+		$("#sidebar").show("slide", { direction: "left" }, 500);
 	} else
 	{
 		// remove sidebar
+		$("#sidebar").hide("slide", { direction: "left" }, 500);
 		$("#canvas").css("left", "0px");
-		$("#sidebar").css("visibility", "hidden");
 	}
 	var from_canvas;
 	// remove the original view
 	switch (from)
 	{
 	case "panel":
-		from_canvas = "dash";
+		from_canvas = "panel";
 		break;
 	case "editor":
 		from_canvas = "editor";
@@ -131,7 +131,7 @@ ROSDASH.showView = function (from, to)
 	switch (to)
 	{
 	case "panel":
-		to_canvas = "dash";
+		to_canvas = "panel";
 		ROSDASH.resetPanelToolbar();
 		break;
 	case "editor":
@@ -181,7 +181,7 @@ ROSDASH.getDashJson = function ()
 	json.block = new Object();
 	// diagram edges
 	json.edge = new Array();
-	if ("cy" in window)
+	if ("cy" in window && typeof window.cy.fit == "function")
 	{
 		// don't save popups into file
 		ROSDASH.removeAllPopup();
@@ -208,7 +208,7 @@ ROSDASH.dashConf = {
 	// basic
 	name: "index",
 	discrip: "",
-	view: "editor",
+	view: "panel",
 
 	// ros
 	host: "",
@@ -284,23 +284,24 @@ ROSDASH.checkDashConfValid = function (conf)
 }
 
 
-///////////////////////////////////// editor
+
+///////////////////////////////////// panel
 
 
 // load widgets from json
-ROSDASH.loadEditor = function (blocks)
+ROSDASH.loadPanel = function (blocks)
 {
 	if (undefined === blocks)
 	{
 		return;
 	}
 	// create an empty panel
-	$("#editor").empty();
-	$("#editor").sDashboard({
+	$("#panel").empty();
+	$("#panel").sDashboard({
 		dashboardData : [],
 		disableSelection : ROSDASH.dashConf.disable_selection
 	});
-	ROSDASH.dashBindEvent("editor");
+	ROSDASH.dashBindEvent("panel");
 
 	var widgets = new Array();
 	for (var i in blocks)
@@ -318,6 +319,15 @@ ROSDASH.loadEditor = function (blocks)
 		}
 		ROSDASH.addWidget(widgets[i]);
 	}
+	ROSDASH.ee.emitEvent("panelReady");
+}
+// start to run widgets
+ROSDASH.runPanel = function ()
+{
+	ROSDASH.ee.emitEvent("initBegin");
+	ROSDASH.initWidgets();
+	ROSDASH.ee.emitEvent("runBegin");
+	ROSDASH.runWidgets();
 }
 // bind callback functions
 ROSDASH.dashBindEvent = function (canvas)
@@ -345,60 +355,6 @@ ROSDASH.widgetSetCallback = function (e, data)
 {}
 ROSDASH.headerSetCallback = function (e, data)
 {}
-
-
-///////////////////////////////////// panel
-
-
-// load widgets from json
-ROSDASH.loadPanel = function (blocks)
-{
-	if (undefined === blocks)
-	{
-		return;
-	}
-	// create an empty panel
-	$("#dash").empty();
-	$("#dash").sDashboard({
-		dashboardData : [],
-		disableSelection : ROSDASH.dashConf.disable_selection
-	});
-	ROSDASH.dashBindEvent("dash");
-
-	var widgets = new Array();
-	for (var i in blocks)
-	{
-		if ("widget" in blocks[i])
-		{
-			widgets[parseInt(blocks[i].widget.pos)] = blocks[i].widget;
-		}
-	}
-	for (var i = widgets.length - 1; i >= 0; -- i)
-	{
-		if (! (i in widgets))
-		{
-			continue;
-		}
-		// add widget content
-		try
-		{
-			widgets[i] = ROSDASH.setWidgetContent(widgets[i]);
-			$("#dash").sDashboard("addWidget", widgets[i]);
-		} catch (err)
-		{
-			console.error("add widget content error", err.message, err.stack);
-		}
-	}
-	ROSDASH.ee.emitEvent("panelReady");
-}
-// start to run widgets
-ROSDASH.runPanel = function ()
-{
-	ROSDASH.ee.emitEvent("initBegin");
-	ROSDASH.initWidgets();
-	ROSDASH.ee.emitEvent("runBegin");
-	ROSDASH.runWidgets();
-}
 
 
 ///////////////////////////////////// jsonEditor
@@ -439,11 +395,11 @@ ROSDASH.loadJsonEditor = function (src)
 				// update jsontext
 				$('#jsontext').val(JSON.stringify(json));
 				// reload everything
-				ROSDASH.loadEditor(data.block);
+				//ROSDASH.loadEditor(data.block);
 				ROSDASH.loadDiagram(data);
 			}, propertyclick: null });
 			// reload everything
-			ROSDASH.loadEditor(ROSDASH.jsonEditorJson.block);
+			//ROSDASH.loadEditor(ROSDASH.jsonEditorJson.block);
 			ROSDASH.loadDiagram(ROSDASH.jsonEditorJson);
         } else
         {
@@ -464,7 +420,7 @@ ROSDASH.loadJsonEditor = function (src)
 		// update jsontext
 		$('#jsontext').val(JSON.stringify(json));
 		// reload everything
-		ROSDASH.loadEditor(data.block);
+		//ROSDASH.loadEditor(data.block);
 		ROSDASH.loadDiagram(data);
 	}, propertyclick: null });
 }
@@ -736,7 +692,7 @@ ROSDASH.initJson = function ()
 		// load diagram
 		ROSDASH.loadDiagram(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data);
 		// load panel
-		ROSDASH.loadEditor(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data.block);
+		ROSDASH.parseDiagram( ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data );
 	});
 	ROSDASH.waitJson();
 }
@@ -861,7 +817,7 @@ ROSDASH.waitLoadJs = function ()
 		setTimeout(ROSDASH.waitLoadJs, 300);
 	} else
 	{
-		// successfully loaded
+		//@todo successfully loaded
 		ROSDASH.instantiateWidgets();
 		ROSDASH.loadPanel(ROSDASH.blocks);
 	}
@@ -1092,7 +1048,13 @@ ROSDASH.addWidget = function (def)
 		ROSDASH.blocks[def.widgetId] = new Object();
 	}
 	ROSDASH.blocks[def.widgetId].widget = def;
-	$("#editor").sDashboard("addWidget", def);
+	def = ROSDASH.setWidgetContent(def);
+	// fail to set content
+	if (undefined === def)
+	{
+		return;
+	}
+	$("#panel").sDashboard("addWidget", def);
 	ROSDASH.ee.emitEvent('addWidget');
 }
 // set the value of widget content
@@ -1173,6 +1135,9 @@ ROSDASH.setWidgetContent = function (widget)
 			console.error("add widget error", err.message, err.stack);
 			return undefined;
 		}
+	} else
+	{
+		console.warn("widget init fail: not instantiated");
 	}
 	return widget;
 }
@@ -1276,7 +1241,7 @@ ROSDASH.findWidget = function (id)
 {
 	if ((id in ROSDASH.blocks) && ("widget" in ROSDASH.blocks[id]))
 	{
-		$("#dash").sDashboard("findWidget", id);
+		$("#panel").sDashboard("findWidget", id);
 	} else
 	{
 		console.log("cannot find", id);
@@ -1286,7 +1251,7 @@ ROSDASH.findWidget = function (id)
 // modify the content of a widget directly
 ROSDASH.updateWidgetContent = function (id, content)
 {
-	$("#dash").sDashboard("setContentById", id, content);
+	$("#panel").sDashboard("setContentById", id, content);
 }
 // get a editable subset property in widget to edit
 ROSDASH.getWidgetEditableProperty = function (id)
@@ -1351,7 +1316,7 @@ ROSDASH.parseDiagram = function (diagram)
 	{
 		if (undefined === ROSDASH.blockDef[diagram.block[i].type])
 		{
-			console.warn("invalid block", i, diagram.block[i]);
+			console.warn("invalid block", i, diagram.block[i].type);
 			continue;
 		}
 		// if it is not in the connection

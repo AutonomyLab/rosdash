@@ -57,6 +57,7 @@ ROSDASH.loadDiagram = function (json)
 	// if canvas is not loaded
 	if ($("#cy").length <= 0 || undefined === window.cy || typeof window.cy.fit != "function")
 	{
+		//@todo
 		setTimeout(function () {
 			ROSDASH.loadDiagram(json);
 		}, 300);

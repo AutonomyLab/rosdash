@@ -21,7 +21,7 @@ ROSDASH.formConfig = {
 };
 // the main form for each view
 ROSDASH.formMain = {
-	editor : [
+	panel : [
 		{
 			type: "label",
 			label: "Dashboard",
@@ -747,7 +747,6 @@ ROSDASH.initToolbar = function (canvas)
 		case "dashboard":
 		case "panel":
 			ROSDASH.showView(ROSDASH.dashConf.view, "panel");
-			ROSDASH.parseDiagram( ROSDASH.getDashJson() );
 			break;
 		case "diagram":
 		case "editor":
@@ -756,9 +755,15 @@ ROSDASH.initToolbar = function (canvas)
 			ROSDASH.showView(ROSDASH.dashConf.view, id);
 			break;
 		case "run":
+			// remove sidebar
+			$("#sidebar").hide("slide", { direction: "left" }, 500);
+			$("#canvas").css("left", "0px");
 			switch (ROSDASH.runStatus)
 			{
 			case "uninitialized":
+			case "stop":
+				//@todo
+				ROSDASH.parseDiagram( ROSDASH.getDashJson() );
 				ROSDASH.runPanel();
 				break;
 			case "pause":
@@ -772,6 +777,9 @@ ROSDASH.initToolbar = function (canvas)
 			break;
 		case "stop":
 			ROSDASH.runStatus = "stop";
+			// show sidebar
+			$("#canvas").css("left", "160px");
+			$("#sidebar").show("slide", { direction: "left" }, 500);
 			break;
 		default:
 			console.error("unknown button in toolbar", id);
@@ -817,7 +825,6 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
 	ROSDASH.toolbar.addButton("panel", ++ count, "<strong>panel</strong>", "copy.gif", "copy.gif");
-	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
 	var jsonicon = ROSDASH.dashChanged ? '<font color="red">json</font>' : "json";
 	ROSDASH.toolbar.addButton("json", ++ count, jsonicon, "copy.gif", "copy.gif");
@@ -827,12 +834,18 @@ ROSDASH.resetPanelToolbar = function ()
 	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
 	ROSDASH.toolbar.addButton("run", ++ count, "run", "settings.gif", "settings.gif");
 	ROSDASH.toolbar.addButton("pause", ++ count, "pause", "settings.gif", "settings.gif");
-	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
-
+	ROSDASH.toolbar.addButton("stop", ++ count, "stop", "settings.gif", "settings.gif");
 	ROSDASH.toolbar.addButton("zindex", ++ count, "overlay", "settings.gif", "settings.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addInput("input", ++ count, "", 100);
+	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addButton("remove", ++ count, "remove", "remove-icon.gif", "remove-icon.gif");
+	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
+	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 }
-// reset the toolbar for editor
+//@deprecated reset the toolbar for editor
 ROSDASH.resetEditorToolbar = function ()
 {
 	// remove previous items
@@ -852,7 +865,6 @@ ROSDASH.resetEditorToolbar = function ()
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
 	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
-	ROSDASH.toolbar.addButton("editor", ++ count, "<strong>editor</strong>", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
 	var jsonicon = ROSDASH.dashChanged ? '<font color="red">json</font>' : "json";
 	ROSDASH.toolbar.addButton("json", ++ count, jsonicon, "copy.gif", "copy.gif");
@@ -885,7 +897,6 @@ ROSDASH.resetDiagramToolbar = function ()
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
 	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
-	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "<strong>diagram</strong>", "copy.gif", "copy.gif");
 	var jsonicon = ROSDASH.dashChanged ? '<font color="red">json</font>' : "json";
 	ROSDASH.toolbar.addButton("json", ++ count, jsonicon, "copy.gif", "copy.gif");
@@ -920,7 +931,6 @@ ROSDASH.resetJsonToolbar = function ()
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
 	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
-	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("json", ++ count, "<strong>json</strong>", "copy.gif", "copy.gif");
 	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
