@@ -87,7 +87,7 @@ ROSDASH.showView = function (from, to)
 		return;
 	}
 	// only editor and diagram have sidebar
-	if ("panel" == to || "editor" == to || "diagram" == to || "docs" == to)
+	if ("panel" == to || "editor" == to || "diagram" == to)
 	{
 		$("#canvas").css("left", "160px");
 		$("#sidebar").show("slide", { direction: "left" }, 500);

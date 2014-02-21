@@ -181,7 +181,6 @@ ROSDASH.initForm = function (canvas, view)
 			var anchor = id.substring(5);
 			$('html, body').animate({
 				scrollTop: $( "#introduction" ).offset().top
-				//scrollTop: $('[name="' + $.attr(this, 'href').substr(1) + '"]').offset().top
 			}, 500);
 			return;
 		}
