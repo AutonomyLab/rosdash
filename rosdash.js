@@ -50,10 +50,11 @@ $(document).ready(function() {
 // load the entire dashboard
 ROSDASH.startDash = function ()
 {
+	// be careful with the order
+	ROSDASH.loadDash();
 	ROSDASH.initJson();
 	ROSDASH.initToolbar("toolbar");
 	ROSDASH.initSidebar("sidebar");
-	ROSDASH.loadDash();
 }
 // load an empty dashboard
 ROSDASH.loadDash = function ()
@@ -784,13 +785,26 @@ ROSDASH.ee.addListener("pageReady", ROSDASH.checkScripts);
 // load required files, i.e. js, css, etc.
 ROSDASH.loadRequired = function (i)
 {
+	if (undefined === ROSDASH.blocks[i])
+	{
+		setTimeout(ROSDASH.loadRequired[i], 100);
+		return;
+	}
+	if (undefined === ROSDASH.blocks[i].require)
+	{
+		ROSDASH.blocks[i].require = new Object();
+	}
 	// load required js
 	if (undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type] && undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
 	{
 		for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
 		{
+			ROSDASH.blocks[i].require[ ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j] ] = false;
 			try {
-				ROSDASH.loadJs(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]);
+				ROSDASH.loadJs(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j], function (data)
+				{
+					ROSDASH.blocks[i].require[ ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j] ] = true;
+				});
 			} catch (err)
 			{
 				ROSDASH.connection[i].error = true;
@@ -803,8 +817,12 @@ ROSDASH.loadRequired = function (i)
 	{
 		for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].css)
 		{
+			ROSDASH.blocks[i].require[ ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j] ] = false;
 			try {
-				ROSDASH.loadCss(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]);
+				ROSDASH.loadCss(ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j], function (data)
+				{
+					ROSDASH.blocks[i].require[ ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j] ] = true;
+				});
 			} catch (err)
 			{
 				ROSDASH.connection[i].error = true;
@@ -812,6 +830,8 @@ ROSDASH.loadRequired = function (i)
 			}
 		}
 	}
+	//@todo
+	//ROSDASH.initWidget(i);
 }
 // wait for loading js
 ROSDASH.waitLoadJs = function ()
@@ -921,7 +941,7 @@ ROSDASH.loadJs = function (file, func)
 	});
 }
 // load css file
-ROSDASH.loadCss = function (file)
+ROSDASH.loadCss = function (file, func)
 {
 	if (undefined === file || "" == file)
 	{
@@ -939,6 +959,10 @@ ROSDASH.loadCss = function (file)
 	ROSDASH.loadList[file].data = file;
 	ROSDASH.loadList[file].type = "css";
 	ROSDASH.loadList[file].status = 2;
+	if (typeof(func) == "function")
+	{
+		return func(data);
+	}
 	console.log("load", file);
 }
 
@@ -1154,7 +1178,7 @@ ROSDASH.setWidgetContent = function (widget)
 		}
 	} else
 	{
-		console.warn("widget init fail: not instantiated");
+		console.warn("widget init fail: not instantiated", widget);
 	}
 	return widget;
 }
@@ -1286,6 +1310,56 @@ ROSDASH.getWidgetEditableProperty = function (id)
 		content_height: widget.content_height
 	};
 	return property;
+}
+ROSDASH.initWidget = function (id)
+{
+	if (! (id in ROSDASH.blocks) || ! ("has_panel" in ROSDASH.blocks[id]))
+	{
+		//console.error("init widget invalid", id);
+		return;
+	}
+	// if error or already initialized
+	if (! ROSDASH.connection[id].exist || ROSDASH.connection[id].error || ROSDASH.connection[id].initialized)
+	{
+		return;
+	}
+	// check required files
+	for (var i in ROSDASH.blocks[id].require)
+	{
+		if (false == ROSDASH.blocks[id].require[i])
+		{
+			setTimeout(function ()
+			{
+				ROSDASH.initWidget(id);
+			}, 100);
+			return;
+		}
+	}
+	if (undefined !== ROSDASH.connection[id].instance)
+	{
+		// run function by instance of widget class
+		ROSDASH.callWidgetInit(id);
+		// if ros connected
+		if (ROSDASH.rosConnected && ROSDASH.cycle < 0)
+		{
+			try	{
+				// run initRos
+				var initialized = ROSDASH.runFuncByName("initRos", ROSDASH.connection[id].instance);
+				// works in chrome 31
+				if (false != ROSDASH.connection[id].initialized)
+				{
+					ROSDASH.connection[id].initialized = initialized;
+				 }
+			} catch (err)
+			{
+				console.error("widget initRos error:", id, err.message, err.stack);
+			}
+		}
+		if (undefined === ROSDASH.connection[id].initialized)
+		{
+			ROSDASH.connection[id].initialized = true;
+		}
+	}
 }
 
 

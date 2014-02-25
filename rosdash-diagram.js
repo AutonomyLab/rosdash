@@ -60,7 +60,7 @@ ROSDASH.loadDiagram = function (json)
 		//@todo
 		setTimeout(function () {
 			ROSDASH.loadDiagram(json);
-		}, 300);
+		}, 10);
 		return;
 	}
 	// remove previous data
@@ -72,7 +72,7 @@ ROSDASH.loadDiagram = function (json)
 		console.error("cy not ready", window.cy, error);
 		setTimeout(function () {
 			ROSDASH.loadDiagram(json);
-		}, 300);
+		}, 10);
 		return;
 	}
 	// load blocks
@@ -792,7 +792,7 @@ ROSDASH.connectBlocks = function (source, target)
 	var pin_num = ROSDASH.getPinNum(source);
 	if (! (body in ROSDASH.blocks) || pin_num >= ROSDASH.blocks[body].output.length)
 	{
-		console.error("cannot connect: ", source, body);
+		console.error("cannot connect: ", source, body, ROSDASH.blocks);
 		return;
 	}
 	body = ROSDASH.getBlockParent(target);
