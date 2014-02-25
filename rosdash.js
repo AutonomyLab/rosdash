@@ -65,6 +65,10 @@ ROSDASH.loadDash = function ()
 		disableSelection : ROSDASH.dashConf.disable_selection
 	});
 	ROSDASH.dashBindEvent("panel");
+	// show it
+	$("#panel").css("visibility", "visible");
+	// fade in
+	$("#panel").fadeIn("slow");
 
 	$("#cy").empty();
 	// create an empty cytoscape diagram
@@ -185,11 +189,6 @@ ROSDASH.getDashJson = function ()
 	{
 		// don't save popups into file
 		ROSDASH.removeAllPopup();
-		// add all blocks into json
-		for (var i in ROSDASH.blocks)
-		{
-			json.block[i] = ROSDASH.blocks[i];
-		}
 		// add all edges into json
 		window.cy.edges().each(function (i, ele)
 		{
@@ -199,6 +198,11 @@ ROSDASH.getDashJson = function ()
 			};
 			json.edge.push(e);
 		});
+	}
+	// add all blocks into json
+	for (var i in ROSDASH.blocks)
+	{
+		json.block[i] = ROSDASH.blocks[i];
 	}
 	return json;
 }
@@ -284,7 +288,6 @@ ROSDASH.checkDashConfValid = function (conf)
 }
 
 
-
 ///////////////////////////////////// panel
 
 
@@ -304,13 +307,26 @@ ROSDASH.loadPanel = function (blocks)
 	ROSDASH.dashBindEvent("panel");
 
 	var widgets = new Array();
+	// create object for each widget config
 	for (var i in blocks)
 	{
-		if ("widget" in blocks[i])
+		if (("has_panel" in blocks[i]) && (true == blocks[i].has_panel || "true" == blocks[i].has_panel))
 		{
-			widgets[parseInt(blocks[i].widget.pos)] = blocks[i].widget;
+			var order = parseInt(blocks[i].order);
+			widgets[order] = {
+				"widgetTitle":		blocks[i].name,
+				"widgetId":			blocks[i].id,
+				"number":			blocks[i].number,
+				"widgetType":		blocks[i].type,
+				"pos":				order,
+				"width":			blocks[i].width,
+				"height":			blocks[i].height,
+				"header_height":	blocks[i].header_height,
+				"content_height":	blocks[i].content_height
+			};
 		}
 	}
+	// add widget in reverse order
 	for (var i = widgets.length - 1; i >= 0; -- i)
 	{
 		if (! (i in widgets))
@@ -688,11 +704,12 @@ ROSDASH.initJson = function ()
 	// load the frontpage from json file
 	ROSDASH.loadJson(ROSDASH.frontpageJson, function (json)
 	{
-		ROSDASH.connectROS(ROSDASH.dashConf.host, ROSDASH.dashConf.port);
+		//@todo
+		//ROSDASH.connectROS(ROSDASH.dashConf.host, ROSDASH.dashConf.port);
 		// load diagram
-		ROSDASH.loadDiagram(ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data);
-		// load panel
-		ROSDASH.parseDiagram( ROSDASH.jsonLoadList[ROSDASH.frontpageJson].data );
+		ROSDASH.loadDiagram(json);
+		// parse diagrma for loading panel
+		ROSDASH.parseDiagram(json);
 	});
 	ROSDASH.waitJson();
 }
