@@ -342,7 +342,11 @@ ROSDASH.loadPanel = function (blocks)
 ROSDASH.runPanel = function ()
 {
 	ROSDASH.ee.emitEvent("initBegin");
-	ROSDASH.initWidgets();
+	for (var i in ROSDASH.connection)
+	{
+		//ROSDASH.initWidget(i);
+	}
+	ROSDASH.runStatus = "initialized";
 	ROSDASH.ee.emitEvent("runBegin");
 	ROSDASH.runWidgets();
 }
@@ -830,8 +834,6 @@ ROSDASH.loadRequired = function (i)
 			}
 		}
 	}
-	//@todo
-	//ROSDASH.initWidget(i);
 }
 // wait for loading js
 ROSDASH.waitLoadJs = function ()
@@ -1313,18 +1315,25 @@ ROSDASH.getWidgetEditableProperty = function (id)
 }
 ROSDASH.initWidget = function (id)
 {
-	if (! (id in ROSDASH.blocks) || ! ("has_panel" in ROSDASH.blocks[id]))
+	if (! (id in ROSDASH.blocks))
 	{
-		//console.error("init widget invalid", id);
+		console.error("init widget error: ROSDASH.blocks not ready", id);
 		return;
 	}
+	// validate the existence of each block just once
+	if (! ROSDASH.connection[id].exist)
+	{
+		console.error("widget does not exist: ", id);
+		return;
+	}
+	ROSDASH.loadRequired(id);
 	// if error or already initialized
-	if (! ROSDASH.connection[id].exist || ROSDASH.connection[id].error || ROSDASH.connection[id].initialized)
+	if (ROSDASH.connection[id].error || ROSDASH.connection[id].initialized)
 	{
 		return;
 	}
-	// check required files
-	for (var i in ROSDASH.blocks[id].require)
+	// check if required js is ready
+	/*for (var i in ROSDASH.blocks[id].require)
 	{
 		if (false == ROSDASH.blocks[id].require[i])
 		{
@@ -1334,11 +1343,41 @@ ROSDASH.initWidget = function (id)
 			}, 100);
 			return;
 		}
+	}*/
+	if (undefined !== ROSDASH.blockDef[ROSDASH.connection[id].block.type].js)
+	{
+		var flag = false;
+		for (var j in ROSDASH.blockDef[ROSDASH.connection[id].block.type].js)
+		{
+			if ( ROSDASH.loadList[ROSDASH.blockDef[ROSDASH.connection[id].block.type].js[j]] < 0 )
+			{
+				//ROSDASH.connection[i].error = true;
+			}
+			if ( ROSDASH.loadList[ROSDASH.blockDef[ROSDASH.connection[id].block.type].js[j]] < 2 )
+			{
+				flag = true;
+				break;
+			}
+		}
+		// if not ready
+		if (flag)
+		{
+			return;
+		}
+	}
+	if (("has_panel" in ROSDASH.blocks[id]) && (true == ROSDASH.blocks[id].has_panel || "true" == ROSDASH.blocks[id].has_panel))
+	{
 	}
 	if (undefined !== ROSDASH.connection[id].instance)
 	{
 		// run function by instance of widget class
-		ROSDASH.callWidgetInit(id);
+		try
+		{
+			ROSDASH.connection[id].initialized = ROSDASH.runFuncByName("init", ROSDASH.connection[id].instance);
+		} catch (err)
+		{
+			console.error("widget init error:", id, err.message, err.stack);
+		}
 		// if ros connected
 		if (ROSDASH.rosConnected && ROSDASH.cycle < 0)
 		{
@@ -1426,7 +1465,7 @@ ROSDASH.parseDiagram = function (diagram)
 		// validate the existence of the block
 		ROSDASH.connection[i].exist = true;
 		// load required files, i.e. js, css, etc.
-		ROSDASH.loadRequired(i);
+		ROSDASH.initWidget(i);
 	}
 	setTimeout(ROSDASH.waitLoadJs, 300);
 }
@@ -1593,82 +1632,6 @@ ROSDASH.setInitialized = function (id)
 	}
 	return false;
 }
-// call init functions of widgets
-ROSDASH.initWidgets = function ()
-{
-	for (var i in ROSDASH.connection)
-	{
-		// validate the existence of each block just once
-		if (! ROSDASH.connection[i].exist)
-		{
-			console.error("widget does not exist: ", i);
-			continue;
-		}
-		// if error or already initialized
-		if (ROSDASH.connection[i].error || ROSDASH.connection[i].initialized)
-		{
-			continue;
-		}
-		// check if required js is ready
-		if (undefined !== ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
-		{
-			var flag = false;
-			for (var j in ROSDASH.blockDef[ROSDASH.connection[i].block.type].js)
-			{
-				if ( ROSDASH.loadList[ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]] < 0 )
-				{
-					//ROSDASH.connection[i].error = true;
-				}
-				if ( ROSDASH.loadList[ROSDASH.blockDef[ROSDASH.connection[i].block.type].js[j]] < 2 )
-				{
-					flag = true;
-					break;
-				}
-			}
-			// if not ready
-			if (flag)
-			{
-				continue;
-			}
-		}
-		if (undefined !== ROSDASH.connection[i].instance)
-		{
-			// run function by instance of widget class
-			ROSDASH.callWidgetInit(i);
-			// if ros connected
-			if (ROSDASH.rosConnected && ROSDASH.cycle < 0)
-			{
-				try	{
-					// run initRos
-					var initialized = ROSDASH.runFuncByName("initRos", ROSDASH.connection[i].instance);
-					// works in chrome 31
-					if (false != ROSDASH.connection[i].initialized)
-					{
-						ROSDASH.connection[i].initialized = initialized;
-					 }
-				} catch (err)
-				{
-					console.error("widget initRos error:", i, err.message, err.stack);
-				}
-			}
-			if (undefined === ROSDASH.connection[i].initialized)
-			{
-				ROSDASH.connection[i].initialized = true;
-			}
-		}
-	}
-	ROSDASH.runStatus = "initialized";
-}
-ROSDASH.callWidgetInit = function (id)
-{
-	try
-	{
-		ROSDASH.connection[id].initialized = ROSDASH.runFuncByName("init", ROSDASH.connection[id].instance);
-	} catch (err)
-	{
-		console.error("widget init error:", id, err.message, err.stack);
-	}
-}
 
 ROSDASH.runStatus = "uninitialized";
 ROSDASH.doneCount = 0;
@@ -1705,8 +1668,7 @@ ROSDASH.runWidgets = function ()
 				if (ROSDASH.cycle < 30)
 				{
 					console.log("widget init again", i);
-					//ROSDASH.widgetInit(i);
-					ROSDASH.initWidgets();
+					ROSDASH.initWidget(i);
 				}
 				continue;
 			}
