@@ -1410,7 +1410,7 @@ ROSDASH.initWidget = function (id)
 			ROSDASH.connection[id].initialized = ROSDASH.runFuncByName("init", ROSDASH.connection[id].instance);
 		} catch (err)
 		{
-			console.error("widget init error:", id, err.message, err.stack);
+			console.error("widget init error:", id, err.message, err.stack, err);
 		}
 		// if ros connected
 		if (ROSDASH.rosConnected && ROSDASH.cycle < 0)
