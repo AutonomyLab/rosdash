@@ -710,6 +710,7 @@ ROSDASH.initJson = function ()
 		ROSDASH.loadDiagram(json);
 		// parse diagrma for loading panel
 		ROSDASH.parseDiagram(json);
+		ROSDASH.loadPanel(ROSDASH.blocks);
 	});
 	ROSDASH.waitJson();
 }
@@ -854,7 +855,6 @@ ROSDASH.waitLoadJs = function ()
 	{
 		//@todo successfully loaded
 		//ROSDASH.instantiateWidgets();
-		ROSDASH.loadPanel(ROSDASH.blocks);
 	}
 }
 
@@ -1087,7 +1087,7 @@ ROSDASH.addWidget = function (def)
 		ROSDASH.blocks[def.widgetId] = new Object();
 	}
 	ROSDASH.blocks[def.widgetId].widget = def;
-	def = ROSDASH.setWidgetContent(def);
+	//def = ROSDASH.setWidgetContent(def);
 	// fail to set content
 	if (undefined === def)
 	{
@@ -1161,7 +1161,7 @@ ROSDASH.setWidgetContent = function (widget)
 			widget.widgetTitle = ROSDASH.connection[widget.widgetId].block.config.title;
 		}
 		// the intance of widget
-		var obj = ROSDASH.connection[widget.widgetId].instance;
+		/*var obj = ROSDASH.connection[widget.widgetId].instance;
 		try {
 			// if cannot pass checking, do not run
 			if ( ROSDASH.checkFuncByName("addWidget", obj) )
@@ -1173,7 +1173,7 @@ ROSDASH.setWidgetContent = function (widget)
 		{
 			console.error("add widget error", err.message, err.stack);
 			return undefined;
-		}
+		}*/
 	} else
 	{
 		console.warn("widget init fail: not instantiated", widget);
@@ -1311,6 +1311,7 @@ ROSDASH.getWidgetEditableProperty = function (id)
 }
 ROSDASH.initWidget = function (id)
 {
+	// if ROSDASH.blocks is not ready
 	if (! (id in ROSDASH.blocks))
 	{
 		console.error("init widget error: ROSDASH.blocks not ready", id);
@@ -1322,6 +1323,7 @@ ROSDASH.initWidget = function (id)
 		console.error("widget does not exist: ", id);
 		return;
 	}
+	// load js, css, etc.
 	ROSDASH.loadRequired(id);
 	// if error or already initialized
 	if (ROSDASH.connection[id].error || ROSDASH.connection[id].initialized)
@@ -1362,6 +1364,7 @@ ROSDASH.initWidget = function (id)
 			return;
 		}
 	}
+	// instantiate class
 	try {
 		ROSDASH.connection[id].instance = ROSDASH.newObjByName(ROSDASH.blockDef[ROSDASH.connection[id].block.type].class_name, ROSDASH.connection[id].block);
 	} catch (err)
@@ -1369,14 +1372,36 @@ ROSDASH.initWidget = function (id)
 		ROSDASH.connection[id].error = true;
 		console.error("instantiate widget error:", id, ROSDASH.blockDef[ROSDASH.connection[id].block.type].class_name, err.message, err.stack);
 	}
+	// fail to instantiate
 	if (undefined === ROSDASH.connection[id].instance)
 	{
 		ROSDASH.connection[id].error = true;
+		return;
 	}
+	// add widget content
 	if (("has_panel" in ROSDASH.blocks[id]) && (true == ROSDASH.blocks[id].has_panel || "true" == ROSDASH.blocks[id].has_panel))
 	{
-		//
+		// the intance of widget
+		var obj = ROSDASH.connection[id].instance;
+		var widget = {
+			widgetTitle: "",
+			widgetContent: undefined
+		};
+		try {
+			// if cannot pass checking, do not run
+			if ( ROSDASH.checkFuncByName("addWidget", obj) )
+			{
+				// execute addWidget
+				widget = ROSDASH.runFuncByName("addWidget", obj, widget);
+			}
+		} catch (err)
+		{
+			console.error("add widget error", err.message, err.stack);
+			return undefined;
+		}
+		ROSDASH.updateWidgetContent(id, widget.widgetContent);
 	}
+	// init widget
 	if (undefined !== ROSDASH.connection[id].instance)
 	{
 		// run function by instance of widget class
@@ -1476,7 +1501,7 @@ ROSDASH.parseDiagram = function (diagram)
 		// load required files, i.e. js, css, etc.
 		ROSDASH.initWidget(i);
 	}
-	setTimeout(ROSDASH.waitLoadJs, 300);
+	//setTimeout(ROSDASH.waitLoadJs, 300);
 }
 // set a new item in diagram connection
 ROSDASH.initConnection = function (id)
