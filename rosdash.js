@@ -341,11 +341,6 @@ ROSDASH.loadPanel = function (blocks)
 // start to run widgets
 ROSDASH.runPanel = function ()
 {
-	ROSDASH.ee.emitEvent("initBegin");
-	for (var i in ROSDASH.connection)
-	{
-		//ROSDASH.initWidget(i);
-	}
 	ROSDASH.runStatus = "initialized";
 	ROSDASH.ee.emitEvent("runBegin");
 	ROSDASH.runWidgets();
@@ -854,10 +849,11 @@ ROSDASH.waitLoadJs = function ()
 		// wait for loading again
 		console.log("wait for loading js");
 		setTimeout(ROSDASH.waitLoadJs, 300);
+		return;
 	} else
 	{
 		//@todo successfully loaded
-		ROSDASH.instantiateWidgets();
+		//ROSDASH.instantiateWidgets();
 		ROSDASH.loadPanel(ROSDASH.blocks);
 	}
 }
@@ -1362,11 +1358,24 @@ ROSDASH.initWidget = function (id)
 		// if not ready
 		if (flag)
 		{
+			console.error("required files not ready", id);
 			return;
 		}
 	}
+	try {
+		ROSDASH.connection[id].instance = ROSDASH.newObjByName(ROSDASH.blockDef[ROSDASH.connection[id].block.type].class_name, ROSDASH.connection[id].block);
+	} catch (err)
+	{
+		ROSDASH.connection[id].error = true;
+		console.error("instantiate widget error:", id, ROSDASH.blockDef[ROSDASH.connection[id].block.type].class_name, err.message, err.stack);
+	}
+	if (undefined === ROSDASH.connection[id].instance)
+	{
+		ROSDASH.connection[id].error = true;
+	}
 	if (("has_panel" in ROSDASH.blocks[id]) && (true == ROSDASH.blocks[id].has_panel || "true" == ROSDASH.blocks[id].has_panel))
 	{
+		//
 	}
 	if (undefined !== ROSDASH.connection[id].instance)
 	{
