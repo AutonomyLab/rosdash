@@ -5,8 +5,8 @@ $PORT = "6379";
 
 function saveFile ()
 {
-	//@todo must test if the directory exists, should I remove .json?
-	$file = $_POST['file_name'].'.json';
+	//@todo must test if the directory exists
+	$file = $_POST['file_name'];
 	$json = json_encode($_POST['data']);
 	echo file_put_contents($file, $json);
 }

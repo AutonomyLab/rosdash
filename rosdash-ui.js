@@ -1,53 +1,141 @@
-///////////////////////////////////// sidebars
+ROSDASH = ROSDASH || new Object();
 
-// sidebar form by dhtmlXForm
-ROSDASH.formCanvas = "rosform";
-// the main form for diagram
-ROSDASH.formDiagramMain = [{
-		type: "label",
-		label: "Add a New Block",
-		name: "addlabel",
-		width: 180
-	}, {
-		type: "button",
-		value: "Blocks",
-		name: "addblock",
-		width: 180
-	}, {
-		type: "button",
-		value: "Constants",
-		name: "addconstant",
-		width: 180
-	}, {
-		type: "button",
-		value: "ROS items",
-		name: "addROSitem",
-		width: 180
-	}, {
-		type: "label",
-		label: "Config",
-		name: "configlabel",
-		width: 180
-	}, {
-		type: "button",
-		value: "Dashboard Config",
-		name: "dashboard",
-		width: 180
-	}
-];
-// the main form for panel
-ROSDASH.formPanelMain = [{
-	type: "label",
-	label: "Add a New Widget",
-	name: "addlabel",
-	width: 180
-	}, {
-		type: "button",
-		value: "Widgets",
-		name: "addwidget",
-		width: 180
-	}
-];
+///////////////////////////////////// sidebar
+
+
+// init the entire sidebar
+ROSDASH.initSidebar = function (canvas)
+{
+	ROSDASH.initForm("sidebarform");
+}
+
+
+///////////////////////////////////// sidebar form by dhtmlXForm
+
+
+ROSDASH.formConfig = {
+	main: 100,
+	dir: 120,
+	item: 150,
+	config: 120,
+};
+// the main form for each view
+ROSDASH.formMain = {
+	panel : [
+		{
+			type: "label",
+			label: "Dashboard",
+			name: "dashlabel",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "button",
+			value: "Config",
+			name: "dashboard",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "label",
+			label: "Add a widget",
+			name: "addlabel",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "button",
+			value: "Widgets",
+			name: "addwidget",
+			width: ROSDASH.formConfig.main
+		}
+	],
+	diagram : [
+		{
+			type: "label",
+			label: "Dashboard",
+			name: "dashlabel",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "button",
+			value: "Config",
+			name: "dashboard",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "label",
+			label: "Add a block",
+			name: "addlabel",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "button",
+			value: "Blocks",
+			name: "addblock",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "button",
+			value: "Constants",
+			name: "addconstant",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "button",
+			value: "ROS items",
+			name: "addROSitem",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "button",
+			value: "Comments",
+			name: "comment",
+			width: ROSDASH.formConfig.main
+		}
+	],
+	docs : [
+		{
+			type: "label",
+			label: "Documentation",
+			name: "dashdocs",
+			width: ROSDASH.formConfig.main
+		}, {
+			type: "button",
+			value: "Introduction",
+			name: "docs-introduction",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Usage",
+			name: "docs-usage",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Examples",
+			name: "docs-examples",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Advanced Usage",
+			name: "docs-widget",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Dependencies",
+			name: "docs-dependencies",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "License",
+			name: "docs-license",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Contributors",
+			name: "docs-authors",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Acknowledgement",
+			name: "docs-acknowledgement",
+			width: ROSDASH.formConfig.item
+		}, {
+			type: "button",
+			value: "Acknowledgement",
+			name: "docs-todo",
+			width: ROSDASH.formConfig.item
+		}
+	],
+};
 // the form object
 ROSDASH.form;
 // the callback function handle for clicking
@@ -58,28 +146,23 @@ ROSDASH.formItemType2;
 ROSDASH.formList;
 // count the items in the form in order to help append buttons
 ROSDASH.formCount = 0;
+
 // init a new form when beginning or return to main page
-ROSDASH.initForm = function ()
+ROSDASH.initForm = function (canvas, view)
 {
-	ROSDASH.removeForm();
-	// create a new form
-	switch (ROSDASH.ownerConf.view_type)
+	canvas = canvas || "sidebarform";
+	view = view || ROSDASH.dashConf.view;
+	ROSDASH.removeForm(canvas);
+	if (! (view in ROSDASH.formMain))
 	{
-	case "editor":
-		ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, ROSDASH.formPanelMain);
-		ROSDASH.formCount = ROSDASH.formPanelMain.length;
-		break;
-	case "diagram":
-		ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, ROSDASH.formDiagramMain);
-		ROSDASH.formCount = ROSDASH.formDiagramMain.length;
-		break;
-	default:
-		ROSDASH.form = new dhtmlXForm(ROSDASH.formCanvas, []);
-		ROSDASH.formCount = 1;
-		break;
+		return;
 	}
+	var main = ROSDASH.formMain[view];
+	// create a new form
+	ROSDASH.form = new dhtmlXForm(canvas, main);
+	ROSDASH.formCount = main.length;
 	// callbacks for buttons in form
-	ROSDASH.form.attachEvent("onButtonClick", function(id)
+	ROSDASH.form.attachEvent("onButtonClick", function (id)
 	{
 		// if a directory
 		if (id.substring(0, 4) == "dir-")
@@ -88,17 +171,23 @@ ROSDASH.initForm = function ()
 			return;
 		}
 		// if an item
-		if (id.substring(0, 5) == "item-")
+		else if (id.substring(0, 5) == "item-")
 		{
 			ROSDASH.formClickItem(id.substring(5));
+			return;
+		}
+		else if (id.substring(0, 5) == "docs-")
+		{
+			var anchor = id.substring(5);
+			$('html, body').animate({
+				scrollTop: $( "#introduction" ).offset().top
+			}, 500);
 			return;
 		}
 		switch (id)
 		{
 		// back to the main page
 		case "backhome":
-			ROSDASH.formList = undefined;
-			ROSDASH.formItemType = undefined;
 			ROSDASH.initForm();
 			break;
 		// add a new block
@@ -109,7 +198,7 @@ ROSDASH.initForm = function ()
 				type: "button",
 				value: "Blocks",
 				name: "addblock",
-				width: 180
+				width: ROSDASH.formConfig.main
 			});
 			break;
 		// add a new constant
@@ -120,30 +209,29 @@ ROSDASH.initForm = function ()
 				type: "button",
 				value: "Constants",
 				name: "addconstant",
-				width: 180
+				width: ROSDASH.formConfig.main
 			});
 			break;
 		// add a new ros item
 		case "addROSitem":
 			ROSDASH.formList = ROSDASH.rosNames;
-			// ROSDASH.formItemType2 is needed to choose ros item
 			ROSDASH.formItemType = "addRosItem";
 			ROSDASH.showItemsInForm({
 				type: "button",
 				value: "ROS items",
 				name: "addROSitem",
-				width: 180
+				width: ROSDASH.formConfig.main
 			});
 			break;
 		// add a new widget
 		case "addwidget":
 			ROSDASH.formList = ROSDASH.widgetList;
-			ROSDASH.formItemType = "addWidgetByType";
+			ROSDASH.formItemType = "addBlockByType";
 			ROSDASH.showItemsInForm({
 				type: "button",
 				value: "Widgets",
 				name: "addwidget",
-				width: 180
+				width: ROSDASH.formConfig.main
 			});
 			break;
 		// add a new ros item from textbox
@@ -152,27 +240,46 @@ ROSDASH.initForm = function ()
 			break;
 		// show property or config of a widget or block
 		case "property":
-		case "config":
 		case "allproperty":
+		case "config":
 			ROSDASH.jsonFormType = id;
-			switch (ROSDASH.ownerConf.view_type)
+			switch (ROSDASH.dashConf.view)
 			{
 			case "panel":
 			case "editor":
-				ROSDASH.callJsonForm(ROSDASH.widgets[ROSDASH.selectedWidget]);
+				ROSDASH.loadJsonForm(ROSDASH.blocks[ROSDASH.selectedWidget].widget);
 				break;
 			case "diagram":
-				ROSDASH.callJsonForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
+				ROSDASH.loadJsonForm(ROSDASH.blocks[ROSDASH.selectedBlock]);
 				break;
 			}
 			break;
+		// show dashboard config
+		case "dashboard":
+			// create an empty form
+			ROSDASH.formList = new Object();
+			ROSDASH.formItemType = "";
+			ROSDASH.showItemsInForm({
+				type: "button",
+				value: "config",
+				name: "config",
+				width: ROSDASH.formConfig.main
+			});
+			ROSDASH.jsonFormType = "dashConf";
+			ROSDASH.loadJsonForm(ROSDASH.dashConf);
+			break;
+		// add comment block
+		case "comment":
+			var c = ROSDASH.addBlockComment();
+			if (undefined !== c)
+			{
+				window.cy.center(c);
+			}
+			break;
+		// test msgs
 		case "msgs":
 			ROSDASH.jsonFormType = id;
-			ROSDASH.callJsonForm(ROSDASH.msgTypes);
-			break;
-		case "dashboard":
-			ROSDASH.jsonFormType = "ownerConf";
-			ROSDASH.callJsonForm(ROSDASH.ownerConf);
+			ROSDASH.loadJsonForm(ROSDASH.msgTypes);
 			break;
 		default:
 			console.error("sidebar click error", id);
@@ -186,6 +293,7 @@ ROSDASH.removeForm = function ()
 	if (undefined !== ROSDASH.form)
 	{
 		var items = ROSDASH.form.getItemsList();
+		// recursively
 		for (var i in items)
 		{
 			ROSDASH.form.removeItem(items[i]);
@@ -196,7 +304,7 @@ ROSDASH.removeForm = function ()
 	ROSDASH.formClickBlockId = undefined;
 	ROSDASH.formCount = 0;
 }
-// clear the form except title
+// clear the form except title, keep parameters
 ROSDASH.clearForm = function ()
 {
 	var items = ROSDASH.form.getItemsList();
@@ -223,18 +331,19 @@ ROSDASH.showItemsInForm = function (parent)
 		type: "button",
 		value: "Home",
 		name: "backhome",
-		width: 180
+		width: ROSDASH.formConfig.main
 	}, ROSDASH.formCount);
 	// previous page button
 	if (typeof parent == "object")
 	{
 		ROSDASH.form.addItem(null, parent, ++ ROSDASH.formCount);
 	}
+	// add directory
 	ROSDASH.form.addItem(null, {
 		type: "label",
 		label: "Directories:",
 		name: "directories",
-		width: 180
+		width: ROSDASH.formConfig.main
 		}, ++ ROSDASH.formCount);
 	for (var i in ROSDASH.formList)
 	{
@@ -245,7 +354,7 @@ ROSDASH.showItemsInForm = function (parent)
 				type: "button",
 				value: i,
 				name: "dir-" + i,
-				width: 180
+				width: ROSDASH.formConfig.dir
 			}, ++ ROSDASH.formCount);
 		} else
 		{
@@ -253,7 +362,7 @@ ROSDASH.showItemsInForm = function (parent)
 				type: "label",
 				label: "Items:",
 				name: "items",
-				width: 180
+				width: ROSDASH.formConfig.item
 				}, ++ ROSDASH.formCount);
 			// add an item
 			for (var i in ROSDASH.formList["_"])
@@ -262,25 +371,28 @@ ROSDASH.showItemsInForm = function (parent)
 					type: "button",
 					value: ROSDASH.formList["_"][i],
 					name: "item-" + ROSDASH.formList["_"][i],
-					width: 180
+					width: ROSDASH.formConfig.item
 				}, ++ ROSDASH.formCount);
 			}
 		}
 	}
-	// add a ros item from textbox
+	//@note add a ros item from textbox
 	if (undefined !== parent && "addROSitem" == parent.name)
 	{
 		ROSDASH.form.addItem(null, {
 			type: "button",
 			value: "add from textbox",
 			name: "addfromtextbox",
-			width: 180
+			width: ROSDASH.formConfig.main
 		}, ++ ROSDASH.formCount);
 	}
 }
+
 // if clicking a directory
+//@todo implement parent
 ROSDASH.formClickDir = function (name, parent)
 {
+	// the second parameter for rositems
 	switch (name)
 	{
 	case "topic":
@@ -301,95 +413,99 @@ ROSDASH.formClickItem = function (name)
 {
 	// the callback function of clicking
 	var fn = ROSDASH[ROSDASH.formItemType];
-	if(typeof fn === 'function')
+	if(typeof fn != 'function')
 	{
-		switch (ROSDASH.formItemType)
-		{
-		case "addRosItem":
-			fn(name, ROSDASH.formItemType2);
-			break;
-		default:
-			fn(name);
-			break;
-		}
-		var count = 0;
-		for (var i in ROSDASH.blocks)
-		{
-			++ count;
-			if (count > 1)
-			{
-				break;
-			}
-		}
-		// if adding the first item, zoom to a good view
-		if (1 == count)
-		{
-			window.cy.fit();
-			window.cy.zoom(1.0);
-		}
-	} else
-	{
-		console.error("form click item error", ROSDASH.formItemType, typeof fn, name);
+		console.error("form click callback error", ROSDASH.formItemType, typeof fn, name);
 	}
+	// handle the second parameter for rositem
+	switch (ROSDASH.formItemType)
+	{
+	case "addRosItem":
+		fn(name, ROSDASH.formItemType2);
+		break;
+	default:
+		fn(name);
+		break;
+	}
+	var count = 0;
+	for (var i in ROSDASH.blocks)
+	{
+		++ count;
+		if (count > 1)
+		{
+			break;
+		}
+	}
+	// if adding the first item, zoom to a good view
+	if (1 == count)
+	{
+		window.cy.fit();
+		window.cy.zoom(1.0);
+	}
+
 }
 // if clicking a block or a widget
-ROSDASH.formClickBlockId = undefined;
+ROSDASH.formClickBlockId;
 ROSDASH.formClickBlock = function (id)
 {
 	// don't view in panel
-	if ("panel" == ROSDASH.ownerConf.view_type)
+	if ("panel" == ROSDASH.dashConf.view)
 	{
 		return;
 	}
+	ROSDASH.initForm();
 	// if clicking a new block, add buttons for the block
 	if (undefined === ROSDASH.formClickBlockId)
 	{
 		ROSDASH.form.addItem(null, {
 			type: "label",
-			label: "Selected Block:",
+			label: "Selected Block",
 			name: "selectedlabel",
-			width: 180
+			width: ROSDASH.formConfig.config
 			}, ++ ROSDASH.formCount);
 		ROSDASH.form.addItem(null, {
 			type: "button",
 			value: "Property",
 			name: "property",
-			width: 180
+			width: ROSDASH.formConfig.config
 			}, ++ ROSDASH.formCount);
 		ROSDASH.form.addItem(null, {
 			type: "button",
 			value: "Config",
 			name: "config",
-			width: 180
+			width: ROSDASH.formConfig.config
 			}, ++ ROSDASH.formCount);
 		ROSDASH.form.addItem(null, {
 			type: "button",
 			value: "All Properties",
 			name: "allproperty",
-			width: 180
+			width: ROSDASH.formConfig.config
 			}, ++ ROSDASH.formCount);
 	}
 	ROSDASH.formClickBlockId = id;
 	var show;
-	switch (ROSDASH.ownerConf.view_type)
+	switch (ROSDASH.dashConf.view)
 	{
 	case "panel":
 	case "editor":
-		show = ROSDASH.widgets[id];
+		show = ROSDASH.blocks[id].widget;
 		break;
 	case "diagram":
 		show = ROSDASH.blocks[id];
 		break;
 	}
 	// show in jsoneditor
-	ROSDASH.callJsonForm(show);
+	ROSDASH.loadJsonForm(show);
 }
 
-// sidebar json form by FlexiJsonEditor
+
+/////////////////////////////////////  sidebar json form by FlexiJsonEditor
+
+
 // form type
 ROSDASH.jsonFormType = "property";
 // a json form for block or widget
-ROSDASH.callJsonForm = function (block)
+ROSDASH.loadJsonForm = function (block)
 {
 	if (undefined === block)
 	{
@@ -400,7 +516,7 @@ ROSDASH.callJsonForm = function (block)
 	{
 	// for selective property of block
 	case "property":
-		switch (ROSDASH.ownerConf.view_type)
+		switch (ROSDASH.dashConf.view)
 		{
 		case "panel":
 		case "editor":
@@ -413,11 +529,11 @@ ROSDASH.callJsonForm = function (block)
 		break;
 	// for config of block
 	case "config":
-		switch (ROSDASH.ownerConf.view_type)
+		switch (ROSDASH.dashConf.view)
 		{
 		case "panel":
 		case "editor":
-			json = block.config;
+			json = ROSDASH.blocks[block.widgetId].config;
 			break;
 		case "diagram":
 			json = block.config;
@@ -432,7 +548,7 @@ ROSDASH.callJsonForm = function (block)
 		break;
 	// for all property of block
 	case "allproperty":
-		switch (ROSDASH.ownerConf.view_type)
+		switch (ROSDASH.dashConf.view)
 		{
 		case "panel":
 		case "editor":
@@ -453,7 +569,7 @@ ROSDASH.callJsonForm = function (block)
 		}
 		break;
 	}
-	$('#jsoneditor').jsonEditor(json,
+	$('#jsonsidebar').jsonEditor(json,
 	{
 		change: ROSDASH.updateJsonForm,
 		propertyclick: null
@@ -465,7 +581,7 @@ ROSDASH.updateJsonForm = function (data)
 	switch (ROSDASH.jsonFormType)
 	{
 	case "property":
-		switch (ROSDASH.ownerConf.view_type)
+		switch (ROSDASH.dashConf.view)
 		{
 		case "panel":
 		case "editor":
@@ -473,7 +589,7 @@ ROSDASH.updateJsonForm = function (data)
 			// save changed data to widget
 			for (var i in data)
 			{
-				ROSDASH.widgets[ROSDASH.selectedWidget][i] = data[i];
+				ROSDASH.blocks[ROSDASH.selectedWidget].widget[i] = data[i];
 			}
 			break;
 		case "diagram":
@@ -488,21 +604,20 @@ ROSDASH.updateJsonForm = function (data)
 		break;
 	// save changed data to config
 	case "config":
-		switch (ROSDASH.ownerConf.view_type)
+		switch (ROSDASH.dashConf.view)
 		{
 		case "panel":
 		case "editor":
-			ROSDASH.widgets[ROSDASH.selectedWidget].config = data;
+			ROSDASH.blocks[ROSDASH.selectedWidget].widget.config = data;
 			break;
 		case "diagram":
 			ROSDASH.blocks[ROSDASH.selectedBlock].config = data;
 			break;
 		}
 		break;
-	// save changed data to ownerConf
-	case "ownerConf":
-		ROSDASH.ownerConf = data;
-		ROSDASH.saveJson(ROSDASH.ownerConf, "file/" + ROSDASH.ownerConf.name + "/conf.json");
+	// save changed data to dashboardConf
+	case "dashConf":
+		ROSDASH.dashConf = data;
 		break;
 	default:
 		console.error("You cannot make changes to that", ROSDASH.jsonFormType, data);
@@ -513,25 +628,26 @@ ROSDASH.updateJsonForm = function (data)
 // if change json form in panel or editor, show that immediately
 ROSDASH.callbackUpdatePanelForm = function (data)
 {
+	var widget = ROSDASH.blocks[ROSDASH.selectedWidget].widget;
 	// update widget title
-	if (("widgetTitle" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].widgetTitle != data.widgetTitle)
+	if (("widgetTitle" in data) && widget.widgetTitle != data.widgetTitle)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetHeader span.header").html(data.widgetTitle);
 	}
 	// update height or width
-	if (("width" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].width != data.width)
+	if (("width" in data) && widget.width != data.width)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget").width(parseFloat(data.width));
 	}
-	if (("height" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].height != data.height)
+	if (("height" in data) && widget.height != data.height)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget").height(parseFloat(data.height));
 	}
-	if (("content_height" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].content_height != data.content_height)
+	if (("content_height" in data) && widget.content_height != data.content_height)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetContent").height(parseFloat(data.height));
 	}
-	if (("header_height" in data) && ROSDASH.widgets[ROSDASH.selectedWidget].header_height != data.header_height)
+	if (("header_height" in data) && widget.header_height != data.header_height)
 	{
 		$("li#" + ROSDASH.selectedWidget + " div.sDashboardWidget div.sDashboardWidgetHeader").height(parseFloat(data.height));
 	}
@@ -558,30 +674,25 @@ ROSDASH.callbackUpdateDiagramForm = function (data)
 	}
 }
 
-// init the entire sidebar
-ROSDASH.initSidebar = function ()
-{
-	ROSDASH.initForm();
-}
-
 
 ///////////////////////////////////// toolbars (dhtmlXToolbar)
 
 
 // toolbar on the top
 ROSDASH.toolbar;
-ROSDASH.toolbarCanvas = "toolbarObj";
+ROSDASH.toolbarCanvas = "toolbar";
 
 // init the toolbar for panel
-ROSDASH.initToolbar = function ()
+ROSDASH.initToolbar = function (canvas)
 {
-	if ($("#toolbarObj").length <= 0)
+	canvas = canvas || "toolbar";
+	if ($("#" + canvas).length <= 0)
 	{
-		console.error("toolbar not ready ", "#toolbarObj");
+		console.error("toolbar canvas error", canvas);
 		return;
 	}
 	// default settings for toolbar
-	ROSDASH.toolbar = new dhtmlXToolbarObject("toolbarObj");
+	ROSDASH.toolbar = new dhtmlXToolbarObject(canvas);
 	ROSDASH.toolbar.setIconSize(32);
 	ROSDASH.toolbar.setIconsPath("lib/dhtmlxSuite/dhtmlxToolbar/samples/common/imgs/");
 	// onclick event for each button in toolbar
@@ -591,7 +702,7 @@ ROSDASH.initToolbar = function ()
 		{
 		// back to main view of toolbar
 		case "main":
-			switch (ROSDASH.ownerConf.view_type)
+			switch (ROSDASH.dashConf.view)
 			{
 			case "panel":
 				ROSDASH.resetPanelToolbar();
@@ -618,21 +729,19 @@ ROSDASH.initToolbar = function ()
 			break;
 		// go to owner's page
 		case "owner":
-			window.open('panel.html?owner=' + ROSDASH.ownerConf.name, "_blank");
 			break;
 		// connect with ROS
 		case "connect":
-			//ROSDASH.connectROS(ROSDASH.toolbar.getValue("input"));
-			window.open('panel.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.toolbar.getValue("input") + '&port=9090', "_blank");
+			ROSDASH.connectROS(ROSDASH.toolbar.getValue("input"));
+			//window.open('index.html?owner=' + ROSDASH.dashConf.name + '&panel=' + ROSDASH.dashConf.name + '&host=' + ROSDASH.toolbar.getValue("input") + '&port=9090', "_blank");
 			break;
 		// find a widget or block
 		case "find":
-			switch (ROSDASH.ownerConf.view_type)
+			switch (ROSDASH.dashConf.view)
 			{
 			case "panel":
 			case "editor":
-				//@todo
-				console.log("find");
+				ROSDASH.findWidget(ROSDASH.toolbar.getValue("input"));
 				break;
 			case "diagram":
 				ROSDASH.findBlock(ROSDASH.toolbar.getValue("input"));
@@ -641,7 +750,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// save to json file
 		case "save":
-			switch (ROSDASH.ownerConf.view_type)
+			switch (ROSDASH.dashConf.view)
 			{
 			case "panel":
 			case "editor":
@@ -654,7 +763,7 @@ ROSDASH.initToolbar = function ()
 			break;
 		// remove a widget or block
 		case "remove":
-			switch (ROSDASH.ownerConf.view_type)
+			switch (ROSDASH.dashConf.view)
 			{
 			case "panel":
 			case "editor":
@@ -691,60 +800,54 @@ ROSDASH.initToolbar = function ()
 			break;
 		// download json
 		case "download":
-			var url = 'file/' + ROSDASH.ownerConf.name + "/" + ROSDASH.ownerConf.panel_name + "-";   
-			switch (ROSDASH.ownerConf.view_type)
-			{
-			case "panel":
-			case "editor":
-				url += "panel";
-				break;
-			case "diagram":
-				url += "diagram";
-				break;
-			} 
-			url += ".json";
-			window.open(url, 'Download');  
+			ROSDASH.downloadJson(ROSDASH.getDashJson());
 			break;
-		// open the corresponding diagram
-		case "diagram":
-			var url = 'diagram.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port;
-			// if an item is selected, diagram should focus on that
-			if (undefined !== ROSDASH.selectedWidget)
-			{
-				url += '&selected=' + ROSDASH.selectedWidget;
-			}
-			window.open(url);
+		case "upload":
 			break;
-		// open the corresponding panel
+		// switch the corresponding page
+		case "dashboard":
 		case "panel":
-			var url = 'panel.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port;
-			// if an item is selected, diagram should focus on that
-			if (undefined !== ROSDASH.selectedWidget)
-			{
-				url += '&selected=' + ROSDASH.selectedWidget;
-			}
-			window.open(url);
+			ROSDASH.showView(ROSDASH.dashConf.view, "panel");
 			break;
-		// open the corresponding editor
+		case "diagram":
 		case "editor":
-			var url = 'editor.html?owner=' + ROSDASH.ownerConf.name + '&panel=' + ROSDASH.ownerConf.panel_name + '&host=' + ROSDASH.ownerConf.ros_host + '&port=' + ROSDASH.ownerConf.ros_port;
-			// if an item is selected, diagram should focus on that
-			if (undefined !== ROSDASH.selectedWidget)
-			{
-				url += '&selected=' + ROSDASH.selectedWidget;
-			}
-			window.open(url);
+		case "json":
+		case "docs":
+			ROSDASH.showView(ROSDASH.dashConf.view, id);
 			break;
-		case "jsoneditor":
-			var url = 'jsoneditor.html?owner=' + ROSDASH.ownerConf.name;
-			window.open(url);
+		case "run":
+			// remove sidebar
+			$("#sidebar").hide("slide", { direction: "left" }, 500);
+			$("#canvas").css("left", "0px");
+			switch (ROSDASH.runStatus)
+			{
+			case "uninitialized":
+			case "stop":
+				//@todo
+				ROSDASH.parseDiagram( ROSDASH.getDashJson() );
+				ROSDASH.runPanel();
+				break;
+			case "pause":
+			case "paused":
+				ROSDASH.runWidgets();
+				break;
+			}
+			break;
+		case "pause":
+			ROSDASH.runStatus = "pause";
+			break;
+		case "stop":
+			ROSDASH.runStatus = "stop";
+			// show sidebar
+			$("#canvas").css("left", "160px");
+			$("#sidebar").show("slide", { direction: "left" }, 500);
 			break;
 		default:
-			console.error("unknown button in toolbar: ", id);
+			console.error("unknown button in toolbar", id);
 			break;
 		}
 	});
-	switch (ROSDASH.ownerConf.view_type)
+	switch (ROSDASH.dashConf.view)
 	{
 	case "panel":
 		ROSDASH.resetPanelToolbar();
@@ -754,6 +857,12 @@ ROSDASH.initToolbar = function ()
 		break;
 	case "diagram":
 		ROSDASH.resetDiagramToolbar();
+		break;
+	case "json":
+		ROSDASH.resetJsonToolbar();
+		break;
+	default:
+		ROSDASH.resetDefaultToolbar();
 		break;
 	}
 }
@@ -766,28 +875,38 @@ ROSDASH.resetPanelToolbar = function ()
 		ROSDASH.toolbar.removeItem(itemId);
 	});
 	var count = 0;
-	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addButton("user", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "logo.jpg", "logo.jpg");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
-	var ros_host = (undefined !== ROSDASH.ownerConf.ros_host && "" != ROSDASH.ownerConf.ros_host) ? ROSDASH.ownerConf.ros_host : "disconnected";
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.dashConf.name);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	var ros_host = (undefined !== ROSDASH.dashConf.host && "" != ROSDASH.dashConf.host) ? ROSDASH.dashConf.host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addInput("input", ++ count, "", 160);
-	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
-	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addButton("zindex", ++ count, "zindex", "database.gif", "database.gif");
+	ROSDASH.toolbar.addButton("panel", ++ count, "<strong>panel</strong>", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
+	var jsonicon = ROSDASH.dashChanged ? '<font color="red">json</font>' : "json";
+	ROSDASH.toolbar.addButton("json", ++ count, jsonicon, "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("download", ++ count, "download", "database.gif", "database.gif");
-	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "database.gif", "database.gif");
-	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "database.gif", "database.gif");
-	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
+	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
+	ROSDASH.toolbar.addButton("run", ++ count, "run", "settings.gif", "settings.gif");
+	ROSDASH.toolbar.addButton("pause", ++ count, "pause", "settings.gif", "settings.gif");
+	ROSDASH.toolbar.addButton("stop", ++ count, "stop", "settings.gif", "settings.gif");
+	ROSDASH.toolbar.addButton("zindex", ++ count, "overlay", "settings.gif", "settings.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addInput("input", ++ count, "", 100);
+	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addButton("remove", ++ count, "remove", "remove-icon.gif", "remove-icon.gif");
+	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
+	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 }
-// reset the toolbar for editor
+//@deprecated reset the toolbar for editor
 ROSDASH.resetEditorToolbar = function ()
 {
 	// remove previous items
@@ -796,104 +915,143 @@ ROSDASH.resetEditorToolbar = function ()
 		ROSDASH.toolbar.removeItem(itemId);
 	});
 	var count = 0;
-	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addButton("user", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "logo.jpg", "logo.jpg");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
-	var ros_host = (undefined !== ROSDASH.ownerConf.ros_host && "" != ROSDASH.ownerConf.ros_host) ? ROSDASH.ownerConf.ros_host : "disconnected";
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.dashConf.name);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	var ros_host = (undefined !== ROSDASH.dashConf.host && "" != ROSDASH.dashConf.host) ? ROSDASH.dashConf.host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
-	ROSDASH.toolbar.addText("saving", ++ count, "unchanged");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addInput("input", ++ count, "", 160);
-	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "new.gif", "new_dis.gif");
+	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
+	var jsonicon = ROSDASH.dashChanged ? '<font color="red">json</font>' : "json";
+	ROSDASH.toolbar.addButton("json", ++ count, jsonicon, "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addInput("input", ++ count, "", 100);
 	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addButton("remove", ++ count, "remove", "remove-icon.gif", "remove-icon.gif");
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
-	ROSDASH.toolbar.addButton("zindex", ++ count, "zindex", "database.gif", "database.gif");
-	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
-	// if you are not the owner, cannot save
-	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name && "@@sudo@@" != ROSDASH.userConf.name)
-	{
-		ROSDASH.toolbar.disableItem("save");
-	}
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
-
-	ROSDASH.toolbar.addButton("download", ++ count, "download", "database.gif", "database.gif");
-	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
-	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "database.gif", "database.gif");
-	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
 }
 // reset the items in the toolbar for diagram
 ROSDASH.resetDiagramToolbar = function ()
+{
+	ROSDASH.toolbar.forEachItem(function (itemId)
+	{
+		ROSDASH.toolbar.removeItem(itemId);
+	});
+	var count = 0;
+	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "logo.jpg", "logo.jpg");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.dashConf.name);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	var ros_host = (undefined !== ROSDASH.dashConf.host && "" != ROSDASH.dashConf.host) ? ROSDASH.dashConf.host : "disconnected";
+	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("diagram", ++ count, "<strong>diagram</strong>", "copy.gif", "copy.gif");
+	var jsonicon = ROSDASH.dashChanged ? '<font color="red">json</font>' : "json";
+	ROSDASH.toolbar.addButton("json", ++ count, jsonicon, "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addInput("input", ++ count, "", 30);
+	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addButton("remove", ++ count, "remove", "remove-icon.gif", "remove-icon.gif");
+	ROSDASH.toolbar.addButton("addcomment", ++ count, "add comment", "new.gif", "new_dis.gif");
+	ROSDASH.toolbar.addButton("fit", ++ count, "fit", "stylesheet.gif", "stylesheet.gif");
+	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
+	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+}
+// json page toolbar
+ROSDASH.resetJsonToolbar = function ()
 {
 	ROSDASH.toolbar.forEachItem(function(itemId)
 	{
 		ROSDASH.toolbar.removeItem(itemId);
 	});
 	var count = 0;
-	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addButton("user", ++ count, "Guest", "cut.gif", "cut_dis.gif");
+	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "logo.jpg", "logo.jpg");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("owner", ++ count, ROSDASH.ownerConf.name, "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.ownerConf.panel_name);
-	var ros_host = (undefined !== ROSDASH.ownerConf.ros_host && "" != ROSDASH.ownerConf.ros_host) ? ROSDASH.ownerConf.ros_host : "disconnected";
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.dashConf.name);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	var ros_host = (undefined !== ROSDASH.dashConf.host && "" != ROSDASH.dashConf.host) ? ROSDASH.dashConf.host : "disconnected";
 	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
-	ROSDASH.toolbar.addText("saving", ++ count, "unchanged");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addInput("input", ++ count, "", 160);
-	ROSDASH.toolbar.addButton("connect", ++ count, "connect", "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addButton("addcomment", ++ count, "add comment", "new.gif", "new_dis.gif");
-	ROSDASH.toolbar.addButton("remove", ++ count, "remove", "remove-icon.gif", "remove-icon.gif");
+	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("json", ++ count, "<strong>json</strong>", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
-	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
-	ROSDASH.toolbar.addButton("save", ++ count, "save", "save.gif", "save_dis.gif");
-	if (ROSDASH.userConf.name != ROSDASH.ownerConf.name && "@@sudo@@" != ROSDASH.userConf.name)
+	var jsonicon = ROSDASH.dashChanged ? '<font color="red">changed</font>' : "unchanged";
+	ROSDASH.toolbar.addText("jsonchanged", ++ count, jsonicon);
+	ROSDASH.toolbar.addButton("download", ++ count, "download", "text_document.gif", "text_document.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+}
+// json page toolbar
+ROSDASH.resetDefaultToolbar = function ()
+{
+	ROSDASH.toolbar.forEachItem(function(itemId)
 	{
-		ROSDASH.toolbar.disableItem("save");
-	}
-	ROSDASH.toolbar.addButton("fit", ++ count, "fit", "stylesheet.gif", "stylesheet.gif");
+		ROSDASH.toolbar.removeItem(itemId);
+	});
+	var count = 0;
+	ROSDASH.toolbar.addButton("logo", count, "ROSDASH", "logo.jpg", "logo.jpg");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 
-	ROSDASH.toolbar.addButton("download", ++ count, "download", "database.gif", "database.gif");
-	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "database.gif", "database.gif");
-	ROSDASH.toolbar.addButton("editor", ++ count, "editor", "database.gif", "database.gif");
-	ROSDASH.toolbar.addButton("jsoneditor", ++ count, "json editor", "database.gif", "database.gif");
+	ROSDASH.toolbar.addText("panelname", ++ count, ROSDASH.dashConf.name);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	var ros_host = (undefined !== ROSDASH.dashConf.host && "" != ROSDASH.dashConf.host) ? ROSDASH.dashConf.host : "disconnected";
+	ROSDASH.toolbar.addText("ros", ++ count, ros_host);
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
+
+	ROSDASH.toolbar.addButton("panel", ++ count, "panel", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("diagram", ++ count, "diagram", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("json", ++ count, "json", "copy.gif", "copy.gif");
+	ROSDASH.toolbar.addButton("docs", ++ count, "docs", "page_range.gif", "page_range.gif");
+	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
 }
 
-// add user name to toolbar. called when json files are ready
+//@deprecated add user name to toolbar. called when json files are ready
 ROSDASH.addToolbarUserName = function ()
 {
-	if ($("#toolbarObj").length > 0)
+	if ($("#toolbar").length <= 0)
 	{
-		var user_text = ROSDASH.userConf.name;
-		if ("Guest" != ROSDASH.userConf.name)
-		{
-			//@todo logout
-			//user_text = '<a href="panel.html?owner=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>(<a href="panel.html?status=logout">logout</a>)';
-		}
-		// add to toolbar
-		ROSDASH.toolbar.setItemText("user", user_text);
+		return;
 	}
+	var user_text = ROSDASH.userConf.name;
+	if ("Guest" != ROSDASH.userConf.name)
+	{
+		//user_text = '<a href="panel.html?owner=' + ROSDASH.userConf.name + '" target="_blank">' + ROSDASH.userConf.name + '</a>(<a href="panel.html?status=logout">logout</a>)';
+	}
+	// add to toolbar
+	ROSDASH.toolbar.setItemText("user", user_text);
 }
-ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarUserName);
+//ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarUserName);
 // add panel name to toolbar. called when json files are ready
 ROSDASH.addToolbarPanelName = function ()
 {
 	// add to HTML title
-	$('title').text($('title').text() + " - " + ROSDASH.ownerConf.name + " - " + ROSDASH.ownerConf.panel_name);
-	if ($("#toolbarObj").length > 0)
+	$('title').text($('title').text() + " - " + ROSDASH.dashConf.name);
+	if ($("#toolbar").length > 0)
 	{
 		// add to toolbar
-		ROSDASH.toolbar.setItemText("owner", ROSDASH.ownerConf.name);
-		ROSDASH.toolbar.setItemText("panelname", ROSDASH.ownerConf.panel_name);
+		ROSDASH.toolbar.setItemText("panelname", ROSDASH.dashConf.name);
 	}
 }
 ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarPanelName);
@@ -901,31 +1059,32 @@ ROSDASH.ee.addListener("jsonReady", ROSDASH.addToolbarPanelName);
 ROSDASH.addToolbarRosValue = function ()
 {
 	// add to HTML title
-	$('title').text($('title').text() + " - " + ROSDASH.ownerConf.ros_host);
-	if ($("#toolbarObj").length > 0)
+	$('title').text($('title').text() + " - " + ROSDASH.dashConf.host);
+	if ($("#toolbar").length > 0)
 	{
 		// add to toolbar
-		ROSDASH.toolbar.setItemText("ros", ROSDASH.ownerConf.ros_host);
+		ROSDASH.toolbar.setItemText("ros", ROSDASH.dashConf.host);
 	}
 }
 
 // when changes, notify user
 ROSDASH.onChange = function ()
 {
-	if (undefined === ROSDASH.toolbar || "panel" == ROSDASH.ownerConf.view_type)
+	ROSDASH.dashChanged = true;
+	if (undefined === ROSDASH.toolbar || "panel" == ROSDASH.dashConf.view)
 	{
 		return;
 	}
-	ROSDASH.toolbar.setItemText("saving", '<font color="red">unsaved</font>');
+	ROSDASH.toolbar.setItemText("json", '<font color="red">json</font>');
 }
 ROSDASH.ee.addListener("change", ROSDASH.onChange);
 // when saves, notify user
 ROSDASH.onSave = function ()
 {
-	if (undefined === ROSDASH.toolbar || "panel" == ROSDASH.ownerConf.view_type)
+	if (undefined === ROSDASH.toolbar || "panel" == ROSDASH.dashConf.view)
 	{
 		return;
 	}
 	ROSDASH.toolbar.setItemText("saving", 'saved');
 }
-ROSDASH.ee.addListener("saved", ROSDASH.onSave);
+ROSDASH.ee.addListener("saveJson", ROSDASH.onSave);

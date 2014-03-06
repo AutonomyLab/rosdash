@@ -3,6 +3,21 @@
 "version": "0.1",
 "widgets": [
 	{
+		"type": "constant",
+		"descrip": "A constant value",
+		"category": [
+				"datatypes"
+		],
+		"class_name": "ROSDASH.Constant",
+		"input": [],
+		"output": [
+				{
+						"datatype": "universal",
+						"name": "value",
+						"attribute": "compulsory"
+				}
+		]
+	}, {
 		"type": "multiArray",
 		"descrip": "An array consisting of several data",
 		"category": [
@@ -416,7 +431,7 @@
 		"has_panel": "true",
 		"class_name": "ROSDASH.Text",
 		"config": {
-			"title": "false",
+			"title": "",
 			"cacheable": "false"
 		},
 		"input": [
@@ -542,19 +557,6 @@
 				"name": "cy"
 			}
 		],
-		"js": [
-			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
-		]
-	}, {
-		"type": "cyDiagram",
-		"descrip": "rosdash diagram by cytoscape.js",
-		"category": [
-			"network"
-		],
-		"class_name": "ROSDASH.cyDiagram",
-		"has_panel": "true",
-		"input": [],
-		"output": [],
 		"js": [
 			"lib/cytoscape.js-2.0.2/cytoscape.min.js"
 		]
