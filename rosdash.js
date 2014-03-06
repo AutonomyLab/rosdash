@@ -695,7 +695,7 @@ ROSDASH.checkMsgTypeValid = function (name)
 
 // the data list from json files
 ROSDASH.jsonLoadList = new Object();
-ROSDASH.frontpageJson = 'data/output.json';
+ROSDASH.frontpageJson = 'data/network.json';
 // init loading msg type and widget definitions from json files
 ROSDASH.initJson = function ()
 {
@@ -1059,7 +1059,7 @@ ROSDASH.addWidgetByType = function (name, num)
 		widgetType : name,
 		widgetContent : undefined,
 		// set the position of new widget as 0
-		pos : 0,
+		order : 0,
 		width: ("width" in ROSDASH.blockDef[name]) ? ROSDASH.blockDef[name].width : ROSDASH.dashConf.widget_width,
 		height: ("height" in ROSDASH.blockDef[name]) ? ROSDASH.blockDef[name].height : ROSDASH.dashConf.widget_height,
 		header_height: ROSDASH.dashConf.header_height,
@@ -1075,6 +1075,9 @@ ROSDASH.addWidgetByType = function (name, num)
 		}
 		++ ROSDASH.blocks[i].widget.pos;
 	}
+	//@todo
+	ROSDASH.initConnection(widget.widgetId);
+	ROSDASH.connection[widget.widgetId].exist = true;
 	ROSDASH.addWidget(widget);
 	ROSDASH.ee.emitEvent('change');
 }
@@ -1084,9 +1087,12 @@ ROSDASH.addWidget = function (def)
 	// save the definition of this widget
 	if (undefined === ROSDASH.blocks[def.widgetId])
 	{
-		ROSDASH.blocks[def.widgetId] = new Object();
+		ROSDASH.blocks[def.widgetId] = def;
+		ROSDASH.blocks[def.widgetId].title = def.widgetTitle;
+		ROSDASH.blocks[def.widgetId].id = def.widgetId;
+		ROSDASH.blocks[def.widgetId].type = def.widgetType;
 	}
-	ROSDASH.blocks[def.widgetId].widget = def;
+	ROSDASH.blocks[def.widgetId].has_panel = true;
 	//def = ROSDASH.setWidgetContent(def);
 	// fail to set content
 	if (undefined === def)
@@ -1094,6 +1100,7 @@ ROSDASH.addWidget = function (def)
 		return;
 	}
 	$("#panel").sDashboard("addWidget", def);
+	ROSDASH.initWidget(def.widgetId);
 	ROSDASH.ee.emitEvent('addWidget');
 }
 // set the value of widget content
@@ -1498,8 +1505,6 @@ ROSDASH.parseDiagram = function (diagram)
 		}
 		// validate the existence of the block
 		ROSDASH.connection[i].exist = true;
-		// load required files, i.e. js, css, etc.
-		ROSDASH.initWidget(i);
 	}
 	//setTimeout(ROSDASH.waitLoadJs, 300);
 }
@@ -1527,6 +1532,7 @@ ROSDASH.initConnection = function (id)
 			duplicate : false,
 			// if allow cache
 			cacheable : false,
+			block : ROSDASH.blocks[id],
 		};
 	}
 }

@@ -1,19 +1,11 @@
 {"name":"index","discrip":"","view":"editor","host":"","port":"","require":[],"js":[],"css":[],"json":[],"disable_selection":true,"run_msec":200,"widget_width":400,"widget_height":230,"header_height":16,"content_height":180,"date":"Sat Feb 08 2014 17:06:27 GMT-0800 (PST)",
 
-"widgets":{
-
-"cyNetwork-0":{
-"widgetTitle":"cyNetwork 0","widgetId":"cyNetwork-0","number":0,"widgetType":"cyNetwork","pos":2,"width":400,"height":230,"header_height":16,"content_height":180},
-
-"arborNetwork-0":{"widgetTitle":"arborNetwork 0","widgetId":"arborNetwork-0","number":0,"widgetType":"arborNetwork","pos":1,"width":400,"height":230,"header_height":16,"content_height":180},
-
-"draculaNetwork-0":{"widgetTitle":"draculaNetwork 0","widgetId":"draculaNetwork-0","number":0,"widgetType":"draculaNetwork","pos":0,"width":400,"height":230,"header_height":16,"content_height":180}},
 
 "block":{
-"cyNetwork-0":{"type":"cyNetwork","list_name":"cyNetwork","input":[{"datatype":"Object","name":"cyLoadOnce"}],"output":[{"datatype":"Object","name":"cy"}],"config":{"title":"","cacheable":false},"x":936.6746466959133,"y":243.29211602491256,"number":0,"id":"cyNetwork-0","name":"cyNetwork 0"},
+"cyNetwork-0":{"type":"cyNetwork","list_name":"cyNetwork","input":[{"datatype":"Object","name":"cyLoadOnce"}],"output":[{"datatype":"Object","name":"cy"}],"config":{"title":"","cacheable":false},"x":936.6746466959133,"y":243.29211602491256,"number":0,"id":"cyNetwork-0","name":"cyNetwork 0","order":2,"width":400,"height":230,"header_height":16,"content_height":180,"has_panel":"true"},
 
-"arborNetwork-0":{"type":"arborNetwork","list_name":"arborNetwork","input":[],"output":[{"datatype":"Object","name":"arborNetwork"}],"config":{"title":"","cacheable":false},"x":879.3272193471839,"y":76.46323646497252,"number":0,"id":"arborNetwork-0","name":"arborNetwork 0"},
+"arborNetwork-0":{"type":"arborNetwork","list_name":"arborNetwork","input":[],"output":[{"datatype":"Object","name":"arborNetwork"}],"config":{"title":"","cacheable":false},"x":879.3272193471839,"y":76.46323646497252,"number":0,"id":"arborNetwork-0","name":"arborNetwork 0","order":1,"width":400,"height":230,"header_height":16,"content_height":180,"has_panel":"true"},
 
-"draculaNetwork-0":{"type":"draculaNetwork","list_name":"draculaNetwork","input":[],"output":[{"datatype":"Object","name":"draculaNetwork"}],"config":{"title":"","cacheable":false},"x":863.6870118884397,"y":-45.18282154748376,"number":0,"id":"draculaNetwork-0","name":"draculaNetwork 0"}
+"draculaNetwork-0":{"type":"draculaNetwork","list_name":"draculaNetwork","input":[],"output":[{"datatype":"Object","name":"draculaNetwork"}],"config":{"title":"","cacheable":false},"x":863.6870118884397,"y":-45.18282154748376,"number":0,"id":"draculaNetwork-0","name":"draculaNetwork 0","order":0,"width":400,"height":230,"header_height":16,"content_height":180,"has_panel":"true"}
 },
 "edge":[]}
