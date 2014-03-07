@@ -75,6 +75,14 @@ ROSDASH.loadDiagram = function (json)
 		}, 10);
 		return;
 	}
+	ROSDASH.blocks = new Object();
+	for (var i in ROSDASH.blockDef)
+	{
+		if ("count" in ROSDASH.blockDef[i])
+		{
+			ROSDASH.blockDef[i].count = 0;
+		}
+	}
 	// load blocks
 	for (var i in json.block)
 	{
@@ -446,7 +454,18 @@ ROSDASH.getBlockNum = function (block, block_type)
 // get a suitable name displayed in diagram
 ROSDASH.getDisplayName = function (block)
 {
-	var display_name = block.name;
+	var display_name;
+	if (undefined !== block.name)
+	{
+		display_name = block.name;
+	}
+	else if (undefined !== block.title)
+	{
+		display_name = block.title;
+	} else
+	{
+		display_name = block.type;
+	}
 	switch (block.type)
 	{
 	case "constant":

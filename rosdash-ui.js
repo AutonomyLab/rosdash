@@ -767,7 +767,7 @@ ROSDASH.initToolbar = function (canvas)
 			{
 			case "panel":
 			case "editor":
-				console.warning("Please click x on the widget to remove.");
+				console.warn("Please click x on the widget to remove.");
 				break;
 			case "diagram":
 				ROSDASH.removeBlock(ROSDASH.toolbar.getValue("input"));
@@ -901,7 +901,6 @@ ROSDASH.resetPanelToolbar = function ()
 
 	ROSDASH.toolbar.addInput("input", ++ count, "", 100);
 	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addButton("remove", ++ count, "remove", "remove-icon.gif", "remove-icon.gif");
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
@@ -934,7 +933,6 @@ ROSDASH.resetEditorToolbar = function ()
 
 	ROSDASH.toolbar.addInput("input", ++ count, "", 100);
 	ROSDASH.toolbar.addButton("find", ++ count, "find", "cut.gif", "cut_dis.gif");
-	ROSDASH.toolbar.addButton("remove", ++ count, "remove", "remove-icon.gif", "remove-icon.gif");
 	ROSDASH.toolbar.addButton("undo", ++ count, "undo", "undo.gif", "undo_dis.gif");
 	ROSDASH.toolbar.addButton("redo", ++ count, "redo", "redo.gif", "redo_dis.gif");
 	ROSDASH.toolbar.addSeparator("s" + count, ++ count);
