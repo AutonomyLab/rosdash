@@ -67,9 +67,7 @@ ROSDASH.loadDash = function ()
 	});
 	ROSDASH.dashBindEvent("panel");
 	// show it
-	$("#panel").css("visibility", "visible");
-	// fade in
-	$("#panel").fadeIn("slow");
+	$("#panel").hide().css({visibility: "inherit"}).fadeIn("slow");
 
 	$("#cy").empty();
 	// create an empty cytoscape diagram
@@ -127,9 +125,7 @@ ROSDASH.showView = function (from, to)
 	if (undefined !== from_canvas)
 	{
 		// hide it
-		$("#" + from_canvas).css("visibility", "hidden");
-		// fade out
-		$("#" + from_canvas).fadeOut("slow");
+		$("#" + from_canvas).css({visibility: "hidden"}).fadeOut("slow");
 	}
 	var to_canvas;
 	// show the new view
@@ -164,9 +160,7 @@ ROSDASH.showView = function (from, to)
 	if (undefined !== to_canvas)
 	{
 		// show it
-		$("#" + to_canvas).css("visibility", "inherit");
-		// fade in
-		$("#" + to_canvas).fadeIn("slow");
+		$("#" + to_canvas).hide().css({visibility: "inherit"}).fadeIn("slow");
 	}
 	// switch to new view type
 	ROSDASH.dashConf.view = to;
@@ -701,18 +695,20 @@ ROSDASH.initJson = function ()
 {
 	ROSDASH.loadMsgJson();
 	ROSDASH.loadBlockFiles(ROSDASH.blockFiles);
-	// load the frontpage from json file
-	ROSDASH.loadJson(ROSDASH.frontpageJson, function (json)
-	{
-		//@todo
-		//ROSDASH.connectROS(ROSDASH.dashConf.host, ROSDASH.dashConf.port);
-		// load diagram
-		ROSDASH.loadDiagram(json);
-		// parse diagrma for loading panel
-		ROSDASH.parseDiagram(json);
-		ROSDASH.loadPanel(ROSDASH.blocks);
-	});
-	ROSDASH.waitJson();
+	setTimeout(function () {
+		// load the frontpage from json file
+		ROSDASH.loadJson(ROSDASH.frontpageJson, function (json)
+		{
+			//@todo
+			//ROSDASH.connectROS(ROSDASH.dashConf.host, ROSDASH.dashConf.port);
+			// load diagram
+			ROSDASH.loadDiagram(json);
+			// parse diagrma for loading panel
+			ROSDASH.parseDiagram(json);
+			ROSDASH.loadPanel(ROSDASH.blocks);
+		});
+		ROSDASH.waitJson();
+	}, 300);
 }
 
 // status if all json loading are ready
